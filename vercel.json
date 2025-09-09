@@ -2,17 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/main.jsx",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
       }
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
     }
   ],
+  "functions": {
+    "api/webhook.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/webapp.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "routes": [
     {
       "src": "/api/(.*)",
