@@ -1,6 +1,6 @@
-const TelegramBot = require('node-telegram-bot-api');
+import TelegramBot from 'node-telegram-bot-api';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // Разрешаем CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
 
   try {
     const token = process.env.TELEGRAM_BOT_TOKEN;
-    const webAppUrl = process.env.WEBAPP_URL || 'https://your-app.vercel.app';
+    const webAppUrl = process.env.WEBAPP_URL || 'https://southbeat-bot.vercel.app';
     
     if (!token) {
       console.error('TELEGRAM_BOT_TOKEN не найден');
@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
         const keyboard = {
           inline_keyboard: [[
             {
-              text: '🎯 Начать игру SotheBEAT!',
+              text: '�� Начать игру SotheBEAT!',
               web_app: { url: webAppUrl }
             }
           ]]
@@ -56,4 +56,4 @@ module.exports = async (req, res) => {
     console.error('Ошибка webhook:', error);
     res.status(200).json({ ok: true, error: error.message });
   }
-};
+}
