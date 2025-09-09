@@ -2,7 +2,8 @@
   "name": "sothebeat-bot",
   "version": "1.0.0",
   "description": "SotheBEAT auction bot for BEAT 2025",
-  "main": "src/main.jsx",
+  "type": "commonjs",
+  "main": "api/webhook.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
