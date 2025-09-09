@@ -1,0 +1,32 @@
+{
+  "name": "sothebeat-bot",
+  "version": "1.0.0",
+  "description": "SotheBEAT auction bot for BEAT 2025",
+  "type": "module",
+  "main": "src/main.jsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.7.2",
+    "axios": "^1.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "node-telegram-bot-api": "^0.63.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^4.5.14"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
