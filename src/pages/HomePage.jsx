@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { round1Questions, round2Questions, round3Questions, auctionLots } from '../data/gameData';
 import QuizRound from '../components/QuizRound';
 import LogicRound from '../components/LogicRound';
 import SurveyRound from '../components/SurveyRound';
@@ -9,52 +8,157 @@ const HomePage = ({ user }) => {
   const [currentView, setCurrentView] = useState('lobby');
   const [userPoints, setUserPoints] = useState(0);
   const [userName, setUserName] = useState('Участник');
+  const [userId, setUserId] = useState(null);
   const [teamId, setTeamId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       setUserName(user.first_name || user.username || 'Участник');
+      setUserId(user.id);
+      initializeUser(user);
+    } else {
+      // Для тестирования без Telegram
+      setUserId(123456789);
+      setUserName('Тестовый пользователь');
+      fetchUserProfile(123456789);
     }
   }, [user]);
 
-  const handleRoundComplete = (roundNumber, earnedPoints) => {
-    setUserPoints(prev => prev + earnedPoints);
-    // Здесь отправляем результаты на сервер
-    console.log(`Раунд ${roundNumber} завершен. Заработано: ${earnedPoints} баллов`);
+  const initializeUser = async (telegramUser) => {
+    try {
+      // Регистрируем/обновляем пользователя
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'register_user',
+          id: telegramUser.id,
+          username: telegramUser.username,
+          first_name: telegramUser.first_name,
+          last_name: telegramUser.last_name,
+          language_code: telegramUser.language_code
+        })
+      });
+
+      const userData = await response.json();
+      setUserPoints(userData.total_points || 0);
+      setTeamId(userData.team_id);
+      setLoading(false);
+    } catch (error) {
+      console.error('Ошибка инициализации пользователя:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchUserProfile = async (uid) => {
+    try {
+      const response = await fetch(`/api/users?action=profile&user_id=${uid}`);
+      if (response.ok) {
+        const userData = await response.json();
+        setUserPoints(userData.total_points || 0);
+        setTeamId(userData.team_id);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Ошибка загрузки профиля:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleRoundComplete = async (roundNumber, earnedPoints, roundType, answers) => {
+    try {
+      // Сохраняем результат раунда
+      const response = await fetch('/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_round_result',
+          user_id: userId,
+          round_id: roundNumber,
+          round_type: roundType,
+          points_earned: earnedPoints,
+          total_time: 300, // TODO: реальное время
+          answers: answers
+        })
+      });
+
+      if (response.ok) {
+        setUserPoints(prev => prev + earnedPoints);
+        alert(`Раунд завершен! Заработано: ${earnedPoints} баллов`);
+      }
+    } catch (error) {
+      console.error('Ошибка сохранения результатов:', error);
+    }
+    
     setCurrentView('lobby');
   };
+
+  const handleJoinTeam = async () => {
+    const teamCode = prompt('Введите код команды:');
+    if (teamCode && userId) {
+      try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'join_team',
+            user_id: userId,
+            team_id: teamCode
+          })
+        });
+
+        if (response.ok) {
+          setTeamId(teamCode);
+          alert(`Вы присоединились к команде: ${teamCode}`);
+        }
+      } catch (error) {
+        console.error('Ошибка присоединения к команде:', error);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loader"></div>
+        <p>Загрузка...</p>
+      </div>
+    );
+  }
 
   const renderCurrentView = () => {
     switch (currentView) {
       case 'quiz':
         return (
           <QuizRound
-            questions={round1Questions}
-            onComplete={(points) => handleRoundComplete(1, points)}
+            userId={userId}
+            onComplete={(points, answers) => handleRoundComplete(1, points, 'quiz', answers)}
             onBack={() => setCurrentView('lobby')}
           />
         );
       case 'logic':
         return (
           <LogicRound
-            questions={round2Questions}
-            onComplete={(points) => handleRoundComplete(2, points)}
+            userId={userId}
+            onComplete={(points, answers) => handleRoundComplete(2, points, 'logic', answers)}
             onBack={() => setCurrentView('lobby')}
           />
         );
       case 'survey':
         return (
           <SurveyRound
-            questions={round3Questions}
-            onComplete={(points) => handleRoundComplete(3, points)}
+            userId={userId}
+            onComplete={(points, answers) => handleRoundComplete(3, points, 'survey', answers)}
             onBack={() => setCurrentView('lobby')}
           />
         );
       case 'auction':
         return (
           <AuctionRound
-            lots={auctionLots}
+            userId={userId}
             userPoints={userPoints}
+            teamId={teamId}
             onBack={() => setCurrentView('lobby')}
           />
         );
@@ -83,6 +187,11 @@ const HomePage = ({ user }) => {
                   <div className="phase">
                     Фаза: <span className="phase-value">lobby</span>
                   </div>
+                  {teamId && (
+                    <div className="team-info">
+                      👥 Команда: {teamId}
+                    </div>
+                  )}
                   <div className="updated">
                     Обновлено: {new Date().toLocaleTimeString()}
                   </div>
@@ -119,7 +228,7 @@ const HomePage = ({ user }) => {
                 className="game-card survey-card"
                 onClick={() => setCurrentView('survey')}
               >
-                <div className="game-icon">��</div>
+                <div className="game-icon">📊</div>
                 <div className="game-info">
                   <h4>100 к 1</h4>
                   <p>Популярные ответы на необычные вопросы</p>
@@ -129,13 +238,7 @@ const HomePage = ({ user }) => {
 
               <button 
                 className="game-card team-card"
-                onClick={() => {
-                  const teamCode = prompt('Введите код команды:');
-                  if (teamCode) {
-                    setTeamId(teamCode);
-                    alert(`Вы присоединились к команде: ${teamCode}`);
-                  }
-                }}
+                onClick={handleJoinTeam}
               >
                 <div className="game-icon">🤝</div>
                 <div className="game-info">
