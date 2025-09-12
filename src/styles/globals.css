@@ -977,3 +977,1019 @@ body {
 .btn:active {
   transform: translateY(0);
 }
+
+/* === ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ЛОГИК РАУНДА === */
+.logic-round {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.logic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logic-header .timer {
+  background: rgba(255, 87, 87, 0.2);
+  border: 1px solid rgba(255, 87, 87, 0.4);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff5757;
+  min-width: 70px;
+  text-align: center;
+}
+
+.logic-header .progress {
+  flex: 1;
+  margin: 0 20px;
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.logic-header .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #9c27b0, #673ab7);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.logic-header .progress-text {
+  position: absolute;
+  top: -25px;
+  right: 0;
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 600;
+}
+
+.logic-question-container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+  text-align: center;
+}
+
+/* === СЕТКА КАРТИНОК === */
+.images-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-card {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid rgba(156, 39, 176, 0.3);
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.image-card:hover {
+  border-color: rgba(156, 39, 176, 0.6);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(156, 39, 176, 0.2);
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(103, 58, 183, 0.1));
+}
+
+/* Для настоящих картинок */
+.logic-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-card:hover .logic-image {
+  transform: scale(1.05);
+}
+
+.logic-question-text {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: white;
+  line-height: 1.4;
+}
+
+.logic-answer-input {
+  display: flex;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.logic-answer-input input {
+  flex: 1;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(156, 39, 176, 0.3);
+  border-radius: 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.logic-answer-input input:focus {
+  outline: none;
+  border-color: #9c27b0;
+  background: rgba(156, 39, 176, 0.1);
+  box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.2);
+}
+
+.logic-answer-input input::placeholder {
+  color: #888;
+}
+
+.logic-submit-btn {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #9c27b0, #673ab7);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.logic-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);
+}
+
+.logic-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* === ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ SURVEY РАУНДА === */
+.survey-round {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.survey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.survey-header .timer {
+  background: rgba(255, 87, 87, 0.2);
+  border: 1px solid rgba(255, 87, 87, 0.4);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff5757;
+  min-width: 70px;
+  text-align: center;
+}
+
+.survey-header .progress {
+  flex: 1;
+  margin: 0 20px;
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.survey-header .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9800, #f57c00);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.survey-header .progress-text {
+  position: absolute;
+  top: -25px;
+  right: 0;
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 600;
+}
+
+.survey-header .total-points {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4caf50;
+  min-width: 80px;
+  text-align: center;
+}
+
+.survey-question-container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+}
+
+.survey-question-text {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: white;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.survey-instruction {
+  text-align: center;
+  color: #ff9800;
+  font-weight: 600;
+  margin-bottom: 25px;
+  font-size: 14px;
+  padding: 12px 20px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.answers-board {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.survey-answer {
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.survey-answer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.survey-answer:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 152, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.15);
+}
+
+.survey-answer.selected {
+  background: rgba(255, 152, 0, 0.15);
+  border-color: #ff9800;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+}
+
+.survey-answer.revealed {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(56, 142, 60, 0.2));
+  border-color: #4caf50;
+  transform: none;
+}
+
+.survey-answer .answer-text {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.survey-answer .answer-points {
+  font-size: 14px;
+  font-weight: bold;
+  color: #4caf50;
+  float: right;
+}
+
+.survey-submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: #888;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+}
+
+.survey-submit-btn.active {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  border-color: #ff9800;
+  color: white;
+  cursor: pointer;
+}
+
+.survey-submit-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.revealed-summary {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.revealed-summary h4 {
+  color: #4caf50;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.revealed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+  font-size: 14px;
+}
+
+.revealed-item:last-child {
+  border-bottom: none;
+}
+
+/* === АДАПТИВНОСТЬ === */
+@media (max-width: 480px) {
+  .logic-round, .survey-round {
+    padding: 15px;
+  }
+  
+  .logic-header, .survey-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .logic-header .progress,
+  .survey-header .progress {
+    margin: 0;
+    width: 100%;
+  }
+  
+  .images-grid {
+    gap: 15px;
+  }
+  
+  .image-placeholder {
+    font-size: 36px;
+  }
+  
+  .logic-question-container,
+  .survey-question-container {
+    padding: 20px;
+  }
+  
+  .logic-answer-input {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .logic-submit-btn {
+    width: 100%;
+  }
+}
+
+/* === ИНТРО СТИЛИ === */
+.logic-intro, .survey-intro {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.logic-intro .intro-content,
+.survey-intro .intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.logic-intro h2, .survey-intro h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #9c27b0, #673ab7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.survey-intro h2 {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logic-intro h3, .survey-intro h3 {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 40px;
+}
+
+.example {
+  background: rgba(156, 39, 176, 0.1);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.example h4 {
+  color: #9c27b0;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.example-images {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.example p {
+  color: #4caf50;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* === ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ЛОГИК РАУНДА === */
+.logic-round {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.logic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logic-header .timer {
+  background: rgba(255, 87, 87, 0.2);
+  border: 1px solid rgba(255, 87, 87, 0.4);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff5757;
+  min-width: 70px;
+  text-align: center;
+}
+
+.logic-header .progress {
+  flex: 1;
+  margin: 0 20px;
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.logic-header .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #9c27b0, #673ab7);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.logic-header .progress-text {
+  position: absolute;
+  top: -25px;
+  right: 0;
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 600;
+}
+
+.logic-question-container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+  text-align: center;
+}
+
+/* === СЕТКА КАРТИНОК === */
+.images-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.image-card {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid rgba(156, 39, 176, 0.3);
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.image-card:hover {
+  border-color: rgba(156, 39, 176, 0.6);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(156, 39, 176, 0.2);
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(103, 58, 183, 0.1));
+}
+
+/* Для настоящих картинок */
+.logic-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-card:hover .logic-image {
+  transform: scale(1.05);
+}
+
+.logic-question-text {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: white;
+  line-height: 1.4;
+}
+
+.logic-answer-input {
+  display: flex;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.logic-answer-input input {
+  flex: 1;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(156, 39, 176, 0.3);
+  border-radius: 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.logic-answer-input input:focus {
+  outline: none;
+  border-color: #9c27b0;
+  background: rgba(156, 39, 176, 0.1);
+  box-shadow: 0 0 0 4px rgba(156, 39, 176, 0.2);
+}
+
+.logic-answer-input input::placeholder {
+  color: #888;
+}
+
+.logic-submit-btn {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #9c27b0, #673ab7);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.logic-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);
+}
+
+.logic-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* === ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ SURVEY РАУНДА === */
+.survey-round {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.survey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.survey-header .timer {
+  background: rgba(255, 87, 87, 0.2);
+  border: 1px solid rgba(255, 87, 87, 0.4);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff5757;
+  min-width: 70px;
+  text-align: center;
+}
+
+.survey-header .progress {
+  flex: 1;
+  margin: 0 20px;
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.survey-header .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9800, #f57c00);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.survey-header .progress-text {
+  position: absolute;
+  top: -25px;
+  right: 0;
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 600;
+}
+
+.survey-header .total-points {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.4);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4caf50;
+  min-width: 80px;
+  text-align: center;
+}
+
+.survey-question-container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+}
+
+.survey-question-text {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: white;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.survey-instruction {
+  text-align: center;
+  color: #ff9800;
+  font-weight: 600;
+  margin-bottom: 25px;
+  font-size: 14px;
+  padding: 12px 20px;
+  background: rgba(255, 152, 0, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.answers-board {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.survey-answer {
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.survey-answer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.survey-answer:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 152, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.15);
+}
+
+.survey-answer.selected {
+  background: rgba(255, 152, 0, 0.15);
+  border-color: #ff9800;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+}
+
+.survey-answer.revealed {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(56, 142, 60, 0.2));
+  border-color: #4caf50;
+  transform: none;
+}
+
+.survey-answer .answer-text {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.survey-answer .answer-points {
+  font-size: 14px;
+  font-weight: bold;
+  color: #4caf50;
+  float: right;
+}
+
+.survey-submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: #888;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: not-allowed;
+  transition: all 0.3s ease;
+}
+
+.survey-submit-btn.active {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  border-color: #ff9800;
+  color: white;
+  cursor: pointer;
+}
+
+.survey-submit-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+}
+
+.revealed-summary {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.revealed-summary h4 {
+  color: #4caf50;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.revealed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+  font-size: 14px;
+}
+
+.revealed-item:last-child {
+  border-bottom: none;
+}
+
+/* === АДАПТИВНОСТЬ === */
+@media (max-width: 480px) {
+  .logic-round, .survey-round {
+    padding: 15px;
+  }
+  
+  .logic-header, .survey-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .logic-header .progress,
+  .survey-header .progress {
+    margin: 0;
+    width: 100%;
+  }
+  
+  .images-grid {
+    gap: 15px;
+  }
+  
+  .image-placeholder {
+    font-size: 36px;
+  }
+  
+  .logic-question-container,
+  .survey-question-container {
+    padding: 20px;
+  }
+  
+  .logic-answer-input {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .logic-submit-btn {
+    width: 100%;
+  }
+}
+
+/* === ИНТРО СТИЛИ === */
+.logic-intro, .survey-intro {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.logic-intro .intro-content,
+.survey-intro .intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.logic-intro h2, .survey-intro h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #9c27b0, #673ab7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.survey-intro h2 {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logic-intro h3, .survey-intro h3 {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 40px;
+}
+
+.example {
+  background: rgba(156, 39, 176, 0.1);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.example h4 {
+  color: #9c27b0;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.example-images {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.example p {
+  color: #4caf50;
+  font-weight: 600;
+  margin: 0;
+}

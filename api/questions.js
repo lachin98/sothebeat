@@ -43,18 +43,9 @@ module.exports = async (req, res) => {
           return res.json(questions.rows);
         }
         
-        if (query.action === 'rounds') {
-          const rounds = await sql`
-            SELECT * FROM game_rounds
-            ORDER BY round_number
-          `;
-          return res.json(rounds.rows);
-        }
-        
         break;
 
       case 'POST':
-        // Проверка админского токена
         if (body.admin_token !== 'a') {
           return res.status(401).json({ error: 'Unauthorized' });
         }
@@ -73,8 +64,9 @@ module.exports = async (req, res) => {
         if (body.action === 'add_logic_question') {
           const result = await sql`
             INSERT INTO logic_questions 
-            (round_id, question_text, images, correct_answer, alternatives, points, order_num)
-            VALUES (${body.round_id}, ${body.question_text}, ${JSON.stringify(body.images)}, 
+            (round_id, question_text, images, image_urls, use_images, correct_answer, alternatives, points, order_num)
+            VALUES (${body.round_id}, ${body.question_text}, ${JSON.stringify(body.images || [])}, 
+                    ${JSON.stringify(body.image_urls || [])}, ${body.use_images || false},
                     ${body.correct_answer}, ${JSON.stringify(body.alternatives)}, ${body.points}, ${body.order_num})
             RETURNING id
           `;
@@ -113,8 +105,12 @@ module.exports = async (req, res) => {
         if (body.action === 'update_logic_question') {
           await sql`
             UPDATE logic_questions 
-            SET question_text = ${body.question_text}, images = ${JSON.stringify(body.images)}, 
-                correct_answer = ${body.correct_answer}, alternatives = ${JSON.stringify(body.alternatives)}, 
+            SET question_text = ${body.question_text}, 
+                images = ${JSON.stringify(body.images || [])}, 
+                image_urls = ${JSON.stringify(body.image_urls || [])},
+                use_images = ${body.use_images || false},
+                correct_answer = ${body.correct_answer}, 
+                alternatives = ${JSON.stringify(body.alternatives)}, 
                 points = ${body.points}
             WHERE id = ${body.question_id}
           `;
