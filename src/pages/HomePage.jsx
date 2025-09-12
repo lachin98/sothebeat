@@ -11,45 +11,20 @@ const HomePage = ({ user }) => {
   const [userId, setUserId] = useState(null);
   const [teamId, setTeamId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && user.id) {
+      // Реальный пользователь из Telegram
       setUserName(user.first_name || user.username || 'Участник');
       setUserId(user.id);
-      initializeUser(user);
+      fetchUserProfile(user.id);
     } else {
-      // Для тестирования без Telegram
-      setUserId(123456789);
-      setUserName('Тестовый пользователь');
-      fetchUserProfile(123456789);
+      // Если нет пользователя Telegram - показываем сообщение
+      setError('Пожалуйста, откройте приложение через Telegram бот');
+      setLoading(false);
     }
   }, [user]);
-
-  const initializeUser = async (telegramUser) => {
-    try {
-      // Регистрируем/обновляем пользователя
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'register_user',
-          id: telegramUser.id,
-          username: telegramUser.username,
-          first_name: telegramUser.first_name,
-          last_name: telegramUser.last_name,
-          language_code: telegramUser.language_code
-        })
-      });
-
-      const userData = await response.json();
-      setUserPoints(userData.total_points || 0);
-      setTeamId(userData.team_id);
-      setLoading(false);
-    } catch (error) {
-      console.error('Ошибка инициализации пользователя:', error);
-      setLoading(false);
-    }
-  };
 
   const fetchUserProfile = async (uid) => {
     try {
@@ -58,17 +33,22 @@ const HomePage = ({ user }) => {
         const userData = await response.json();
         setUserPoints(userData.total_points || 0);
         setTeamId(userData.team_id);
+      } else if (response.status === 404) {
+        // Пользователь не найден - это нормально, он будет создан при первом взаимодействии
+        setUserPoints(0);
       }
       setLoading(false);
     } catch (error) {
       console.error('Ошибка загрузки профиля:', error);
+      setError('Ошибка загрузки данных пользователя');
       setLoading(false);
     }
   };
 
   const handleRoundComplete = async (roundNumber, earnedPoints, roundType, answers) => {
+    if (!userId) return;
+    
     try {
-      // Сохраняем результат раунда
       const response = await fetch('/api/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,7 +58,7 @@ const HomePage = ({ user }) => {
           round_id: roundNumber,
           round_type: roundType,
           points_earned: earnedPoints,
-          total_time: 300, // TODO: реальное время
+          total_time: 300,
           answers: answers
         })
       });
@@ -95,8 +75,13 @@ const HomePage = ({ user }) => {
   };
 
   const handleJoinTeam = async () => {
+    if (!userId) {
+      alert('Ошибка: пользователь не определен');
+      return;
+    }
+    
     const teamCode = prompt('Введите код команды:');
-    if (teamCode && userId) {
+    if (teamCode) {
       try {
         const response = await fetch('/api/users', {
           method: 'POST',
@@ -127,6 +112,20 @@ const HomePage = ({ user }) => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="error-screen">
+        <h2>⚠️ Ошибка</h2>
+        <p>{error}</p>
+        <p>Для игры нужно зайти через Telegram бот:</p>
+        <a href="https://t.me/your_bot_username" className="bot-link">
+          Открыть бот
+        </a>
+      </div>
+    );
+  }
+
+  // Остальной код остается прежним...
   const renderCurrentView = () => {
     switch (currentView) {
       case 'quiz':
