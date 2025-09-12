@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
-const LogicRound = ({ questions, onComplete, onBack }) => {
+const LogicRound = ({ userId, onComplete, onBack }) => {
+  const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [answers, setAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(300);
   const [gameStarted, setGameStarted] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [startTime, setStartTime] = useState(null);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
 
   useEffect(() => {
     if (!gameStarted) return;
@@ -24,6 +31,50 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
     return () => clearInterval(timer);
   }, [gameStarted]);
 
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch('/api/questions?action=logic');
+      if (response.ok) {
+        const data = await response.json();
+        // Преобразуем данные из БД в формат компонента
+        const formattedQuestions = data.map(q => ({
+          id: q.id,
+          images: Array.isArray(q.images) ? q.images : [],
+          question: q.question_text,
+          answer: q.correct_answer,
+          alternatives: Array.isArray(q.alternatives) ? q.alternatives : [q.alternatives].filter(Boolean),
+          points: q.points || 15
+        }));
+        setQuestions(formattedQuestions);
+      } else {
+        console.warn('Не удалось загрузить вопросы из БД');
+        setQuestions([
+          {
+            id: 1,
+            images: ["🎯", "❓", "📱", "⚠️"],
+            question: "Что за проблема? (тестовый вопрос)",
+            answer: "ошибка загрузки",
+            alternatives: ["ошибка загрузки", "сеть"],
+            points: 15
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки вопросов:', error);
+      setQuestions([
+        {
+          id: 1,
+          images: ["🌐", "❌", "📡", "💻"],
+          question: "Что за проблема? (ошибка сети)",
+          answer: "нет сети",
+          alternatives: ["нет сети", "ошибка"],
+          points: 15
+        }
+      ]);
+    }
+    setLoading(false);
+  };
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -32,20 +83,24 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
 
   const checkAnswer = (userInput, correctAnswers) => {
     const normalizedInput = userInput.toLowerCase().trim();
-    return correctAnswers.some(answer => 
-      answer.toLowerCase().includes(normalizedInput) || 
-      normalizedInput.includes(answer.toLowerCase())
-    );
+    return correctAnswers.some(answer => {
+      const normalizedAnswer = answer.toLowerCase().trim();
+      return normalizedAnswer.includes(normalizedInput) || 
+             normalizedInput.includes(normalizedAnswer) ||
+             normalizedAnswer === normalizedInput;
+    });
   };
 
   const handleSubmitAnswer = () => {
-    const questionStartTime = Date.now();
-    const isCorrect = checkAnswer(userAnswer, questions[currentQuestion].alternatives);
+    const currentTime = Date.now();
+    const questionTime = startTime ? (currentTime - startTime) / 1000 : 60;
+    const isCorrect = checkAnswer(userAnswer, [questions[currentQuestion].answer, ...questions[currentQuestion].alternatives]);
     
     let points = 0;
     if (isCorrect) {
-      const basePoints = 15;
-      const timeBonus = Math.max(0, Math.floor((60 - (300 - timeLeft)) / 5));
+      const basePoints = questions[currentQuestion].points || 15;
+      // Бонус за скорость: чем быстрее ответ, тем больше бонус (макс +10 баллов)
+      const timeBonus = Math.max(0, Math.floor((60 - Math.min(questionTime, 60)) / 6));
       points = basePoints + timeBonus;
     }
 
@@ -55,10 +110,11 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
       correctAnswer: questions[currentQuestion].answer,
       isCorrect,
       points,
-      timeSpent: 300 - timeLeft
+      timeSpent: questionTime
     };
 
-    setAnswers([...answers, newAnswer]);
+    const newAnswers = [...answers, newAnswer];
+    setAnswers(newAnswers);
     
     // Показываем фидбек
     if (isCorrect) {
@@ -70,23 +126,41 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
     setTimeout(() => {
       setFeedback('');
       setUserAnswer('');
+      setStartTime(Date.now()); // Сбрасываем время для следующего вопроса
       
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
       } else {
-        finishGame();
+        finishGameWithAnswers(newAnswers);
       }
     }, 2000);
   };
 
   const finishGame = () => {
-    const totalPoints = answers.reduce((sum, answer) => sum + answer.points, 0);
-    onComplete(totalPoints);
+    finishGameWithAnswers(answers);
+  };
+
+  const finishGameWithAnswers = (finalAnswers) => {
+    const totalPoints = finalAnswers.reduce((sum, answer) => sum + answer.points, 0);
+    onComplete(totalPoints, finalAnswers);
   };
 
   const startGame = () => {
     setGameStarted(true);
+    setStartTime(Date.now());
   };
+
+  if (loading) {
+    return (
+      <div className="logic-intro">
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <div className="loading-screen">
+          <div className="spinner"></div>
+          <p>Загрузка вопросов...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!gameStarted) {
     return (
@@ -100,9 +174,9 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
           <div className="game-rules">
             <h4>Правила:</h4>
             <ul>
-              <li>Смотри на 4 картинки и угадывай связь</li>
+              <li>Смотри на картинки и угадывай связь</li>
               <li>5 минут на все вопросы</li>
-              <li>15 баллов за правильный ответ + бонус за скорость</li>
+              <li>15+ баллов за правильный ответ + бонус за скорость</li>
               <li>Пиши ответы латинскими буквами</li>
             </ul>
           </div>
@@ -118,6 +192,18 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
           <button className="start-game-btn" onClick={startGame}>
             🚀 Начать игру!
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="logic-intro">
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <div className="error-screen">
+          <h2>⚠️ Вопросы не загружены</h2>
+          <p>Попробуйте обновить страницу или обратитесь к администратору</p>
         </div>
       </div>
     );
@@ -162,7 +248,7 @@ const LogicRound = ({ questions, onComplete, onBack }) => {
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
             placeholder="Введи ответ латинскими буквами..."
-            onKeyPress={(e) => e.key === 'Enter' && handleSubmitAnswer()}
+            onKeyPress={(e) => e.key === 'Enter' && userAnswer.trim() && !feedback && handleSubmitAnswer()}
             disabled={feedback !== ''}
           />
           <button

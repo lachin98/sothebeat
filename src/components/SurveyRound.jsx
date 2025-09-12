@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const SurveyRound = ({ questions, onComplete, onBack }) => {
+const SurveyRound = ({ userId, onComplete, onBack }) => {
+  const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [revealedAnswers, setRevealedAnswers] = useState([]);
@@ -8,6 +9,11 @@ const SurveyRound = ({ questions, onComplete, onBack }) => {
   const [timeLeft, setTimeLeft] = useState(300);
   const [gameStarted, setGameStarted] = useState(false);
   const [gamePhase, setGamePhase] = useState('selecting'); // selecting, revealing, next
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
 
   useEffect(() => {
     if (!gameStarted) return;
@@ -24,6 +30,47 @@ const SurveyRound = ({ questions, onComplete, onBack }) => {
 
     return () => clearInterval(timer);
   }, [gameStarted]);
+
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch('/api/questions?action=survey');
+      if (response.ok) {
+        const data = await response.json();
+        // Преобразуем данные из БД в формат компонента
+        const formattedQuestions = data.map(q => ({
+          id: q.id,
+          question: q.question_text,
+          answers: Array.isArray(q.answers) ? q.answers.sort((a, b) => b.points - a.points) : []
+        }));
+        setQuestions(formattedQuestions);
+      } else {
+        console.warn('Не удалось загрузить вопросы из БД');
+        setQuestions([
+          {
+            id: 1,
+            question: "Тестовый вопрос (данные не загружены)",
+            answers: [
+              { text: "Тестовый ответ 1", points: 50 },
+              { text: "Тестовый ответ 2", points: 30 },
+              { text: "Тестовый ответ 3", points: 20 }
+            ]
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки вопросов:', error);
+      setQuestions([
+        {
+          id: 1,
+          question: "Тестовый вопрос (ошибка сети)",
+          answers: [
+            { text: "Ошибка загрузки", points: 100 }
+          ]
+        }
+      ]);
+    }
+    setLoading(false);
+  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -69,7 +116,7 @@ const SurveyRound = ({ questions, onComplete, onBack }) => {
           if (currentQuestion < questions.length - 1) {
             nextQuestion();
           } else {
-            finishGame();
+            finishGameWithPoints(totalPoints + questionPoints);
           }
         }, 2000);
       }
@@ -86,12 +133,33 @@ const SurveyRound = ({ questions, onComplete, onBack }) => {
   };
 
   const finishGame = () => {
-    onComplete(totalPoints);
+    finishGameWithPoints(totalPoints);
+  };
+
+  const finishGameWithPoints = (finalPoints) => {
+    const allAnswers = questions.slice(0, currentQuestion + 1).map((q, index) => ({
+      questionId: q.id,
+      selectedAnswers: index === currentQuestion ? selectedAnswers : [],
+      points: index === currentQuestion ? (totalPoints - (questions.slice(0, index).reduce((sum, _, i) => sum + 0, 0))) : 0
+    }));
+    onComplete(finalPoints, allAnswers);
   };
 
   const startGame = () => {
     setGameStarted(true);
   };
+
+  if (loading) {
+    return (
+      <div className="survey-intro">
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <div className="loading-screen">
+          <div className="spinner"></div>
+          <p>Загрузка вопросов...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!gameStarted) {
     return (
@@ -120,6 +188,18 @@ const SurveyRound = ({ questions, onComplete, onBack }) => {
     );
   }
 
+  if (questions.length === 0) {
+    return (
+      <div className="survey-intro">
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <div className="error-screen">
+          <h2>⚠️ Вопросы не загружены</h2>
+          <p>Попробуйте обновить страницу или обратитесь к администратору</p>
+        </div>
+      </div>
+    );
+  }
+
   const progress = ((currentQuestion) / questions.length) * 100;
   const currentQ = questions[currentQuestion];
 
@@ -140,7 +220,11 @@ const SurveyRound = ({ questions, onComplete, onBack }) => {
         </h3>
         
         <div className="instruction">
-          {gamePhase === 'selecting' && `Выбери ${3 - selectedAnswers.length} ответ${3 - selectedAnswers.length === 1 ? '' : 'а'}`}
+          {gamePhase === 'selecting' && (
+            selectedAnswers.length < 3 ? 
+            `Выбери ${3 - selectedAnswers.length} ответ${3 - selectedAnswers.length === 1 ? '' : 'а'}` :
+            'Готов? Проверь свои ответы!'
+          )}
           {gamePhase === 'revealing' && 'Смотри результаты...'}
         </div>
 

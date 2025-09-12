@@ -8,6 +8,7 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
   const [timeLeft, setTimeLeft] = useState(300);
   const [gameStarted, setGameStarted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
     fetchQuestions();
@@ -39,18 +40,20 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
           id: q.id,
           question: q.question_text,
           options: [q.option_a, q.option_b, q.option_c, q.option_d],
-          correct: q.correct_answer
+          correct: q.correct_answer,
+          points: q.points || 10
         }));
         setQuestions(formattedQuestions);
       } else {
-        // Fallback к моковым данным если БД недоступна
-        console.warn('Не удалось загрузить вопросы из БД, используем моковые данные');
+        console.warn('Не удалось загрузить вопросы из БД');
+        // Fallback к моковым данным
         setQuestions([
           {
             id: 1,
-            question: "Тестовый вопрос",
-            options: ["A", "B", "C", "D"],
-            correct: 0
+            question: "Тестовый вопрос (данные не загружены)",
+            options: ["Вариант A", "Вариант B", "Вариант C", "Вариант D"],
+            correct: 0,
+            points: 10
           }
         ]);
       }
@@ -60,9 +63,10 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
       setQuestions([
         {
           id: 1,
-          question: "Тестовый вопрос",
-          options: ["A", "B", "C", "D"],
-          correct: 0
+          question: "Тестовый вопрос (ошибка сети)",
+          options: ["Вариант A", "Вариант B", "Вариант C", "Вариант D"],
+          correct: 0,
+          points: 10
         }
       ]);
     }
@@ -80,13 +84,15 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
   };
 
   const handleNextQuestion = () => {
-    const questionStartTime = Date.now();
+    const currentTime = Date.now();
+    const questionTime = startTime ? (currentTime - startTime) / 1000 : 30;
     const isCorrect = selectedAnswer === questions[currentQuestion].correct;
     
     let points = 0;
     if (isCorrect) {
-      const basePoints = 10;
-      const timeBonus = Math.max(0, Math.floor((30 - (300 - timeLeft)) / 3));
+      const basePoints = questions[currentQuestion].points || 10;
+      // Бонус за скорость: чем быстрее ответ, тем больше бонус (макс +5 баллов)
+      const timeBonus = Math.max(0, Math.floor((30 - Math.min(questionTime, 30)) / 6));
       points = basePoints + timeBonus;
     }
 
@@ -96,12 +102,13 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
       correct: questions[currentQuestion].correct,
       isCorrect,
       points,
-      timeSpent: 300 - timeLeft
+      timeSpent: questionTime
     };
 
     const newAnswers = [...answers, newAnswer];
     setAnswers(newAnswers);
     setSelectedAnswer(null);
+    setStartTime(Date.now()); // Сбрасываем время для следующего вопроса
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
@@ -121,6 +128,7 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
 
   const startGame = () => {
     setGameStarted(true);
+    setStartTime(Date.now());
   };
 
   if (loading) {
@@ -141,7 +149,7 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
         <button className="back-btn" onClick={onBack}>← Назад</button>
         
         <div className="intro-content">
-          <h2>�� Квиз про Ballantine's</h2>
+          <h2>🎯 Квиз про Ballantine's</h2>
           <h3>Виски, достойный короны!</h3>
           
           <div className="game-rules">
@@ -149,8 +157,8 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
             <ul>
               <li>{questions.length} вопросов с вариантами ответов</li>
               <li>5 минут на все вопросы</li>
-              <li>10 баллов за правильный ответ + бонус за скорость</li>
-              <li>Максимум 200 баллов за раунд</li>
+              <li>10+ баллов за правильный ответ + бонус за скорость</li>
+              <li>Максимум ~{questions.length * 15} баллов за раунд</li>
             </ul>
           </div>
           
