@@ -1,14 +1,13 @@
-cat > (src / pages / HomePage.jsx) << "EOF";
-import React, { useState, useEffect } from "react";
-import QuizRound from "../components/QuizRound";
-import LogicRound from "../components/LogicRound";
-import SurveyRound from "../components/SurveyRound";
-import AuctionRound from "../components/AuctionRound";
+import React, { useState, useEffect } from 'react';
+import QuizRound from '../components/QuizRound';
+import LogicRound from '../components/LogicRound';
+import SurveyRound from '../components/SurveyRound';
+import AuctionRound from '../components/AuctionRound';
 
 const HomePage = ({ user }) => {
-  const [currentView, setCurrentView] = useState("lobby");
+  const [currentView, setCurrentView] = useState('lobby');
   const [userPoints, setUserPoints] = useState(0);
-  const [userName, setUserName] = useState("Участник");
+  const [userName, setUserName] = useState('Участник');
   const [userId, setUserId] = useState(null);
   const [teamId, setTeamId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,20 +16,19 @@ const HomePage = ({ user }) => {
   useEffect(() => {
     if (user && user.id) {
       // Есть пользователь - может быть Telegram или гостевой
-      setUserName(user.first_name || user.username || "Участник");
+      setUserName(user.first_name || user.username || 'Участник');
       setUserId(user.id);
-
+      
       // Определяем тип пользователя по ID
       const isTgUser = user.id < 999999999999; // Telegram ID обычно меньше
       setIsTelegramUser(isTgUser);
-
+      
       if (isTgUser) {
         // Реальный Telegram пользователь - загружаем из БД
         fetchUserProfile(user.id);
       } else {
         // Гостевой пользователь - используем localStorage
-        const savedPoints =
-          localStorage.getItem(`sothebeat_points_${user.id}`) || "0";
+        const savedPoints = localStorage.getItem(`sothebeat_points_${user.id}`) || '0';
         const savedTeam = localStorage.getItem(`sothebeat_team_${user.id}`);
         setUserPoints(parseInt(savedPoints));
         setTeamId(savedTeam);
@@ -41,11 +39,11 @@ const HomePage = ({ user }) => {
       const guestId = Date.now();
       const guestUser = {
         id: guestId,
-        first_name: "Гость",
-        username: "guest",
+        first_name: 'Гость',
+        username: 'guest'
       };
-
-      setUserName("Гость");
+      
+      setUserName('Гость');
       setUserId(guestId);
       setIsTelegramUser(false);
       setUserPoints(0);
@@ -65,42 +63,37 @@ const HomePage = ({ user }) => {
         setUserPoints(0);
       }
     } catch (error) {
-      console.error("Ошибка загрузки профиля:", error);
+      console.error('Ошибка загрузки профиля:', error);
       setUserPoints(0);
     }
     setLoading(false);
   };
 
-  const handleRoundComplete = async (
-    roundNumber,
-    earnedPoints,
-    roundType,
-    answers
-  ) => {
+  const handleRoundComplete = async (roundNumber, earnedPoints, roundType, answers) => {
     if (!userId) return;
-
+    
     // Обновляем баллы локально
     const newTotal = userPoints + earnedPoints;
     setUserPoints(newTotal);
-
+    
     if (isTelegramUser) {
       // Telegram пользователь - сохраняем в БД
       try {
-        await fetch("/api/results", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        await fetch('/api/results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: "save_round_result",
+            action: 'save_round_result',
             user_id: userId,
             round_id: roundNumber,
             round_type: roundType,
             points_earned: earnedPoints,
             total_time: 300,
-            answers: answers,
-          }),
+            answers: answers
+          })
         });
       } catch (error) {
-        console.error("Ошибка сохранения в БД:", error);
+        console.error('Ошибка сохранения в БД:', error);
         // Fallback к localStorage
         localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
       }
@@ -108,38 +101,38 @@ const HomePage = ({ user }) => {
       // Гостевой пользователь - сохраняем в localStorage
       localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
     }
-
+    
     alert(`Раунд завершен! Заработано: ${earnedPoints} баллов`);
-    setCurrentView("lobby");
+    setCurrentView('lobby');
   };
 
   const handleJoinTeam = async () => {
     if (!userId) return;
-
-    const teamCode = prompt("Введите код команды:");
+    
+    const teamCode = prompt('Введите код команды:');
     if (!teamCode) return;
-
+    
     if (isTelegramUser) {
       // Telegram пользователь - сохраняем в БД
       try {
-        const response = await fetch("/api/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: "join_team",
+            action: 'join_team',
             user_id: userId,
-            team_id: teamCode,
-          }),
+            team_id: teamCode
+          })
         });
 
         if (response.ok) {
           setTeamId(teamCode);
           alert(`Вы присоединились к команде: ${teamCode}`);
         } else {
-          throw new Error("Ошибка API");
+          throw new Error('Ошибка API');
         }
       } catch (error) {
-        console.error("Ошибка присоединения к команде:", error);
+        console.error('Ошибка присоединения к команде:', error);
         // Fallback к localStorage
         localStorage.setItem(`sothebeat_team_${userId}`, teamCode);
         setTeamId(teamCode);
@@ -166,65 +159,59 @@ const HomePage = ({ user }) => {
 
   const renderCurrentView = () => {
     switch (currentView) {
-      case "quiz":
+      case 'quiz':
         return (
           <QuizRound
             userId={userId}
-            onComplete={(points, answers) =>
-              handleRoundComplete(1, points, "quiz", answers)
-            }
-            onBack={() => setCurrentView("lobby")}
+            onComplete={(points, answers) => handleRoundComplete(1, points, 'quiz', answers)}
+            onBack={() => setCurrentView('lobby')}
           />
         );
-      case "logic":
+      case 'logic':
         return (
           <LogicRound
             userId={userId}
-            onComplete={(points, answers) =>
-              handleRoundComplete(2, points, "logic", answers)
-            }
-            onBack={() => setCurrentView("lobby")}
+            onComplete={(points, answers) => handleRoundComplete(2, points, 'logic', answers)}
+            onBack={() => setCurrentView('lobby')}
           />
         );
-      case "survey":
+      case 'survey':
         return (
           <SurveyRound
             userId={userId}
-            onComplete={(points, answers) =>
-              handleRoundComplete(3, points, "survey", answers)
-            }
-            onBack={() => setCurrentView("lobby")}
+            onComplete={(points, answers) => handleRoundComplete(3, points, 'survey', answers)}
+            onBack={() => setCurrentView('lobby')}
           />
         );
-      case "auction":
+      case 'auction':
         return (
           <AuctionRound
             userId={userId}
             userPoints={userPoints}
             teamId={teamId}
-            onBack={() => setCurrentView("lobby")}
+            onBack={() => setCurrentView('lobby')}
           />
         );
       default:
         return (
           <div className="lobby">
             <div className="header">
-              <img
-                src="https://via.placeholder.com/120x50/4a90e2/white?text=SotheBEAT"
-                alt="SotheBEAT"
+              <img 
+                src="https://via.placeholder.com/120x50/4a90e2/white?text=SotheBEAT" 
+                alt="SotheBEAT" 
                 className="logo"
               />
             </div>
 
             <div className="user-info">
               <div className="user-card">
-                <div className="avatar">{userName.charAt(0).toUpperCase()}</div>
+                <div className="avatar">
+                  {userName.charAt(0).toUpperCase()}
+                </div>
                 <div className="user-details">
                   <h3>{userName}</h3>
                   <p>
-                    {isTelegramUser
-                      ? "Telegram пользователь"
-                      : "Веб пользователь"}
+                    {isTelegramUser ? 'Telegram пользователь' : 'Веб пользователь'}
                   </p>
                   <div className="points">
                     Баланс: <span className="points-value">{userPoints}</span>
@@ -233,7 +220,9 @@ const HomePage = ({ user }) => {
                     Фаза: <span className="phase-value">lobby</span>
                   </div>
                   {teamId && (
-                    <div className="team-info">👥 Команда: {teamId}</div>
+                    <div className="team-info">
+                      👥 Команда: {teamId}
+                    </div>
                   )}
                   {!isTelegramUser && (
                     <div className="web-user-notice">
@@ -248,9 +237,9 @@ const HomePage = ({ user }) => {
             </div>
 
             <div className="games-grid">
-              <button
+              <button 
                 className="game-card quiz-card"
-                onClick={() => setCurrentView("quiz")}
+                onClick={() => setCurrentView('quiz')}
               >
                 <div className="game-icon">🎯</div>
                 <div className="game-info">
@@ -260,9 +249,9 @@ const HomePage = ({ user }) => {
                 </div>
               </button>
 
-              <button
+              <button 
                 className="game-card logic-card"
-                onClick={() => setCurrentView("logic")}
+                onClick={() => setCurrentView('logic')}
               >
                 <div className="game-icon">🧩</div>
                 <div className="game-info">
@@ -272,9 +261,9 @@ const HomePage = ({ user }) => {
                 </div>
               </button>
 
-              <button
+              <button 
                 className="game-card survey-card"
-                onClick={() => setCurrentView("survey")}
+                onClick={() => setCurrentView('survey')}
               >
                 <div className="game-icon">📊</div>
                 <div className="game-info">
@@ -284,7 +273,10 @@ const HomePage = ({ user }) => {
                 </div>
               </button>
 
-              <button className="game-card team-card" onClick={handleJoinTeam}>
+              <button 
+                className="game-card team-card"
+                onClick={handleJoinTeam}
+              >
                 <div className="game-icon">🤝</div>
                 <div className="game-info">
                   <h4>Есть контакт!</h4>
@@ -294,9 +286,9 @@ const HomePage = ({ user }) => {
               </button>
             </div>
 
-            <button
+            <button 
               className="auction-button"
-              onClick={() => setCurrentView("auction")}
+              onClick={() => setCurrentView('auction')}
             >
               <div className="auction-icon">🔥</div>
               <div className="auction-info">
@@ -320,12 +312,7 @@ const HomePage = ({ user }) => {
               <div className="telegram-promo">
                 <h4>🤖 Лучший опыт в Telegram!</h4>
                 <p>Для сохранения прогресса используй бот:</p>
-                <a
-                  href="https://t.me/sothebeatbot"
-                  className="bot-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href="https://t.me/sothebeatbot" className="bot-link" target="_blank" rel="noopener noreferrer">
                   Открыть @sothebeatbot
                 </a>
               </div>
@@ -335,8 +322,11 @@ const HomePage = ({ user }) => {
     }
   };
 
-  return <div className="home-page">{renderCurrentView()}</div>;
+  return (
+    <div className="home-page">
+      {renderCurrentView()}
+    </div>
+  );
 };
 
 export default HomePage;
-EOF;
