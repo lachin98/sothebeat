@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ResultsScreen from './ResultsScreen';
 
 const QuizRound = ({ userId, onComplete, onBack }) => {
   const [questions, setQuestions] = useState([]);
@@ -7,15 +8,17 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
   const [answers, setAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(300);
   const [gameStarted, setGameStarted] = useState(false);
+  const [gameCompleted, setGameCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [startTime, setStartTime] = useState(null);
+  const [totalTimeSpent, setTotalTimeSpent] = useState(0);
 
   useEffect(() => {
     fetchQuestions();
   }, []);
 
   useEffect(() => {
-    if (!gameStarted) return;
+    if (!gameStarted || gameCompleted) return;
     
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -28,14 +31,13 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [gameStarted]);
+  }, [gameStarted, gameCompleted]);
 
   const fetchQuestions = async () => {
     try {
       const response = await fetch('/api/questions?action=quiz');
       if (response.ok) {
         const data = await response.json();
-        // Преобразуем данные из БД в формат компонента
         const formattedQuestions = data.map(q => ({
           id: q.id,
           question: q.question_text,
@@ -45,8 +47,6 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
         }));
         setQuestions(formattedQuestions);
       } else {
-        console.warn('Не удалось загрузить вопросы из БД');
-        // Fallback к моковым данным
         setQuestions([
           {
             id: 1,
@@ -59,16 +59,13 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
       }
     } catch (error) {
       console.error('Ошибка загрузки вопросов:', error);
-      // Fallback к моковым данным
-      setQuestions([
-        {
-          id: 1,
-          question: "Тестовый вопрос (ошибка сети)",
-          options: ["Вариант A", "Вариант B", "Вариант C", "Вариант D"],
-          correct: 0,
-          points: 10
-        }
-      ]);
+      setQuestions([{
+        id: 1,
+        question: "Тестовый вопрос (ошибка сети)",
+        options: ["Вариант A", "Вариант B", "Вариант C", "Вариант D"],
+        correct: 0,
+        points: 10
+      }]);
     }
     setLoading(false);
   };
@@ -91,7 +88,6 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
     let points = 0;
     if (isCorrect) {
       const basePoints = questions[currentQuestion].points || 10;
-      // Бонус за скорость: чем быстрее ответ, тем больше бонус (макс +5 баллов)
       const timeBonus = Math.max(0, Math.floor((30 - Math.min(questionTime, 30)) / 6));
       points = basePoints + timeBonus;
     }
@@ -108,22 +104,26 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
     const newAnswers = [...answers, newAnswer];
     setAnswers(newAnswers);
     setSelectedAnswer(null);
-    setStartTime(Date.now()); // Сбрасываем время для следующего вопроса
+    setStartTime(Date.now());
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      finishGameWithAnswers(newAnswers);
+      const totalTime = 300 - timeLeft;
+      setTotalTimeSpent(totalTime);
+      setGameCompleted(true);
     }
   };
 
   const finishGame = () => {
-    finishGameWithAnswers(answers);
+    const totalTime = 300 - timeLeft;
+    setTotalTimeSpent(totalTime);
+    setGameCompleted(true);
   };
 
-  const finishGameWithAnswers = (finalAnswers) => {
-    const totalPoints = finalAnswers.reduce((sum, answer) => sum + answer.points, 0);
-    onComplete(totalPoints, finalAnswers);
+  const handleResultsContinue = () => {
+    const totalPoints = answers.reduce((sum, answer) => sum + answer.points, 0);
+    onComplete(totalPoints, answers);
   };
 
   const startGame = () => {
@@ -140,6 +140,20 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
           <p>Загрузка вопросов...</p>
         </div>
       </div>
+    );
+  }
+
+  if (gameCompleted) {
+    const totalPoints = answers.reduce((sum, answer) => sum + answer.points, 0);
+    return (
+      <ResultsScreen
+        roundType="quiz"
+        earnedPoints={totalPoints}
+        answers={answers}
+        totalQuestions={questions.length}
+        timeSpent={totalTimeSpent}
+        onContinue={handleResultsContinue}
+      />
     );
   }
 
@@ -165,18 +179,6 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
           <button className="start-game-btn" onClick={startGame}>
             🚀 Начать игру!
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (questions.length === 0) {
-    return (
-      <div className="quiz-intro">
-        <button className="back-btn" onClick={onBack}>← Назад</button>
-        <div className="error-screen">
-          <h2>⚠️ Вопросы не загружены</h2>
-          <p>Попробуйте обновить страницу или обратитесь к администратору</p>
         </div>
       </div>
     );
