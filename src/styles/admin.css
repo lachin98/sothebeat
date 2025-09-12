@@ -218,3 +218,289 @@
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Интерактивы таб */
+.interactives-tab h3 {
+  margin-bottom: 20px;
+}
+
+.rounds-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.rounds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.round-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.round-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.round-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.question-editor {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.selected-round {
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.question-form textarea {
+  width: 100%;
+  height: 80px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+  margin-bottom: 15px;
+  resize: vertical;
+}
+
+.variants-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.variants-grid input {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+}
+
+.correct-answer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.correct-answer input {
+  width: 60px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: white;
+}
+
+.question-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-danger {
+  background: #f44336;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #d32f2f;
+}
+
+/* Лидерборд таб */
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.leaderboard-controls {
+  display: flex;
+  gap: 15px;
+}
+
+.leaderboard-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.leaderboard-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-item:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  font-weight: bold;
+}
+
+.points {
+  color: #4a90e2;
+  font-weight: bold;
+}
+
+/* Участники таб */
+.participants-tab h3 {
+  margin-bottom: 20px;
+}
+
+.participants-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+}
+
+.sort-select {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+}
+
+.participants-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.participants-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.participant-item:last-child {
+  border-bottom: none;
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.participant-name {
+  font-weight: bold;
+  color: white;
+}
+
+.participant-username {
+  color: #888;
+  font-size: 14px;
+}
+
+.participant-points {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.points-value {
+  font-weight: bold;
+  color: #4a90e2;
+  min-width: 60px;
+  text-align: right;
+}
+
+.points-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-success {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #45a049;
+}
+
+.no-participants {
+  text-align: center;
+  color: #888;
+  padding: 40px;
+  font-style: italic;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .rounds-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .variants-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .leaderboard-header,
+  .participants-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .participant-points {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

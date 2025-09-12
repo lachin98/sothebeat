@@ -1,0 +1,94 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const StatusTab = ({ adminToken }) => {
+  const [gameState, setGameState] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [autoUpdate, setAutoUpdate] = useState(false);
+
+  const fetchStatus = async () => {
+    try {
+      const response = await axios.get('/api/admin', {
+        params: { action: 'status', token: adminToken }
+      });
+      setGameState(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Ошибка загрузки статуса:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, []);
+
+  useEffect(() => {
+    let interval;
+    if (autoUpdate) {
+      interval = setInterval(fetchStatus, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [autoUpdate]);
+
+  if (loading) {
+    return <div>Загрузка...</div>;
+  }
+
+  return (
+    <div className="status-tab">
+      <div className="status-indicator">
+        <div className="status-dot online"></div>
+        <span>Текущий статус</span>
+        <span className="status-value">{gameState?.currentPhase || 'lobby'}</span>
+        <span className="last-updated">
+          updated_at: {new Date(gameState?.lastUpdated).toLocaleString()}
+        </span>
+      </div>
+
+      <div className="current-phase">
+        <span>Фаза: {gameState?.currentPhase || 'lobby'}</span>
+      </div>
+
+      <div className="phases-status">
+        <div className={`phase-item ${gameState?.phases?.quiz ? 'active' : 'inactive'}`}>
+          ● Квиз
+        </div>
+        <div className={`phase-item ${gameState?.phases?.logic ? 'active' : 'inactive'}`}>
+          ● Где логика?
+        </div>
+        <div className={`phase-item ${gameState?.phases?.contact ? 'active' : 'inactive'}`}>
+          ● Есть контакт!
+        </div>
+        <div className={`phase-item ${gameState?.phases?.survey ? 'active' : 'inactive'}`}>
+          ● 100 к 1
+        </div>
+        <div className={`phase-item ${gameState?.phases?.auction ? 'active' : 'inactive'}`}>
+          ● Аукцион
+        </div>
+      </div>
+
+      <div className="online-stats">
+        <h3>Онлайн</h3>
+        <p>Сейчас онлайн: {gameState?.onlineUsers || 0}</p>
+        <p>Всего зарегистрировано: {gameState?.totalRegistered || 0}</p>
+        
+        <div className="admin-controls">
+          <button className="btn btn-primary" onClick={fetchStatus}>
+            Обновить
+          </button>
+          <label className="auto-update">
+            <input
+              type="checkbox"
+              checked={autoUpdate}
+              onChange={(e) => setAutoUpdate(e.target.checked)}
+            />
+            авто
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StatusTab;

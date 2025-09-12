@@ -1,6 +1,6 @@
 import { sql } from '@vercel/postgres';
 
-// Мок данные для начала
+// Мок данные для начала (в реальности будет из БД)
 let gameState = {
   currentPhase: 'lobby',
   onlineUsers: 0,
@@ -22,6 +22,13 @@ let leaderboard = [
   { rank: 4, name: 'Suhrab', points: 50 }
 ];
 
+let participants = [
+  { id: 1, name: 'Lina', username: 'lina_bar', points: 500 },
+  { id: 2, name: 'Dmitriy', username: 'dmitriy_mix', points: 180 },
+  { id: 3, name: 'Lachin', username: 'lachin_beat', points: 50 },
+  { id: 4, name: 'Suhrab', username: 'suhrab_pro', points: 50 }
+];
+
 export default async function handler(req, res) {
   const { method, body, query } = req;
   
@@ -29,7 +36,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Простая проверка токена
+  // Проверка токена
   const adminToken = query.token || body.token;
   if (adminToken !== 'a') {
     return res.status(401).json({ error: 'Invalid admin token' });
@@ -47,13 +54,6 @@ export default async function handler(req, res) {
         }
         
         if (query.action === 'participants') {
-          // Мок участников
-          const participants = [
-            { id: 1, name: 'Lina', username: 'lina_bar', points: 500 },
-            { id: 2, name: 'Dmitriy', username: 'dmitriy_mix', points: 180 },
-            { id: 3, name: 'Lachin', username: 'lachin_beat', points: 50 },
-            { id: 4, name: 'Suhrab', username: 'suhrab_pro', points: 50 }
-          ];
           return res.json(participants);
         }
         
@@ -73,14 +73,22 @@ export default async function handler(req, res) {
         }
         
         if (body.action === 'updatePoints') {
-          const participant = leaderboard.find(p => p.name === body.name);
+          // Обновляем в участниках
+          const participant = participants.find(p => p.name === body.name);
           if (participant) {
             participant.points += body.points;
+          }
+          
+          // Обновляем в лидерборде
+          const leaderParticipant = leaderboard.find(p => p.name === body.name);
+          if (leaderParticipant) {
+            leaderParticipant.points += body.points;
             // Пересортируем лидерборд
             leaderboard.sort((a, b) => b.points - a.points);
             leaderboard.forEach((p, i) => p.rank = i + 1);
           }
-          return res.json({ success: true, leaderboard });
+          
+          return res.json({ success: true, participant, leaderboard });
         }
         
         break;
