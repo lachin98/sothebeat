@@ -93,6 +93,67 @@ module.exports = async (req, res) => {
 
         break;
 
+      case 'PUT':
+        if (body.admin_token !== 'a') {
+          return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        if (body.action === 'update_quiz_question') {
+          await sql`
+            UPDATE quiz_questions 
+            SET question_text = ${body.question_text}, option_a = ${body.option_a}, 
+                option_b = ${body.option_b}, option_c = ${body.option_c}, 
+                option_d = ${body.option_d}, correct_answer = ${body.correct_answer}, 
+                points = ${body.points}
+            WHERE id = ${body.question_id}
+          `;
+          return res.json({ success: true });
+        }
+
+        if (body.action === 'update_logic_question') {
+          await sql`
+            UPDATE logic_questions 
+            SET question_text = ${body.question_text}, images = ${JSON.stringify(body.images)}, 
+                correct_answer = ${body.correct_answer}, alternatives = ${JSON.stringify(body.alternatives)}, 
+                points = ${body.points}
+            WHERE id = ${body.question_id}
+          `;
+          return res.json({ success: true });
+        }
+
+        if (body.action === 'update_survey_question') {
+          await sql`
+            UPDATE survey_questions 
+            SET question_text = ${body.question_text}, answers = ${JSON.stringify(body.answers)}
+            WHERE id = ${body.question_id}
+          `;
+          return res.json({ success: true });
+        }
+
+        break;
+
+      case 'DELETE':
+        if (body.admin_token !== 'a') {
+          return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        if (body.action === 'delete_quiz_question') {
+          await sql`DELETE FROM quiz_questions WHERE id = ${body.question_id}`;
+          return res.json({ success: true });
+        }
+
+        if (body.action === 'delete_logic_question') {
+          await sql`DELETE FROM logic_questions WHERE id = ${body.question_id}`;
+          return res.json({ success: true });
+        }
+
+        if (body.action === 'delete_survey_question') {
+          await sql`DELETE FROM survey_questions WHERE id = ${body.question_id}`;
+          return res.json({ success: true });
+        }
+
+        break;
+
       default:
         return res.status(405).json({ message: 'Method not allowed' });
     }
