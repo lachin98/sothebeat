@@ -1,33 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/*.js",
-      "use": "@vercel/node"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "redirects": [
-    {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.getmashgpt.com"
-        }
-      ],
-      "destination": "https://getmashgpt.com/$1",
-      "permanent": true
+      "destination": "/index.html"
     }
-  ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
