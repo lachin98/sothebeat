@@ -1,12 +1,10 @@
 import { sql } from '@vercel/postgres';
 
 export default async function handler(req, res) {
-  // Только POST запросы
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Простая защита - секретный ключ
   const { secret } = req.body;
   if (secret !== 'init-sothebeat-2025') {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -29,7 +27,6 @@ export default async function handler(req, res) {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
-    console.log('✅ Таблица users создана');
 
     // Создаем таблицу игровых сессий
     await sql`
@@ -44,7 +41,6 @@ export default async function handler(req, res) {
         time_spent INTEGER
       );
     `;
-    console.log('✅ Таблица game_sessions создана');
 
     // Создаем таблицу настроек игры
     await sql`
@@ -54,7 +50,6 @@ export default async function handler(req, res) {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
-    console.log('✅ Таблица game_config создана');
 
     // Создаем таблицу команд
     await sql`
@@ -65,7 +60,6 @@ export default async function handler(req, res) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
-    console.log('✅ Таблица teams создана');
 
     // Вставляем начальные настройки
     await sql`
@@ -77,7 +71,6 @@ export default async function handler(req, res) {
         value = EXCLUDED.value,
         updated_at = CURRENT_TIMESTAMP;
     `;
-    console.log('✅ Начальные настройки добавлены');
 
     // Добавляем тестовых пользователей
     await sql`
@@ -92,7 +85,6 @@ export default async function handler(req, res) {
         total_points = EXCLUDED.total_points,
         updated_at = CURRENT_TIMESTAMP;
     `;
-    console.log('✅ Тестовые пользователи добавлены');
 
     // Проверяем что все создалось
     const tablesCheck = await sql`
