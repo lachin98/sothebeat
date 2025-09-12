@@ -548,3 +548,49 @@ body {
     margin: 10px 0;
   }
 }
+
+.web-user-notice {
+  font-size: 11px;
+  color: #4a90e2;
+  background: rgba(74, 144, 226, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 4px 0;
+}
+
+.telegram-promo {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.telegram-promo h4 {
+  color: #4a90e2;
+  margin-bottom: 8px;
+}
+
+.telegram-promo p {
+  font-size: 14px;
+  color: #bbb;
+  margin-bottom: 12px;
+}
+
+.bot-link {
+  display: inline-block;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.bot-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
