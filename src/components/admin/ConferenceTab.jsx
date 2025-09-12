@@ -10,6 +10,7 @@ const ConferenceTab = ({ adminToken }) => {
     auction: false
   });
   const [rounds, setRounds] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const phaseLabels = {
     quiz: 'Квиз',
@@ -47,11 +48,12 @@ const ConferenceTab = ({ adminToken }) => {
     } catch (error) {
       console.error('Ошибка загрузки раундов:', error);
     }
+    setLoading(false);
   };
 
   const togglePhase = async (phaseName) => {
     try {
-      await fetch('/api/admin', {
+      const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -61,18 +63,47 @@ const ConferenceTab = ({ adminToken }) => {
         })
       });
       
-      setPhases(prev => ({
-        ...prev,
-        [phaseName]: !prev[phaseName]
-      }));
+      if (response.ok) {
+        setPhases(prev => ({
+          ...prev,
+          [phaseName]: !prev[phaseName]
+        }));
+        alert(`✅ Фаза "${phaseLabels[phaseName]}" ${phases[phaseName] ? 'отключена' : 'включена'}`);
+      } else {
+        alert('❌ Ошибка переключения фазы');
+      }
     } catch (error) {
       console.error('Ошибка переключения фазы:', error);
+      alert('❌ Ошибка сети');
+    }
+  };
+
+  const updateCurrentPhase = async () => {
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updatePhase',
+          phase: currentPhase,
+          token: adminToken
+        })
+      });
+      
+      if (response.ok) {
+        alert(`✅ Текущая фаза изменена на: ${currentPhase}`);
+      } else {
+        alert('❌ Ошибка смены фазы');
+      }
+    } catch (error) {
+      console.error('Ошибка смены фазы:', error);
+      alert('❌ Ошибка сети');
     }
   };
 
   const startRound = async (roundId) => {
     try {
-      await fetch('/api/admin', {
+      const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -81,16 +112,22 @@ const ConferenceTab = ({ adminToken }) => {
           token: adminToken
         })
       });
-      alert('Раунд запущен!');
-      fetchRounds();
+      
+      if (response.ok) {
+        alert('✅ Раунд запущен!');
+        fetchRounds();
+      } else {
+        alert('❌ Ошибка запуска раунда');
+      }
     } catch (error) {
       console.error('Ошибка запуска раунда:', error);
+      alert('❌ Ошибка сети');
     }
   };
 
   const stopRound = async (roundId) => {
     try {
-      await fetch('/api/admin', {
+      const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -99,20 +136,27 @@ const ConferenceTab = ({ adminToken }) => {
           token: adminToken
         })
       });
-      alert('Раунд остановлен!');
-      fetchRounds();
+      
+      if (response.ok) {
+        alert('✅ Раунд остановлен!');
+        fetchRounds();
+      } else {
+        alert('❌ Ошибка остановки раунда');
+      }
     } catch (error) {
       console.error('Ошибка остановки раунда:', error);
+      alert('❌ Ошибка сети');
     }
   };
 
-  const saveSettings = async () => {
-    alert('Настройки сохранены!');
+  const openHallScreen = () => {
+    const hallUrl = `/hall-screen?token=${adminToken}`;
+    window.open(hallUrl, '_blank', 'width=1200,height=800');
   };
 
-  const openHallScreen = () => {
-    window.open('/hall-screen', '_blank');
-  };
+  if (loading) {
+    return <div className="loading">Загрузка...</div>;
+  }
 
   return (
     <div className="conference-tab">
@@ -121,7 +165,7 @@ const ConferenceTab = ({ adminToken }) => {
       </div>
 
       <div className="rounds-management">
-        <h3>Управление раундами</h3>
+        <h3>🎮 Управление раундами</h3>
         <div className="rounds-list">
           {rounds.map(round => (
             <div key={round.id} className="round-item">
@@ -130,7 +174,7 @@ const ConferenceTab = ({ adminToken }) => {
                 <div className="round-meta">
                   <span className="round-type">{round.round_type}</span>
                   <span className="round-questions">
-                    Вопросов: {round.quiz_count || round.logic_count || round.survey_count || 0}
+                    📝 Вопросов: {round.quiz_count || round.logic_count || round.survey_count || 0}
                   </span>
                   <span className={`round-status ${round.is_active ? 'active' : 'inactive'}`}>
                     {round.is_active ? '🟢 Активен' : '🔴 Остановлен'}
@@ -161,25 +205,30 @@ const ConferenceTab = ({ adminToken }) => {
       </div>
 
       <div className="phase-management">
-        <h3>Управление фазами</h3>
+        <h3>⚙️ Управление фазами</h3>
         
         <div className="phase-selector">
           <label>Текущая фаза:</label>
-          <select 
-            value={currentPhase} 
-            onChange={(e) => setCurrentPhase(e.target.value)}
-          >
-            <option value="lobby">lobby</option>
-            <option value="quiz">quiz</option>
-            <option value="logic">logic</option>
-            <option value="contact">contact</option>
-            <option value="survey">survey</option>
-            <option value="auction">auction</option>
-          </select>
+          <div className="phase-selector-row">
+            <select 
+              value={currentPhase} 
+              onChange={(e) => setCurrentPhase(e.target.value)}
+            >
+              <option value="lobby">🏠 lobby</option>
+              <option value="quiz">🎯 quiz</option>
+              <option value="logic">🧩 logic</option>
+              <option value="contact">🤝 contact</option>
+              <option value="survey">📊 survey</option>
+              <option value="auction">🔥 auction</option>
+            </select>
+            <button className="btn btn-primary" onClick={updateCurrentPhase}>
+              💾 Применить
+            </button>
+          </div>
         </div>
 
         <div className="phase-controls">
-          <h4>Доступные фазы:</h4>
+          <h4>📋 Доступные фазы:</h4>
           {Object.entries(phases).map(([phase, isActive]) => (
             <label key={phase} className="phase-checkbox">
               <input
@@ -190,15 +239,14 @@ const ConferenceTab = ({ adminToken }) => {
               <span className={`phase-status ${isActive ? 'enabled' : 'disabled'}`}>
                 {isActive ? '✅' : '❌'}
               </span>
-              {phaseLabels[phase]}
+              <span className="phase-label">{phaseLabels[phase]}</span>
             </label>
           ))}
         </div>
 
         <div className="control-buttons">
-          <button className="btn btn-secondary">Загрузить</button>
-          <button className="btn btn-primary" onClick={saveSettings}>
-            Сохранить
+          <button className="btn btn-secondary" onClick={fetchGameState}>
+            📥 Загрузить состояние
           </button>
           <button className="btn btn-primary" onClick={openHallScreen}>
             📺 Открыть экран зала

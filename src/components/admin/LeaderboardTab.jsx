@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 const LeaderboardTab = ({ adminToken }) => {
   const [leaderboard, setLeaderboard] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -20,7 +20,6 @@ const LeaderboardTab = ({ adminToken }) => {
     } catch (error) {
       console.error('Ошибка загрузки лидерборда:', error);
     }
-    setLoading(false);
   };
 
   const fetchStats = async () => {
@@ -33,6 +32,7 @@ const LeaderboardTab = ({ adminToken }) => {
     } catch (error) {
       console.error('Ошибка загрузки статистики:', error);
     }
+    setLoading(false);
   };
 
   const refreshData = () => {
@@ -47,7 +47,7 @@ const LeaderboardTab = ({ adminToken }) => {
   };
 
   if (loading) {
-    return <div>Загрузка лидерборда...</div>;
+    return <div className="loading">Загрузка лидерборда...</div>;
   }
 
   return (
@@ -56,7 +56,7 @@ const LeaderboardTab = ({ adminToken }) => {
         <h2>🏆 Лидерборд</h2>
         <div className="leaderboard-controls">
           <button className="btn btn-primary" onClick={openHallScreen}>
-            📺 Открыть экран зала
+            📺 Экран зала
           </button>
           <button className="btn btn-secondary" onClick={refreshData}>
             🔄 Обновить
@@ -67,25 +67,25 @@ const LeaderboardTab = ({ adminToken }) => {
       <div className="stats-cards">
         <div className="stat-card">
           <div className="stat-number">{stats.total_users || 0}</div>
-          <div className="stat-label">Всего участников</div>
+          <div className="stat-label">👥 Всего участников</div>
         </div>
         <div className="stat-card">
           <div className="stat-number">{stats.total_results || 0}</div>
-          <div className="stat-label">Завершенных раундов</div>
+          <div className="stat-label">✅ Завершенных раундов</div>
         </div>
         <div className="stat-card">
           <div className="stat-number">{stats.total_teams || 0}</div>
-          <div className="stat-label">Активных команд</div>
+          <div className="stat-label">🤝 Активных команд</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number">{stats.avg_points || 0}</div>
-          <div className="stat-label">Средние баллы</div>
+          <div className="stat-number">{parseFloat(stats.avg_points || 0).toFixed(1)}</div>
+          <div className="stat-label">💰 Средние баллы</div>
         </div>
       </div>
 
       <div className="leaderboard-content">
         <div className="top-players">
-          <h3>�� Топ-10 игроков</h3>
+          <h3>🥇 Топ-10 игроков</h3>
           <div className="leaderboard-list">
             {leaderboard.map((participant, index) => (
               <div key={index} className="leaderboard-item">
@@ -107,14 +107,14 @@ const LeaderboardTab = ({ adminToken }) => {
           </div>
 
           {leaderboard.length === 0 && (
-            <div className="empty-leaderboard">
-              <p>Пока нет участников с баллами</p>
+            <div className="empty-state">
+              <h4>🏆 Пока нет лидеров</h4>
               <p>Участники появятся после завершения первого раунда</p>
             </div>
           )}
         </div>
 
-        {stats.round_stats && (
+        {stats.round_stats && stats.round_stats.length > 0 && (
           <div className="rounds-stats">
             <h3>📊 Статистика по раундам</h3>
             <div className="rounds-list">

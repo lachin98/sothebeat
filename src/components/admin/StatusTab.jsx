@@ -31,7 +31,7 @@ const StatusTab = ({ adminToken }) => {
   };
 
   if (loading) {
-    return <div>Загрузка...</div>;
+    return <div className="loading">Загрузка статуса...</div>;
   }
 
   return (
@@ -41,7 +41,7 @@ const StatusTab = ({ adminToken }) => {
         <span>Текущий статус</span>
         <span className="status-value">{gameState?.currentPhase || 'lobby'}</span>
         <span className="last-updated">
-          updated_at: {new Date(gameState?.lastUpdated).toLocaleString()}
+          updated_at: {gameState?.lastUpdated ? new Date(gameState.lastUpdated).toLocaleString() : 'Invalid Date'}
         </span>
       </div>
 
@@ -68,13 +68,13 @@ const StatusTab = ({ adminToken }) => {
       </div>
 
       <div className="online-stats">
-        <h3>Онлайн</h3>
-        <p>Сейчас онлайн: {gameState?.onlineUsers || 0}</p>
-        <p>Всего зарегистрировано: {gameState?.totalRegistered || 0}</p>
+        <h3>📊 Онлайн статистика</h3>
+        <p><strong>Сейчас онлайн:</strong> {gameState?.onlineUsers || 0}</p>
+        <p><strong>Всего зарегистрировано:</strong> {gameState?.totalRegistered || 0}</p>
         
         <div className="admin-controls">
           <button className="btn btn-primary" onClick={fetchStatus}>
-            Обновить
+            🔄 Обновить
           </button>
           <label className="auto-update">
             <input
@@ -82,7 +82,7 @@ const StatusTab = ({ adminToken }) => {
               checked={autoUpdate}
               onChange={(e) => setAutoUpdate(e.target.checked)}
             />
-            авто
+            <span>🔄 Авто-обновление</span>
           </label>
         </div>
       </div>
