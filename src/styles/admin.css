@@ -789,3 +789,565 @@
   gap: 8px;
   margin-bottom: 20px;
 }
+
+/* Дополнительные стили для всех табов */
+
+/* Загрузка */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: #888;
+  font-size: 16px;
+}
+
+/* Заголовки табов */
+.conference-header, .leaderboard-header, .participants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.conference-header h2, .leaderboard-header h2, .participants-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 20px;
+}
+
+/* Управление раундами */
+.rounds-management {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rounds-management h3 {
+  margin: 0 0 20px 0;
+  color: white;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.round-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.round-info {
+  flex: 1;
+}
+
+.round-title {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.round-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 13px;
+  color: #888;
+}
+
+.round-type {
+  background: rgba(74, 144, 226, 0.2);
+  color: #4a90e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.round-status.active {
+  color: #4caf50;
+}
+
+.round-status.inactive {
+  color: #888;
+}
+
+/* Управление фазами */
+.phase-management {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.phase-management h3 {
+  margin: 0 0 20px 0;
+  color: white;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.phase-selector {
+  margin-bottom: 20px;
+}
+
+.phase-selector label {
+  display: block;
+  margin-bottom: 8px;
+  color: #bbb;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.phase-selector-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.phase-selector select {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.phase-controls h4 {
+  margin: 0 0 15px 0;
+  color: #bbb;
+  font-size: 14px;
+}
+
+.phase-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.phase-checkbox:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.phase-checkbox input[type="checkbox"] {
+  margin: 0;
+}
+
+.phase-status {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.phase-status.enabled {
+  color: #4caf50;
+}
+
+.phase-status.disabled {
+  color: #888;
+}
+
+.phase-label {
+  color: white;
+  font-size: 14px;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Лидерборд */
+.leaderboard-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #4a90e2;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #888;
+}
+
+.leaderboard-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.top-players, .rounds-stats {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.top-players h3, .rounds-stats h3 {
+  margin: 0 0 20px 0;
+  color: white;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.player-rank {
+  min-width: 40px;
+  text-align: center;
+}
+
+.medal {
+  font-size: 20px;
+}
+
+.rank-number {
+  font-weight: bold;
+  color: #888;
+}
+
+.player-info {
+  flex: 1;
+}
+
+.player-name {
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.player-team {
+  font-size: 12px;
+  color: #4caf50;
+}
+
+.player-points {
+  font-weight: bold;
+  color: #4a90e2;
+  font-size: 16px;
+}
+
+.round-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.round-numbers {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.stat-name {
+  font-size: 11px;
+  color: #888;
+}
+
+/* Участники */
+.participants-count {
+  color: #888;
+  font-size: 14px;
+}
+
+.total-count {
+  font-weight: 600;
+}
+
+.filtered-count {
+  color: #4a90e2;
+}
+
+.participants-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 300px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.search-input::placeholder {
+  color: #888;
+}
+
+.sort-select {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.bulk-actions {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bulk-actions h3 {
+  margin: 0 0 15px 0;
+  color: white;
+  font-size: 16px;
+}
+
+.bulk-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.participant-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(74, 144, 226, 0.3);
+}
+
+.participant-info {
+  flex: 1;
+}
+
+.participant-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.participant-name {
+  font-weight: 600;
+  color: white;
+  font-size: 16px;
+}
+
+.participant-id {
+  font-size: 11px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.participant-username {
+  font-size: 14px;
+  color: #4a90e2;
+  margin-bottom: 4px;
+}
+
+.participant-team {
+  font-size: 13px;
+  color: #4caf50;
+  margin-bottom: 6px;
+}
+
+.participant-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: #888;
+}
+
+.participant-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.participant-points {
+  text-align: center;
+  margin-right: 15px;
+}
+
+.points-value {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.points-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.points-controls {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  height: 28px;
+}
+
+.btn-small:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+/* Автообновление чекбокс */
+.auto-update {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.auto-update input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Адаптивность для табов */
+@media (max-width: 1200px) {
+  .leaderboard-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .stats-cards {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .participants-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-input {
+    min-width: auto;
+  }
+  
+  .sort-select {
+    min-width: auto;
+  }
+  
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .participant-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .points-controls {
+    flex-wrap: wrap;
+  }
+  
+  .bulk-buttons {
+    justify-content: center;
+  }
+  
+  .round-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .round-controls {
+    align-self: flex-end;
+  }
+}
