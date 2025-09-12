@@ -1,7 +1,7 @@
 {
   "name": "sothebeat-bot",
   "version": "1.0.0",
-  "description": "SotheBEAT auction bot for BEAT 2025",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

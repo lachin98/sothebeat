@@ -1,4 +1,6 @@
-import { sql } from '@vercel/postgres';
+import pg from 'pg';
+
+const { Pool } = pg;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -10,11 +12,16 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  const pool = new Pool({
+    connectionString: process.env.POSTGRES_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   try {
     console.log('🚀 Начинаем инициализацию базы данных...');
 
-    // Создаем таблицу пользователей
-    await sql`
+    // Создаем таблицы
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id BIGINT PRIMARY KEY,
         username VARCHAR(255),
@@ -25,11 +32,10 @@ export default async function handler(req, res) {
         team_id VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
+      )
+    `);
 
-    // Создаем таблицу игровых сессий
-    await sql`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS game_sessions (
         id SERIAL PRIMARY KEY,
         user_id BIGINT,
@@ -39,41 +45,39 @@ export default async function handler(req, res) {
         completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         answers JSONB,
         time_spent INTEGER
-      );
-    `;
+      )
+    `);
 
-    // Создаем таблицу настроек игры
-    await sql`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS game_config (
         key VARCHAR(100) PRIMARY KEY,
         value JSONB,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
+      )
+    `);
 
-    // Создаем таблицу команд
-    await sql`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS teams (
         id VARCHAR(100) PRIMARY KEY,
         name VARCHAR(255),
         total_points INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `;
+      )
+    `);
 
     // Вставляем начальные настройки
-    await sql`
+    await pool.query(`
       INSERT INTO game_config (key, value) VALUES 
       ('current_phase', '"lobby"'),
       ('phases_status', '{"quiz": false, "logic": false, "contact": false, "survey": false, "auction": false}'),
       ('online_users', '0')
       ON CONFLICT (key) DO UPDATE SET
         value = EXCLUDED.value,
-        updated_at = CURRENT_TIMESTAMP;
-    `;
+        updated_at = CURRENT_TIMESTAMP
+    `);
 
     // Добавляем тестовых пользователей
-    await sql`
+    await pool.query(`
       INSERT INTO users (id, username, first_name, total_points) VALUES 
       (1, 'lina_bar', 'Lina', 500),
       (2, 'dmitriy_mix', 'Dmitriy', 180),
@@ -83,18 +87,19 @@ export default async function handler(req, res) {
         username = EXCLUDED.username,
         first_name = EXCLUDED.first_name,
         total_points = EXCLUDED.total_points,
-        updated_at = CURRENT_TIMESTAMP;
-    `;
+        updated_at = CURRENT_TIMESTAMP
+    `);
 
-    // Проверяем что все создалось
-    const tablesCheck = await sql`
+    // Проверяем результат
+    const userCount = await pool.query('SELECT COUNT(*) as count FROM users');
+    const configCount = await pool.query('SELECT COUNT(*) as count FROM game_config');
+    const tablesCheck = await pool.query(`
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'public';
-    `;
+      WHERE table_schema = 'public'
+    `);
 
-    const userCount = await sql`SELECT COUNT(*) as count FROM users`;
-    const configCount = await sql`SELECT COUNT(*) as count FROM game_config`;
+    await pool.end();
 
     console.log('🎉 База данных успешно инициализирована!');
 
@@ -108,6 +113,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('❌ Ошибка инициализации БД:', error);
+    await pool.end();
     return res.status(500).json({
       success: false,
       error: error.message
