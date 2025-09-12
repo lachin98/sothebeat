@@ -1,21 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import StatusTab from '../components/admin/StatusTab';
 import ConferenceTab from '../components/admin/ConferenceTab';
-import InteractivesTab from '../components/admin/InteractivesTab';
+import QuizTab from '../components/admin/QuizTab';
+import LogicTab from '../components/admin/LogicTab';
+import SurveyTab from '../components/admin/SurveyTab';
 import LeaderboardTab from '../components/admin/LeaderboardTab';
 import ParticipantsTab from '../components/admin/ParticipantsTab';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('status');
-  const [adminToken] = useState('a'); // В реальности будет из формы входа
+  const [adminToken] = useState('a');
   const [eventSlug] = useState('pr-demo');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    // Проверяем авторизацию в localStorage
+    const savedAuth = localStorage.getItem('admin_authenticated');
+    if (savedAuth === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    if (password === 'sothebeat2025') {
+      setIsAuthenticated(true);
+      localStorage.setItem('admin_authenticated', 'true');
+    } else {
+      alert('Неверный пароль!');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin_authenticated');
+    setActiveTab('status');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="admin-login">
+        <div className="login-card">
+          <h1>🔐 Админ панель SotheBEAT</h1>
+          <div className="login-form">
+            <input
+              type="password"
+              placeholder="Введите пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+            />
+            <button onClick={handleLogin}>Войти</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
-    { id: 'status', name: 'Статус' },
-    { id: 'conference', name: 'Конференция' },
-    { id: 'interactives', name: 'Интерактивы' },
-    { id: 'leaderboard', name: 'Лидерборд' },
-    { id: 'participants', name: 'Участники' }
+    { id: 'status', name: 'Статус', icon: '📊' },
+    { id: 'conference', name: 'Конференция', icon: '🎪' },
+    { id: 'quiz', name: 'Квиз', icon: '🎯' },
+    { id: 'logic', name: 'Где логика?', icon: '🧩' },
+    { id: 'survey', name: '100 к 1', icon: '📋' },
+    { id: 'leaderboard', name: 'Лидерборд', icon: '🏆' },
+    { id: 'participants', name: 'Участники', icon: '👥' }
   ];
 
   const renderTabContent = () => {
@@ -24,8 +73,12 @@ const AdminPanel = () => {
         return <StatusTab adminToken={adminToken} />;
       case 'conference':
         return <ConferenceTab adminToken={adminToken} />;
-      case 'interactives':
-        return <InteractivesTab adminToken={adminToken} />;
+      case 'quiz':
+        return <QuizTab adminToken={adminToken} />;
+      case 'logic':
+        return <LogicTab adminToken={adminToken} />;
+      case 'survey':
+        return <SurveyTab adminToken={adminToken} />;
       case 'leaderboard':
         return <LeaderboardTab adminToken={adminToken} />;
       case 'participants':
@@ -38,17 +91,22 @@ const AdminPanel = () => {
   return (
     <div className="admin-panel">
       <div className="admin-header">
-        <h1>Админка события</h1>
-        <div className="admin-info">
-          <div className="info-item">
-            <span>Event slug</span>
-            <span>{eventSlug}</span>
-          </div>
-          <div className="info-item">
-            <span>Admin token</span>
-            <span>{adminToken}</span>
+        <div className="admin-title">
+          <h1>Админка события</h1>
+          <div className="admin-info">
+            <div className="info-item">
+              <span>Event slug</span>
+              <span>{eventSlug}</span>
+            </div>
+            <div className="info-item">
+              <span>Admin token</span>
+              <span>{adminToken}</span>
+            </div>
           </div>
         </div>
+        <button className="logout-btn" onClick={handleLogout}>
+          Выход
+        </button>
       </div>
 
       <div className="admin-tabs">
@@ -58,7 +116,8 @@ const AdminPanel = () => {
             className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            {tab.name}
+            <span className="tab-icon">{tab.icon}</span>
+            <span className="tab-name">{tab.name}</span>
           </button>
         ))}
       </div>

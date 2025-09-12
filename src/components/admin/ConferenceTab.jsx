@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 const ConferenceTab = ({ adminToken }) => {
   const [currentPhase, setCurrentPhase] = useState('lobby');
@@ -10,6 +9,7 @@ const ConferenceTab = ({ adminToken }) => {
     survey: false,
     auction: false
   });
+  const [rounds, setRounds] = useState([]);
 
   const phaseLabels = {
     quiz: 'Квиз',
@@ -19,24 +19,46 @@ const ConferenceTab = ({ adminToken }) => {
     auction: 'Аукцион'
   };
 
+  useEffect(() => {
+    fetchGameState();
+    fetchRounds();
+  }, []);
+
   const fetchGameState = async () => {
     try {
-      const response = await axios.get('/api/admin', {
-        params: { action: 'status', token: adminToken }
-      });
-      setCurrentPhase(response.data.currentPhase);
-      setPhases(response.data.phases);
+      const response = await fetch(`/api/admin?action=status&token=${adminToken}`);
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentPhase(data.currentPhase);
+        setPhases(data.phases);
+      }
     } catch (error) {
       console.error('Ошибка загрузки состояния:', error);
     }
   };
 
+  const fetchRounds = async () => {
+    try {
+      const response = await fetch(`/api/admin?action=rounds&token=${adminToken}`);
+      if (response.ok) {
+        const data = await response.json();
+        setRounds(data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки раундов:', error);
+    }
+  };
+
   const togglePhase = async (phaseName) => {
     try {
-      await axios.post('/api/admin', {
-        action: 'togglePhase',
-        phase: phaseName,
-        token: adminToken
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'togglePhase',
+          phase: phaseName,
+          token: adminToken
+        })
       });
       
       setPhases(prev => ({
@@ -48,6 +70,42 @@ const ConferenceTab = ({ adminToken }) => {
     }
   };
 
+  const startRound = async (roundId) => {
+    try {
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'start_round',
+          round_id: roundId,
+          token: adminToken
+        })
+      });
+      alert('Раунд запущен!');
+      fetchRounds();
+    } catch (error) {
+      console.error('Ошибка запуска раунда:', error);
+    }
+  };
+
+  const stopRound = async (roundId) => {
+    try {
+      await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'stop_round',
+          round_id: roundId,
+          token: adminToken
+        })
+      });
+      alert('Раунд остановлен!');
+      fetchRounds();
+    } catch (error) {
+      console.error('Ошибка остановки раунда:', error);
+    }
+  };
+
   const saveSettings = async () => {
     alert('Настройки сохранены!');
   };
@@ -56,17 +114,57 @@ const ConferenceTab = ({ adminToken }) => {
     window.open('/hall-screen', '_blank');
   };
 
-  useEffect(() => {
-    fetchGameState();
-  }, []);
-
   return (
     <div className="conference-tab">
-      <div className="management-section">
-        <h3>Управление</h3>
+      <div className="conference-header">
+        <h2>🎪 Управление конференцией</h2>
+      </div>
+
+      <div className="rounds-management">
+        <h3>Управление раундами</h3>
+        <div className="rounds-list">
+          {rounds.map(round => (
+            <div key={round.id} className="round-item">
+              <div className="round-info">
+                <div className="round-title">{round.title}</div>
+                <div className="round-meta">
+                  <span className="round-type">{round.round_type}</span>
+                  <span className="round-questions">
+                    Вопросов: {round.quiz_count || round.logic_count || round.survey_count || 0}
+                  </span>
+                  <span className={`round-status ${round.is_active ? 'active' : 'inactive'}`}>
+                    {round.is_active ? '🟢 Активен' : '🔴 Остановлен'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="round-controls">
+                {round.is_active ? (
+                  <button 
+                    className="btn btn-warning"
+                    onClick={() => stopRound(round.id)}
+                  >
+                    ⏹️ Остановить
+                  </button>
+                ) : (
+                  <button 
+                    className="btn btn-success"
+                    onClick={() => startRound(round.id)}
+                  >
+                    ▶️ Запустить
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="phase-management">
+        <h3>Управление фазами</h3>
         
         <div className="phase-selector">
-          <label>Фаза</label>
+          <label>Текущая фаза:</label>
           <select 
             value={currentPhase} 
             onChange={(e) => setCurrentPhase(e.target.value)}
@@ -81,6 +179,7 @@ const ConferenceTab = ({ adminToken }) => {
         </div>
 
         <div className="phase-controls">
+          <h4>Доступные фазы:</h4>
           {Object.entries(phases).map(([phase, isActive]) => (
             <label key={phase} className="phase-checkbox">
               <input
@@ -88,6 +187,9 @@ const ConferenceTab = ({ adminToken }) => {
                 checked={isActive}
                 onChange={() => togglePhase(phase)}
               />
+              <span className={`phase-status ${isActive ? 'enabled' : 'disabled'}`}>
+                {isActive ? '✅' : '❌'}
+              </span>
               {phaseLabels[phase]}
             </label>
           ))}
@@ -99,7 +201,7 @@ const ConferenceTab = ({ adminToken }) => {
             Сохранить
           </button>
           <button className="btn btn-primary" onClick={openHallScreen}>
-            Открыть экран зала
+            📺 Открыть экран зала
           </button>
         </div>
       </div>

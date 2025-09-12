@@ -1,23 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 const StatusTab = ({ adminToken }) => {
   const [gameState, setGameState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [autoUpdate, setAutoUpdate] = useState(false);
-
-  const fetchStatus = async () => {
-    try {
-      const response = await axios.get('/api/admin', {
-        params: { action: 'status', token: adminToken }
-      });
-      setGameState(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Ошибка загрузки статуса:', error);
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchStatus();
@@ -30,6 +16,19 @@ const StatusTab = ({ adminToken }) => {
     }
     return () => clearInterval(interval);
   }, [autoUpdate]);
+
+  const fetchStatus = async () => {
+    try {
+      const response = await fetch(`/api/admin?action=status&token=${adminToken}`);
+      if (response.ok) {
+        const data = await response.json();
+        setGameState(data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки статуса:', error);
+    }
+    setLoading(false);
+  };
 
   if (loading) {
     return <div>Загрузка...</div>;

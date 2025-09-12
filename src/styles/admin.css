@@ -504,3 +504,605 @@
     justify-content: space-between;
   }
 }
+
+/* Авторизация */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 40px;
+  backdrop-filter: blur(20px);
+  text-align: center;
+  min-width: 300px;
+}
+
+.login-card h1 {
+  margin-bottom: 30px;
+  color: white;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+}
+
+/* Обновленный хедер админки */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.admin-title {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.logout-btn {
+  background: rgba(255, 87, 87, 0.2);
+  border: 1px solid rgba(255, 87, 87, 0.3);
+  color: #ff5757;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 87, 87, 0.3);
+}
+
+/* Обновленные табы */
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #333;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.tab-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #4a90e2;
+  border-bottom-color: #4a90e2;
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+.tab-name {
+  font-weight: 500;
+}
+
+/* Стили для табов вопросов */
+.quiz-tab, .logic-tab, .survey-tab {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 30px;
+  height: calc(100vh - 200px);
+}
+
+.questions-list {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.add-question-form {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.question-item, .logic-question-item, .survey-question-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.question-number {
+  background: rgba(74, 144, 226, 0.3);
+  color: #4a90e2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.question-points {
+  color: #4caf50;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.question-text {
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: white;
+  line-height: 1.4;
+}
+
+.question-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.option {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  font-size: 14px;
+  position: relative;
+}
+
+.option.correct {
+  background: rgba(76, 175, 80, 0.2);
+  border-left: 3px solid #4caf50;
+}
+
+.correct-mark {
+  position: absolute;
+  right: 8px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Стили форм */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #bbb;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.add-question-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-question-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+}
+
+.add-question-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Специфичные стили для логики */
+.images-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.images-display {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.image-emoji {
+  font-size: 24px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  min-width: 40px;
+}
+
+.alternative-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.remove-alt-btn {
+  background: #ff5757;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-alt-btn {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Специфичные стили для 100 к 1 */
+.answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.answer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.answer-text {
+  flex: 1;
+}
+
+.answer-points {
+  color: #4a90e2;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.answer-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.answer-text-input {
+  flex: 2;
+}
+
+.answer-points-input {
+  flex: 0 0 80px;
+}
+
+.remove-answer-btn {
+  background: #ff5757;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-answer-btn {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.form-hint {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #4a90e2;
+}
+
+/* Лидерборд стили */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4a90e2;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.medal {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+.rank-number {
+  font-weight: bold;
+  color: #888;
+  margin-right: 8px;
+}
+
+/* Участники стили */
+.participants-count {
+  color: #888;
+  font-size: 14px;
+}
+
+.bulk-actions {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.bulk-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.participant-info {
+  flex: 1;
+}
+
+.participant-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.participant-name {
+  font-weight: 600;
+  color: white;
+}
+
+.participant-id {
+  font-size: 12px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.participant-username {
+  font-size: 14px;
+  color: #4a90e2;
+  margin-bottom: 4px;
+}
+
+.participant-team {
+  font-size: 12px;
+  color: #4caf50;
+  margin-bottom: 4px;
+}
+
+.participant-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: #888;
+}
+
+.participant-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.participant-points {
+  text-align: center;
+  margin-right: 12px;
+}
+
+.points-value {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.points-label {
+  font-size: 11px;
+  color: #888;
+}
+
+.points-controls {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-success {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-warning {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-danger {
+  background: #f44336;
+  color: white;
+}
+
+.btn-small:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+/* Адаптив */
+@media (max-width: 1200px) {
+  .quiz-tab, .logic-tab, .survey-tab {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .add-question-form {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .tab-name {
+    display: none;
+  }
+  
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .participant-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .points-controls {
+    flex-wrap: wrap;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
