@@ -39,28 +39,92 @@ const QuizTab = ({ adminToken }) => {
         body: JSON.stringify({
           action: 'add_quiz_question',
           admin_token: adminToken,
-          round_id: 1, // ID квиз раунда
+          round_id: 1,
           ...newQuestion,
           order_num: questions.length + 1
         })
       });
 
       if (response.ok) {
-        setNewQuestion({
-          question_text: '',
-          option_a: '',
-          option_b: '',
-          option_c: '',
-          option_d: '',
-          correct_answer: 0,
-          points: 10
-        });
+        resetForm();
         fetchQuestions();
         alert('Вопрос добавлен!');
       }
     } catch (error) {
       console.error('Ошибка добавления вопроса:', error);
     }
+  };
+
+  const handleEditQuestion = (question) => {
+    setEditingQuestion(question.id);
+    setNewQuestion({
+      question_text: question.question_text,
+      option_a: question.option_a,
+      option_b: question.option_b,
+      option_c: question.option_c,
+      option_d: question.option_d,
+      correct_answer: question.correct_answer,
+      points: question.points
+    });
+  };
+
+  const handleUpdateQuestion = async () => {
+    try {
+      const response = await fetch('/api/questions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_quiz_question',
+          admin_token: adminToken,
+          question_id: editingQuestion,
+          ...newQuestion
+        })
+      });
+
+      if (response.ok) {
+        resetForm();
+        fetchQuestions();
+        alert('Вопрос обновлен!');
+      }
+    } catch (error) {
+      console.error('Ошибка обновления вопроса:', error);
+    }
+  };
+
+  const handleDeleteQuestion = async (questionId) => {
+    if (!confirm('Удалить этот вопрос?')) return;
+
+    try {
+      const response = await fetch('/api/questions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete_quiz_question',
+          admin_token: adminToken,
+          question_id: questionId
+        })
+      });
+
+      if (response.ok) {
+        fetchQuestions();
+        alert('Вопрос удален!');
+      }
+    } catch (error) {
+      console.error('Ошибка удаления вопроса:', error);
+    }
+  };
+
+  const resetForm = () => {
+    setEditingQuestion(null);
+    setNewQuestion({
+      question_text: '',
+      option_a: '',
+      option_b: '',
+      option_c: '',
+      option_d: '',
+      correct_answer: 0,
+      points: 10
+    });
   };
 
   if (loading) {
@@ -85,9 +149,28 @@ const QuizTab = ({ adminToken }) => {
                 <span className="question-number">#{index + 1}</span>
                 <span className="question-points">{question.points} баллов</span>
               </div>
+              
+              <div className="question-actions">
+                <button 
+                  className="edit-btn"
+                  onClick={() => handleEditQuestion(question)}
+                  title="Редактировать"
+                >
+                  ✏️
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={() => handleDeleteQuestion(question.id)}
+                  title="Удалить"
+                >
+                  🗑️
+                </button>
+              </div>
+              
               <div className="question-text">
                 {question.question_text}
               </div>
+              
               <div className="question-options">
                 {[question.option_a, question.option_b, question.option_c, question.option_d].map((option, optIndex) => (
                   <div 
@@ -101,16 +184,24 @@ const QuizTab = ({ adminToken }) => {
               </div>
             </div>
           ))}
+
+          {questions.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#888', padding: '40px' }}>
+              Пока нет вопросов. Добавьте первый вопрос справа →
+            </div>
+          )}
         </div>
 
         <div className="add-question-form">
-          <h3>Добавить новый вопрос</h3>
+          <h3>{editingQuestion ? 'Редактировать вопрос' : 'Добавить новый вопрос'}</h3>
+          
           <div className="form-group">
             <label>Текст вопроса:</label>
             <textarea
               value={newQuestion.question_text}
               onChange={(e) => setNewQuestion({...newQuestion, question_text: e.target.value})}
               placeholder="Введите текст вопроса"
+              rows={3}
             />
           </div>
 
@@ -171,20 +262,41 @@ const QuizTab = ({ adminToken }) => {
               <input
                 type="number"
                 value={newQuestion.points}
-                onChange={(e) => setNewQuestion({...newQuestion, points: parseInt(e.target.value)})}
+                onChange={(e) => setNewQuestion({...newQuestion, points: parseInt(e.target.value) || 10})}
                 min="1"
                 max="50"
               />
             </div>
           </div>
 
-          <button 
-            className="add-question-btn"
-            onClick={handleAddQuestion}
-            disabled={!newQuestion.question_text || !newQuestion.option_a}
-          >
-            Добавить вопрос
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {editingQuestion ? (
+              <>
+                <button 
+                  className="add-question-btn"
+                  onClick={handleUpdateQuestion}
+                  disabled={!newQuestion.question_text || !newQuestion.option_a}
+                >
+                  Обновить вопрос
+                </button>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={resetForm}
+                  style={{ padding: '12px 16px' }}
+                >
+                  Отмена
+                </button>
+              </>
+            ) : (
+              <button 
+                className="add-question-btn"
+                onClick={handleAddQuestion}
+                disabled={!newQuestion.question_text || !newQuestion.option_a}
+              >
+                Добавить вопрос
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

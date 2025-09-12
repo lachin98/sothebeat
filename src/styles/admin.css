@@ -1,511 +1,13 @@
+/* Базовые стили админки */
 .admin-panel {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  background: #1a1a1a;
-  color: white;
   min-height: 100vh;
-}
-
-.admin-header {
-  margin-bottom: 30px;
-}
-
-.admin-header h1 {
-  margin-bottom: 20px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   color: white;
-}
-
-.admin-info {
-  display: flex;
-  gap: 30px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.info-item span:first-child {
-  color: #888;
-  font-size: 14px;
-}
-
-.info-item span:last-child {
-  color: white;
-  font-weight: bold;
-}
-
-.admin-tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #333;
-}
-
-.tab-btn {
-  padding: 12px 24px;
-  background: transparent;
-  border: none;
-  color: #888;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s;
-}
-
-.tab-btn:hover {
-  color: white;
-}
-
-.tab-btn.active {
-  color: #4a90e2;
-  border-bottom-color: #4a90e2;
-  background: rgba(74, 144, 226, 0.1);
-}
-
-.admin-content {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 24px;
-}
-
-/* Статус таб */
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.status-dot.online {
-  background: #4CAF50;
-}
-
-.status-value {
-  font-weight: bold;
-  color: #4a90e2;
-}
-
-.last-updated {
-  color: #666;
-  font-size: 12px;
-  margin-left: auto;
-}
-
-.current-phase {
-  margin-bottom: 20px;
-  padding: 12px;
-  background: rgba(74, 144, 226, 0.1);
-  border-radius: 8px;
-}
-
-.phases-status {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
-
-.phase-item {
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.phase-item.active {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4CAF50;
-}
-
-.phase-item.inactive {
-  background: rgba(244, 67, 54, 0.2);
-  color: #f44336;
-}
-
-.online-stats h3 {
-  margin-bottom: 15px;
-}
-
-.admin-controls {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.auto-update {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #888;
-}
-
-/* Конференция таб */
-.management-section h3 {
-  margin-bottom: 20px;
-}
-
-.phase-selector {
-  margin-bottom: 20px;
-}
-
-.phase-selector label {
-  display: block;
-  margin-bottom: 8px;
-  color: #888;
-}
-
-.phase-selector select {
-  width: 200px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-}
-
-.phase-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 30px;
-}
-
-.phase-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  cursor: pointer;
-}
-
-.control-buttons {
-  display: flex;
-  gap: 15px;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background: #4a90e2;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #357abd;
-}
-
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Интерактивы таб */
-.interactives-tab h3 {
-  margin-bottom: 20px;
-}
-
-.rounds-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-}
-
-.rounds-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.round-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.round-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-.round-controls {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-small {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.question-editor {
-  background: rgba(255, 255, 255, 0.05);
   padding: 20px;
-  border-radius: 8px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.selected-round {
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.question-form textarea {
-  width: 100%;
-  height: 80px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-  margin-bottom: 15px;
-  resize: vertical;
-}
-
-.variants-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.variants-grid input {
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-}
-
-.correct-answer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.correct-answer input {
-  width: 60px;
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #333;
-  border-radius: 4px;
-  color: white;
-}
-
-.question-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.btn-danger {
-  background: #f44336;
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #d32f2f;
-}
-
-/* Лидерборд таб */
-.leaderboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.leaderboard-controls {
-  display: flex;
-  gap: 15px;
-}
-
-.leaderboard-list {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-}
-
-.leaderboard-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.leaderboard-item:last-child {
-  border-bottom: none;
-}
-
-.rank {
-  font-weight: bold;
-}
-
-.points {
-  color: #4a90e2;
-  font-weight: bold;
-}
-
-/* Участники таб */
-.participants-tab h3 {
-  margin-bottom: 20px;
-}
-
-.participants-controls {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-  align-items: center;
-}
-
-.search-input {
-  flex: 1;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-}
-
-.sort-select {
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-}
-
-.participants-actions {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.participants-list {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 20px;
-}
-
-.participant-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.participant-item:last-child {
-  border-bottom: none;
-}
-
-.participant-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.participant-name {
-  font-weight: bold;
-  color: white;
-}
-
-.participant-username {
-  color: #888;
-  font-size: 14px;
-}
-
-.participant-points {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.points-value {
-  font-weight: bold;
-  color: #4a90e2;
-  min-width: 60px;
-  text-align: right;
-}
-
-.points-controls {
-  display: flex;
-  gap: 5px;
-}
-
-.btn-success {
-  background: #4CAF50;
-  color: white;
-}
-
-.btn-success:hover {
-  background: #45a049;
-}
-
-.no-participants {
-  text-align: center;
-  color: #888;
-  padding: 40px;
-  font-style: italic;
-}
-
-/* Адаптив */
-@media (max-width: 768px) {
-  .rounds-section {
-    grid-template-columns: 1fr;
-  }
-  
-  .variants-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .leaderboard-header,
-  .participants-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .participant-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .participant-points {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-/* Авторизация */
 .admin-login {
   min-height: 100vh;
   display: flex;
@@ -522,11 +24,6 @@
   backdrop-filter: blur(20px);
   text-align: center;
   min-width: 300px;
-}
-
-.login-card h1 {
-  margin-bottom: 30px;
-  color: white;
 }
 
 .login-form input {
@@ -548,28 +45,48 @@
   border-radius: 8px;
   color: white;
   font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.login-form button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
-}
-
-/* Обновленный хедер админки */
+/* Хедер админки */
 .admin-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #333;
 }
 
-.admin-title {
+.admin-title h1 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 24px;
+}
+
+.admin-info {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.info-item {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+}
+
+.info-item span:first-child {
+  color: #888;
+  font-size: 12px;
+}
+
+.info-item span:last-child {
+  color: #4a90e2;
+  font-family: monospace;
+  background: rgba(74, 144, 226, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .logout-btn {
@@ -579,20 +96,15 @@
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 87, 87, 0.3);
-}
-
-/* Обновленные табы */
+/* Табы */
 .admin-tabs {
   display: flex;
   gap: 0;
   margin-bottom: 30px;
   border-bottom: 1px solid #333;
-  flex-wrap: wrap;
+  overflow-x: auto;
 }
 
 .tab-btn {
@@ -606,7 +118,7 @@
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.3s;
-  font-size: 14px;
+  white-space: nowrap;
 }
 
 .tab-btn:hover {
@@ -620,42 +132,86 @@
   background: rgba(74, 144, 226, 0.1);
 }
 
-.tab-icon {
-  font-size: 16px;
+/* Контент админки */
+.admin-content {
+  min-height: calc(100vh - 200px);
 }
 
-.tab-name {
-  font-weight: 500;
-}
-
-/* Стили для табов вопросов */
-.quiz-tab, .logic-tab, .survey-tab {
-  display: grid;
-  grid-template-columns: 1fr 400px;
+/* ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ КВИЗ ТАБА */
+.quiz-tab {
+  display: flex;
   gap: 30px;
-  height: calc(100vh - 200px);
+  min-height: calc(100vh - 250px);
 }
 
+.quiz-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+}
+
+.quiz-header h2 {
+  margin: 0;
+  color: white;
+}
+
+.quiz-stats {
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.quiz-content {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+}
+
+/* Левая панель - список вопросов */
 .questions-list {
+  flex: 2;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   padding: 20px;
   overflow-y: auto;
+  max-height: calc(100vh - 300px);
 }
 
+.questions-list h3 {
+  margin: 0 0 20px 0;
+  color: white;
+  font-size: 18px;
+}
+
+/* Правая панель - форма добавления */
 .add-question-form {
+  flex: 1;
+  min-width: 400px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 20px;
   overflow-y: auto;
+  max-height: calc(100vh - 300px);
 }
 
-.question-item, .logic-question-item, .survey-question-item {
+.add-question-form h3 {
+  margin: 0 0 20px 0;
+  color: white;
+  font-size: 16px;
+}
+
+/* Стили вопросов */
+.question-item {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 16px;
+  position: relative;
 }
 
 .question-header {
@@ -713,6 +269,38 @@
   font-weight: bold;
 }
 
+.question-actions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.question-item:hover .question-actions {
+  opacity: 1;
+}
+
+.edit-btn, .delete-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.edit-btn {
+  background: rgba(255, 152, 0, 0.3);
+  color: #ff9800;
+}
+
+.delete-btn {
+  background: rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
 /* Стили форм */
 .form-group {
   margin-bottom: 20px;
@@ -723,6 +311,7 @@
   margin-bottom: 6px;
   color: #bbb;
   font-weight: 500;
+  font-size: 14px;
 }
 
 .form-group input,
@@ -735,11 +324,13 @@
   border-radius: 6px;
   color: white;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
 .form-group textarea {
   resize: vertical;
   min-height: 80px;
+  font-family: inherit;
 }
 
 .options-grid {
@@ -764,6 +355,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 14px;
 }
 
 .add-question-btn:hover:not(:disabled) {
@@ -774,275 +366,70 @@
 .add-question-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Специфичные стили для логики */
-.images-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .quiz-content {
+    flex-direction: column;
+  }
+  
+  .add-question-form {
+    min-width: auto;
+    max-height: 500px;
+  }
+  
+  .questions-list {
+    max-height: 400px;
+  }
 }
 
-.images-display {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 10px;
+  }
+  
+  .admin-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .admin-info {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .tab-name {
+    display: none;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.image-emoji {
-  font-size: 24px;
-  padding: 8px;
+/* Общие кнопки */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+}
+
+.btn-secondary {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  text-align: center;
-  min-width: 40px;
-}
-
-.alternative-input {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-}
-
-.remove-alt-btn {
-  background: #ff5757;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.add-alt-btn {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* Специфичные стили для 100 к 1 */
-.answers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.answer-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-}
-
-.answer-text {
-  flex: 1;
-}
-
-.answer-points {
-  color: #4a90e2;
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.answer-input-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-}
-
-.answer-text-input {
-  flex: 2;
-}
-
-.answer-points-input {
-  flex: 0 0 80px;
-}
-
-.remove-answer-btn {
-  background: #ff5757;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.add-answer-btn {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.form-hint {
-  background: rgba(74, 144, 226, 0.1);
-  border: 1px solid rgba(74, 144, 226, 0.3);
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  color: #4a90e2;
-}
-
-/* Лидерборд стили */
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  margin-bottom: 30px;
-}
-
-.stat-card {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  color: #4a90e2;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #888;
-}
-
-.medal {
-  font-size: 20px;
-  margin-right: 8px;
-}
-
-.rank-number {
-  font-weight: bold;
-  color: #888;
-  margin-right: 8px;
-}
-
-/* Участники стили */
-.participants-count {
-  color: #888;
-  font-size: 14px;
-}
-
-.bulk-actions {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.bulk-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.participant-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-.participant-info {
-  flex: 1;
-}
-
-.participant-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.participant-name {
-  font-weight: 600;
-  color: white;
-}
-
-.participant-id {
-  font-size: 12px;
-  color: #666;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.participant-username {
-  font-size: 14px;
-  color: #4a90e2;
-  margin-bottom: 4px;
-}
-
-.participant-team {
-  font-size: 12px;
-  color: #4caf50;
-  margin-bottom: 4px;
-}
-
-.participant-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 11px;
-  color: #888;
-}
-
-.participant-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.participant-points {
-  text-align: center;
-  margin-right: 12px;
-}
-
-.points-value {
-  display: block;
-  font-size: 18px;
-  font-weight: bold;
-  color: #4a90e2;
-}
-
-.points-label {
-  font-size: 11px;
-  color: #888;
-}
-
-.points-controls {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.btn-small {
-  padding: 4px 8px;
-  font-size: 11px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  color: #bbb;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-success {
@@ -1060,49 +447,44 @@
   color: white;
 }
 
-.btn-small:hover {
-  transform: translateY(-1px);
+.btn:hover {
+  transform: translateY(-2px);
   opacity: 0.9;
 }
 
-/* Адаптив */
-@media (max-width: 1200px) {
-  .quiz-tab, .logic-tab, .survey-tab {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .add-question-form {
-    max-height: 400px;
-  }
+/* Статус индикаторы */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
 }
 
-@media (max-width: 768px) {
-  .admin-tabs {
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .tab-name {
-    display: none;
-  }
-  
-  .participant-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .participant-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .points-controls {
-    flex-wrap: wrap;
-  }
-  
-  .options-grid {
-    grid-template-columns: 1fr;
-  }
+.status-dot.online {
+  background: #4caf50;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.phase-item {
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 4px;
+  font-size: 12px;
+}
+
+.phase-item.active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.phase-item.inactive {
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
 }
