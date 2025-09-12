@@ -1,34 +1,5 @@
 import { sql } from '@vercel/postgres';
 
-// Мок данные для начала (в реальности будет из БД)
-let gameState = {
-  currentPhase: 'lobby',
-  onlineUsers: 0,
-  totalRegistered: 4,
-  phases: {
-    quiz: false,
-    logic: false,
-    contact: false,
-    survey: false,
-    auction: false
-  },
-  lastUpdated: new Date().toISOString()
-};
-
-let leaderboard = [
-  { rank: 1, name: 'Lina', points: 500 },
-  { rank: 2, name: 'Dmitriy', points: 180 },
-  { rank: 3, name: 'Lachin', points: 50 },
-  { rank: 4, name: 'Suhrab', points: 50 }
-];
-
-let participants = [
-  { id: 1, name: 'Lina', username: 'lina_bar', points: 500 },
-  { id: 2, name: 'Dmitriy', username: 'dmitriy_mix', points: 180 },
-  { id: 3, name: 'Lachin', username: 'lachin_beat', points: 50 },
-  { id: 4, name: 'Suhrab', username: 'suhrab_pro', points: 50 }
-];
-
 export default async function handler(req, res) {
   const { method, body, query } = req;
   
@@ -46,49 +17,30 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         if (query.action === 'status') {
-          return res.json(gameState);
+          return await getGameStatus(res);
         }
         
         if (query.action === 'leaderboard') {
-          return res.json(leaderboard);
+          return await getLeaderboard(res);
         }
         
         if (query.action === 'participants') {
-          return res.json(participants);
+          return await getParticipants(res);
         }
         
         break;
 
       case 'POST':
         if (body.action === 'updatePhase') {
-          gameState.currentPhase = body.phase;
-          gameState.lastUpdated = new Date().toISOString();
-          return res.json({ success: true, gameState });
+          return await updatePhase(res, body.phase);
         }
         
         if (body.action === 'togglePhase') {
-          gameState.phases[body.phase] = !gameState.phases[body.phase];
-          gameState.lastUpdated = new Date().toISOString();
-          return res.json({ success: true, gameState });
+          return await togglePhase(res, body.phase);
         }
         
         if (body.action === 'updatePoints') {
-          // Обновляем в участниках
-          const participant = participants.find(p => p.name === body.name);
-          if (participant) {
-            participant.points += body.points;
-          }
-          
-          // Обновляем в лидерборде
-          const leaderParticipant = leaderboard.find(p => p.name === body.name);
-          if (leaderParticipant) {
-            leaderParticipant.points += body.points;
-            // Пересортируем лидерборд
-            leaderboard.sort((a, b) => b.points - a.points);
-            leaderboard.forEach((p, i) => p.rank = i + 1);
-          }
-          
-          return res.json({ success: true, participant, leaderboard });
+          return await updateUserPoints(res, body.name, body.points);
         }
         
         break;
@@ -102,4 +54,98 @@ export default async function handler(req, res) {
     console.error('Admin API error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+async function getGameStatus(res) {
+  const config = await sql`SELECT key, value FROM game_config WHERE key IN ('current_phase', 'phases_status', 'online_users')`;
+  
+  const gameState = {
+    currentPhase: 'lobby',
+    phases: { quiz: false, logic: false, contact: false, survey: false, auction: false },
+    onlineUsers: 0,
+    totalRegistered: 0,
+    lastUpdated: new Date().toISOString()
+  };
+
+  // Парсим конфиг из базы
+  config.rows.forEach(row => {
+    if (row.key === 'current_phase') {
+      gameState.currentPhase = JSON.parse(row.value);
+    } else if (row.key === 'phases_status') {
+      gameState.phases = JSON.parse(row.value);
+    } else if (row.key === 'online_users') {
+      gameState.onlineUsers = JSON.parse(row.value);
+    }
+  });
+
+  // Считаем общее количество пользователей
+  const userCount = await sql`SELECT COUNT(*) as count FROM users`;
+  gameState.totalRegistered = parseInt(userCount.rows[0].count);
+
+  return res.json(gameState);
+}
+
+async function getLeaderboard(res) {
+  const users = await sql`
+    SELECT first_name as name, total_points as points 
+    FROM users 
+    ORDER BY total_points DESC 
+    LIMIT 10
+  `;
+  
+  const leaderboard = users.rows.map((user, index) => ({
+    rank: index + 1,
+    name: user.name,
+    points: user.points
+  }));
+  
+  return res.json(leaderboard);
+}
+
+async function getParticipants(res) {
+  const users = await sql`
+    SELECT id, username, first_name as name, total_points as points 
+    FROM users 
+    ORDER BY total_points DESC
+  `;
+  
+  return res.json(users.rows);
+}
+
+async function updatePhase(res, phase) {
+  await sql`
+    UPDATE game_config 
+    SET value = ${JSON.stringify(phase)}, updated_at = CURRENT_TIMESTAMP
+    WHERE key = 'current_phase'
+  `;
+  
+  return res.json({ success: true, phase });
+}
+
+async function togglePhase(res, phase) {
+  // Получаем текущее состояние фаз
+  const current = await sql`SELECT value FROM game_config WHERE key = 'phases_status'`;
+  const phases = JSON.parse(current.rows[0].value);
+  
+  // Переключаем фазу
+  phases[phase] = !phases[phase];
+  
+  // Сохраняем обновленное состояние
+  await sql`
+    UPDATE game_config 
+    SET value = ${JSON.stringify(phases)}, updated_at = CURRENT_TIMESTAMP
+    WHERE key = 'phases_status'
+  `;
+  
+  return res.json({ success: true, phases });
+}
+
+async function updateUserPoints(res, userName, points) {
+  await sql`
+    UPDATE users 
+    SET total_points = total_points + ${points}, updated_at = CURRENT_TIMESTAMP
+    WHERE first_name = ${userName}
+  `;
+  
+  return res.json({ success: true });
 }
