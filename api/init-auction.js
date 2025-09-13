@@ -70,9 +70,14 @@ module.exports = async (req, res) => {
   try {
     console.log('🏛️ Создаем таблицы для аукциона...');
 
+    // Сначала удаляем старые таблицы если они существуют
+    await sql`DROP TABLE IF EXISTS auction_bids CASCADE`;
+    await sql`DROP TABLE IF EXISTS auction_lots CASCADE`;
+    console.log('Удалены старые таблицы');
+
     // Создаем таблицу лотов
     await sql`
-      CREATE TABLE IF NOT EXISTS auction_lots (
+      CREATE TABLE auction_lots (
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT,
@@ -90,12 +95,13 @@ module.exports = async (req, res) => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
+    console.log('✅ Таблица auction_lots создана');
 
     // Создаем таблицу ставок
     await sql`
-      CREATE TABLE IF NOT EXISTS auction_bids (
+      CREATE TABLE auction_bids (
         id SERIAL PRIMARY KEY,
-        lot_id INTEGER REFERENCES auction_lots(id),
+        lot_id INTEGER REFERENCES auction_lots(id) ON DELETE CASCADE,
         user_id BIGINT NOT NULL,
         user_name VARCHAR(255),
         bid_amount INTEGER NOT NULL,
@@ -104,41 +110,62 @@ module.exports = async (req, res) => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
+    console.log('✅ Таблица auction_bids создана');
 
     // Создаем индексы для быстрого поиска
-    await sql`CREATE INDEX IF NOT EXISTS idx_auction_lots_active ON auction_lots(is_active, order_num)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_auction_bids_lot ON auction_bids(lot_id, created_at DESC)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_auction_bids_user ON auction_bids(user_id)`;
-
-    console.log('✅ Таблицы созданы');
+    await sql`CREATE INDEX idx_auction_lots_active ON auction_lots(is_active, order_num)`;
+    await sql`CREATE INDEX idx_auction_bids_lot ON auction_bids(lot_id, created_at DESC)`;
+    await sql`CREATE INDEX idx_auction_bids_user ON auction_bids(user_id)`;
+    console.log('✅ Индексы созданы');
 
     // Добавляем лоты из ТЗ
     for (const lot of auctionLots) {
       await sql`
         INSERT INTO auction_lots (title, description, starting_price, image_url, order_num)
         VALUES (${lot.title}, ${lot.description}, ${lot.starting_price}, ${lot.image_url}, ${lot.order_num})
-        ON CONFLICT DO NOTHING
       `;
     }
-
     console.log('✅ Лоты добавлены');
 
     // Проверяем что получилось
     const lotsCount = await sql`SELECT COUNT(*) as count FROM auction_lots`;
     const bidsCount = await sql`SELECT COUNT(*) as count FROM auction_bids`;
 
+    // Проверяем структуру таблиц
+    const lotsStructure = await sql`
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'auction_lots'
+      ORDER BY ordinal_position
+    `;
+    
+    const bidsStructure = await sql`
+      SELECT column_name, data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'auction_bids'
+      ORDER BY ordinal_position
+    `;
+
+    console.log('Структура auction_lots:', lotsStructure.rows);
+    console.log('Структура auction_bids:', bidsStructure.rows);
+
     return res.json({
       success: true,
       message: 'Аукцион инициализирован',
       lots: parseInt(lotsCount.rows[0].count),
-      bids: parseInt(bidsCount.rows[0].count)
+      bids: parseInt(bidsCount.rows[0].count),
+      tables_created: {
+        auction_lots: lotsStructure.rows.length,
+        auction_bids: bidsStructure.rows.length
+      }
     });
 
   } catch (error) {
     console.error('❌ Ошибка инициализации аукциона:', error);
     return res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      details: error.toString()
     });
   }
 };
