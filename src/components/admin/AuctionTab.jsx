@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 const AuctionTab = ({ adminToken }) => {
   const [lots, setLots] = useState([]);
   const [activeLot, setActiveLot] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
   const [liveBids, setLiveBids] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newLot, setNewLot] = useState({
@@ -23,11 +22,11 @@ const AuctionTab = ({ adminToken }) => {
     fetchActiveLot();
     fetchLiveBids();
     
-    // Обновляем активный лот каждую секунду
+    // Обновляем данные каждые 2 секунды
     const interval = setInterval(() => {
       fetchActiveLot();
       fetchLiveBids();
-    }, 1000);
+    }, 2000);
     
     return () => clearInterval(interval);
   }, []);
@@ -60,7 +59,6 @@ const AuctionTab = ({ adminToken }) => {
       if (response.ok) {
         const data = await response.json();
         setActiveLot(data.lot);
-        setTimeLeft(data.timeLeft || 0);
       }
     } catch (error) {
       console.error('Ошибка загрузки активного лота:', error);
@@ -80,7 +78,8 @@ const AuctionTab = ({ adminToken }) => {
   };
 
   const handleStartLot = async (lotId) => {
-    if (!confirm('Запустить аукцион по этому лоту на 60 секунд?')) return;
+    const lot = lots.find(l => l.id === lotId);
+    if (!confirm(`Запустить аукцион по лоту:\n"${lot?.title}"\n\nЗавершение только вручную!`)) return;
 
     try {
       const response = await fetch('/api/auction', {
@@ -108,7 +107,8 @@ const AuctionTab = ({ adminToken }) => {
   };
 
   const handleEndLot = async (lotId) => {
-    if (!confirm('Завершить текущий аукцион?')) return;
+    const lot = activeLot;
+    if (!confirm(`Завершить аукцион по лоту:\n"${lot?.title}"\n\nОпределить победителя и списать баллы?`)) return;
 
     try {
       const response = await fetch('/api/auction', {
@@ -123,14 +123,13 @@ const AuctionTab = ({ adminToken }) => {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`✅ ${result.message}`);
         
         // Показываем модал для объявления победителя
         setSelectedLotForWinner(lotId);
         if (result.winner) {
-          setWinnerMessage(`🏆 Лот "${result.winner.lot_title || 'Лот'}" продан!\n\nПобедитель: ${result.winner.user_name}\nИтоговая цена: ${result.final_price} баллов\n\nПроданы раз, проданы два, проданы три! 🔥`);
+          setWinnerMessage(`🎪 Внимание! Торги завершены!\n\n🏆 Лот "${result.winner.lot_title}" продан!\n\nПобедитель: ${result.winner.user_name}\nИтоговая цена: ${result.final_price} баллов\n\n📣 Продано раз, продано два, продано три!\nПоздравляем победителя! 🎉`);
         } else {
-          setWinnerMessage(`Лот завершен без ставок.`);
+          setWinnerMessage(`🎪 Торги по лоту "${result.lot_title}" завершены.\n\nК сожалению, никто не сделал ставку.\nЛот снят с торгов.`);
         }
         setShowWinnerModal(true);
         
@@ -164,7 +163,7 @@ const AuctionTab = ({ adminToken }) => {
       });
 
       if (response.ok) {
-        alert('📢 Объявление сделано!');
+        alert('📢 Объявление сделано!\nСообщение передано ведущему.');
         setShowWinnerModal(false);
         setWinnerMessage('');
         setSelectedLotForWinner(null);
@@ -212,13 +211,6 @@ const AuctionTab = ({ adminToken }) => {
     }
   };
 
-  const formatTime = (seconds) => {
-    if (seconds <= 0) return 'Завершен';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const formatBidTime = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString();
@@ -226,7 +218,7 @@ const AuctionTab = ({ adminToken }) => {
 
   const getLotStatus = (lot) => {
     if (lot.is_completed) return { text: 'Завершен', color: '#888', icon: '✅' };
-    if (lot.is_active) return { text: 'Активен', color: '#4caf50', icon: '🔥' };
+    if (lot.is_active) return { text: 'АКТИВЕН', color: '#4caf50', icon: '��' };
     return { text: 'Ожидает', color: '#2196f3', icon: '⏳' };
   };
 
@@ -239,8 +231,8 @@ const AuctionTab = ({ adminToken }) => {
       <div className="tab-header">
         <h2>🏛️ Управление аукционом</h2>
         <div className="tab-controls">
-          <button className="btn btn-secondary" onClick={fetchLots}>
-            🔄 Обновить
+          <button className="btn btn-secondary" onClick={() => {fetchLots(); fetchActiveLot(); fetchLiveBids();}}>
+            🔄 Обновить все
           </button>
         </div>
       </div>
@@ -249,59 +241,66 @@ const AuctionTab = ({ adminToken }) => {
         {/* Левая панель - управление */}
         <div className="auction-control-panel">
           {/* Текущий аукцион */}
-          {activeLot && (
+          {activeLot ? (
             <div className="current-auction">
-              <h3>🔥 Текущий аукцион</h3>
+              <h3>🔥 АКТИВНЫЙ АУКЦИОН</h3>
               <div className="active-lot-card">
                 <div className="lot-image">
                   <img src={activeLot.image_url} alt={activeLot.title} />
                 </div>
                 <div className="lot-details">
                   <h4>{activeLot.title}</h4>
+                  <p className="lot-description">{activeLot.description}</p>
+                  
                   <div className="lot-stats">
                     <div className="stat">
-                      <span className="label">Стартовая:</span>
+                      <span className="label">Стартовая цена:</span>
                       <span className="value">{activeLot.starting_price}</span>
                     </div>
                     <div className="stat">
-                      <span className="label">Текущая:</span>
+                      <span className="label">Текущая цена:</span>
                       <span className="value highlight">{activeLot.current_price}</span>
                     </div>
                     <div className="stat">
-                      <span className="label">Ставок:</span>
+                      <span className="label">Всего ставок:</span>
                       <span className="value">{activeLot.bid_count}</span>
                     </div>
                     {activeLot.leading_bidder && (
-                      <div className="stat">
-                        <span className="label">Лидирует:</span>
+                      <div className="stat leading-stat">
+                        <span className="label">👑 Лидирует:</span>
                         <span className="value winner">{activeLot.leading_bidder}</span>
                       </div>
                     )}
                   </div>
                   
                   <div className="auction-controls">
-                    <div className={`timer ${timeLeft <= 10 ? 'urgent' : ''}`}>
-                      ⏰ {formatTime(timeLeft)}
+                    <div className="status-indicator active">
+                      ⚡ ТОРГИ ИДУТ
                     </div>
                     <button 
-                      className="btn btn-warning"
+                      className="btn btn-danger btn-large"
                       onClick={() => handleEndLot(activeLot.id)}
                     >
-                      🛑 Завершить аукцион
+                      🛑 ЗАВЕРШИТЬ ТОРГИ
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="no-active-auction">
+              <h3>⏳ Нет активных торгов</h3>
+              <p>Выберите лот для запуска аукциона</p>
+            </div>
           )}
 
           {/* Список лотов */}
           <div className="lots-list-compact">
-            <h3>📋 Все лоты</h3>
+            <h3>📋 Все лоты ({lots.length})</h3>
             {lots.map((lot) => {
               const status = getLotStatus(lot);
               return (
-                <div key={lot.id} className="lot-item-compact">
+                <div key={lot.id} className={`lot-item-compact ${lot.is_active ? 'active' : ''}`}>
                   <div className="lot-info">
                     <span className="lot-number">#{lot.order_num}</span>
                     <span className="lot-title">{lot.title}</span>
@@ -315,8 +314,9 @@ const AuctionTab = ({ adminToken }) => {
                       <button 
                         className="btn btn-small btn-success"
                         onClick={() => handleStartLot(lot.id)}
+                        title={`Запустить аукцион: ${lot.title}`}
                       >
-                        ▶️
+                        ▶️ Запуск
                       </button>
                     )}
                     
@@ -336,22 +336,25 @@ const AuctionTab = ({ adminToken }) => {
           <div className="bids-chat">
             {liveBids.length === 0 ? (
               <div className="no-bids-yet">
-                Пока никто не делал ставок...
+                <div className="empty-icon">💭</div>
+                <p>Пока никто не делал ставок...</p>
+                <p className="hint">Ставки появятся здесь в реальном времени</p>
               </div>
             ) : (
               liveBids.map((bid) => (
                 <div key={bid.id} className={`bid-message ${bid.is_leading ? 'leading' : ''} ${bid.lot_is_active ? 'active-lot' : 'inactive-lot'}`}>
                   <div className="bid-header">
                     <span className="bid-user">
-                      {bid.is_leading && '👑'} {bid.user_name}
+                      {bid.is_leading && '👑'} 
+                      <strong>{bid.user_name}</strong>
                       {bid.team_id && <span className="team-tag">👥{bid.team_id}</span>}
                     </span>
                     <span className="bid-time">{formatBidTime(bid.created_at)}</span>
                   </div>
                   
                   <div className="bid-content">
-                    <div className="bid-amount">💰 {bid.bid_amount} баллов</div>
-                    <div className="bid-lot">на "{bid.lot_title}"</div>
+                    <div className="bid-amount">💰 {bid.bid_amount.toLocaleString()} баллов</div>
+                    <div className="bid-lot">на лот: "{bid.lot_title}"</div>
                   </div>
                   
                   {bid.is_leading && bid.lot_is_active && (
@@ -364,7 +367,10 @@ const AuctionTab = ({ adminToken }) => {
           </div>
           
           <div className="chat-stats">
-            📊 Всего ставок: {liveBids.length}
+            📊 Всего ставок сегодня: <strong>{liveBids.length}</strong>
+            {activeLot && (
+              <div>🔥 Активный лот: <strong>{activeLot.title}</strong></div>
+            )}
           </div>
         </div>
       </div>
@@ -373,19 +379,22 @@ const AuctionTab = ({ adminToken }) => {
       {showWinnerModal && (
         <div className="winner-modal">
           <div className="modal-content">
-            <h3>📢 Объявить победителя</h3>
+            <h3>📢 Объявление результатов торгов</h3>
+            <p className="modal-description">
+              Отредактируйте текст объявления и передайте ведущему:
+            </p>
             <textarea
               value={winnerMessage}
               onChange={(e) => setWinnerMessage(e.target.value)}
-              placeholder="Введите сообщение для объявления победителя..."
-              rows={6}
+              placeholder="Введите сообщение для объявления результатов торгов..."
+              rows={8}
             />
             <div className="modal-actions">
               <button 
-                className="btn btn-primary"
+                className="btn btn-primary btn-large"
                 onClick={handleAnnounceWinner}
               >
-                📢 Объявить
+                📢 Передать ведущему
               </button>
               <button 
                 className="btn btn-secondary"

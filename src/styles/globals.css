@@ -2906,3 +2906,429 @@ body {
     height: 120px;
   }
 }
+
+/* === ОБНОВЛЕННЫЕ СТИЛИ АУКЦИОНА === */
+.auction-status {
+  text-align: center;
+  padding: 20px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid rgba(244, 67, 54, 0.3);
+  border-radius: 16px;
+  margin: 20px 0;
+}
+
+.status-indicator {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.status-indicator.active {
+  color: #f44336;
+  animation: pulse-active 2s infinite;
+}
+
+.status-description {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.no-active-auction {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+}
+
+.no-active-auction h3 {
+  margin: 0 0 10px 0;
+  color: #888;
+}
+
+.no-active-auction p {
+  color: #666;
+  margin: 0;
+}
+
+.auction-info {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.auction-info h4 {
+  margin: 0 0 15px 0;
+  color: #4a90e2;
+}
+
+.auction-info ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #bbb;
+}
+
+.auction-info li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.lot-item-compact.active {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: rgba(244, 67, 54, 0.3);
+  box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.2);
+}
+
+.leading-stat {
+  grid-column: 1 / -1;
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.btn-large {
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+  border: 2px solid #f44336;
+}
+
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.no-bids-yet {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.no-bids-yet p {
+  margin: 5px 0;
+  color: #888;
+}
+
+.no-bids-yet .hint {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.modal-description {
+  color: #bbb;
+  margin-bottom: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.chat-stats {
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  color: #888;
+  text-align: left;
+}
+
+.chat-stats div {
+  margin-top: 4px;
+}
+
+@keyframes pulse-active {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* === УПРОЩЕННЫЙ ИНТЕРФЕЙС АУКЦИОНА === */
+.balance-display {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 2px solid rgba(74, 144, 226, 0.3);
+}
+
+.balance-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.balance-amount {
+  color: white;
+  font-size: 24px;
+}
+
+.balance-amount strong {
+  font-size: 32px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.balance-amount span {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.balance-display .team-info {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  color: white;
+}
+
+.price-display {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 15px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.price-row.current {
+  font-size: 18px;
+  font-weight: bold;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 8px;
+  padding-top: 12px;
+}
+
+.price-label {
+  color: #bbb;
+}
+
+.price-value {
+  color: white;
+  font-weight: 600;
+}
+
+.price-value.highlight {
+  color: #f44336;
+  font-size: 20px;
+}
+
+.leader-info {
+  text-align: center;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  color: #ffc107;
+  font-size: 14px;
+}
+
+.auction-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.status-indicator {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f44336;
+}
+
+.bid-count {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.bid-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.bid-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bid-input {
+  flex: 1;
+  padding: 20px 24px;
+  padding-right: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 3px solid rgba(244, 67, 54, 0.3);
+  border-radius: 16px;
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.bid-input:focus {
+  outline: none;
+  border-color: #f44336;
+  box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.2);
+  background: rgba(244, 67, 54, 0.05);
+}
+
+.bid-input::placeholder {
+  color: #888;
+  font-size: 18px;
+}
+
+.currency {
+  position: absolute;
+  right: 20px;
+  color: #bbb;
+  font-size: 16px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.bid-button {
+  width: 100%;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  border: none;
+  border-radius: 16px;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bid-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(244, 67, 54, 0.4);
+}
+
+.bid-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.quick-bids {
+  margin-top: 20px;
+}
+
+.quick-bids-label {
+  font-size: 14px;
+  color: #bbb;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.quick-bids-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.quick-bid {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-bid:hover:not(:disabled) {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(244, 67, 54, 0.4);
+  transform: translateY(-2px);
+}
+
+.quick-bid:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.bid-warnings {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.warning {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.warning.insufficient {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  color: #f44336;
+}
+
+.info {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #4a90e2;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Убираем все лишние секции */
+.bids-history {
+  display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .balance-amount {
+    font-size: 20px;
+  }
+  
+  .balance-amount strong {
+    font-size: 28px;
+  }
+  
+  .bid-input {
+    font-size: 20px;
+    padding: 16px 20px;
+    padding-right: 90px;
+  }
+  
+  .bid-button {
+    font-size: 18px;
+    padding: 16px 20px;
+  }
+  
+  .quick-bids-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
