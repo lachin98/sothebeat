@@ -3,18 +3,14 @@ const { sql } = require('@vercel/postgres');
 // Безопасный JSON парсер
 function safeJSONParse(value, fallback = null) {
   try {
-    // Если уже объект - возвращаем как есть
     if (typeof value === 'object' && value !== null) {
       return value;
     }
     
-    // Если строка - пытаемся парсить
     if (typeof value === 'string') {
-      // Если строка уже начинается с { или [ - парсим как JSON
       if (value.startsWith('{') || value.startsWith('[')) {
         return JSON.parse(value);
       }
-      // Если просто строка без кавычек - оборачиваем в кавычки и парсим
       return JSON.parse(`"${value}"`);
     }
     
@@ -127,7 +123,7 @@ async function getGameStatus(res) {
     
     const gameState = {
       currentPhase: 'lobby',
-      phases: { quiz: false, logic: false, contact: false, survey: false, auction: false },
+      phases: { quiz: false, logic: false, survey: false, auction: false }, // Убрали contact
       onlineUsers: 0,
       totalRegistered: 0,
       eventStarted: false,
@@ -138,7 +134,10 @@ async function getGameStatus(res) {
       if (row.key === 'current_phase') {
         gameState.currentPhase = safeJSONParse(row.value, 'lobby');
       } else if (row.key === 'phases_status') {
-        gameState.phases = safeJSONParse(row.value, { quiz: false, logic: false, contact: false, survey: false, auction: false });
+        const phases = safeJSONParse(row.value, { quiz: false, logic: false, survey: false, auction: false });
+        // Убираем contact если он есть
+        delete phases.contact;
+        gameState.phases = phases;
       } else if (row.key === 'online_users') {
         gameState.onlineUsers = safeJSONParse(row.value, 0);
       } else if (row.key === 'event_started') {
@@ -161,18 +160,15 @@ async function updatePhase(res, phase) {
   try {
     console.log(`Updating current_phase to: ${phase}`);
     
-    // Сначала проверяем существует ли запись
     const existing = await sql`SELECT key FROM game_config WHERE key = 'current_phase'`;
     
     if (existing.rows.length === 0) {
-      // Создаем запись если не существует
       await sql`
         INSERT INTO game_config (key, value, updated_at)
         VALUES ('current_phase', ${JSON.stringify(phase)}, CURRENT_TIMESTAMP)
       `;
       console.log(`Created new current_phase record: ${phase}`);
     } else {
-      // Обновляем существующую
       await sql`
         UPDATE game_config 
         SET value = ${JSON.stringify(phase)}, updated_at = CURRENT_TIMESTAMP
@@ -181,7 +177,6 @@ async function updatePhase(res, phase) {
       console.log(`Updated current_phase record: ${phase}`);
     }
     
-    // Проверяем что обновилось
     const verification = await sql`SELECT value FROM game_config WHERE key = 'current_phase'`;
     const newValue = safeJSONParse(verification.rows[0].value, 'lobby');
     console.log(`Verification - new value: ${newValue}`);
@@ -197,19 +192,22 @@ async function togglePhase(res, phase) {
   try {
     console.log(`Toggling phase: ${phase}`);
     
-    // Получаем текущие фазы
     const current = await sql`SELECT value FROM game_config WHERE key = 'phases_status'`;
     let phases;
     
     if (current.rows.length === 0) {
-      // Создаем запись если не существует
-      phases = { quiz: false, logic: false, contact: false, survey: false, auction: false };
+      phases = { quiz: false, logic: false, survey: false, auction: false }; // Убрали contact
     } else {
-      phases = safeJSONParse(current.rows[0].value, { quiz: false, logic: false, contact: false, survey: false, auction: false });
+      phases = safeJSONParse(current.rows[0].value, { quiz: false, logic: false, survey: false, auction: false });
+      // Убираем contact если он есть
+      delete phases.contact;
     }
     
-    // Переключаем фазу
-    phases[phase] = !phases[phase];
+    // Переключаем фазу (только если она поддерживается)
+    if (['quiz', 'logic', 'survey', 'auction'].includes(phase)) {
+      phases[phase] = !phases[phase];
+    }
+    
     console.log(`New phases state:`, phases);
     
     if (current.rows.length === 0) {

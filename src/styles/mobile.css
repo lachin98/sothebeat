@@ -1,0 +1,494 @@
+/* === МОБИЛЬНЫЕ СТИЛИ === */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-app {
+  min-height: 100vh;
+  min-height: 100dvh; /* Для новых браузеров */
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.mobile-loading {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.mobile-lobby {
+  padding: 20px 16px;
+  padding-bottom: 40px;
+  max-width: 100%;
+  overflow-y: auto;
+  min-height: calc(100vh - 40px);
+  min-height: calc(100dvh - 40px);
+}
+
+/* === МОБИЛЬНЫЙ ХЕДЕР === */
+.mobile-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.mobile-header .logo {
+  margin-bottom: 16px;
+}
+
+.mobile-header .logo img {
+  height: 40px;
+  width: auto;
+}
+
+.mobile-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobile-header p {
+  margin: 0;
+  color: #888;
+  font-size: 14px;
+}
+
+/* === МОБИЛЬНАЯ КАРТОЧКА ПОЛЬЗОВАТЕЛЯ === */
+.mobile-user-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  color: white;
+}
+
+.user-type {
+  font-size: 12px;
+  color: #888;
+}
+
+.user-points {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.points-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.points-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4a90e2;
+  margin-top: 2px;
+}
+
+/* === СТАТУС ИГРЫ === */
+.game-status-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(74, 144, 226, 0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.status-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.last-update {
+  font-size: 12px;
+  color: #4caf50;
+  animation: pulse-live 2s infinite;
+}
+
+/* === МОБИЛЬНЫЕ ИГРЫ === */
+.mobile-games {
+  margin-bottom: 32px;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.game-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 20px 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.game-btn:active {
+  transform: scale(0.98);
+}
+
+.game-btn.quiz-btn {
+  border-color: rgba(74, 144, 226, 0.4);
+}
+
+.game-btn.quiz-btn:hover:not(.disabled) {
+  background: rgba(74, 144, 226, 0.1);
+  border-color: rgba(74, 144, 226, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
+}
+
+.game-btn.logic-btn {
+  border-color: rgba(156, 39, 176, 0.4);
+}
+
+.game-btn.logic-btn:hover:not(.disabled) {
+  background: rgba(156, 39, 176, 0.1);
+  border-color: rgba(156, 39, 176, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(156, 39, 176, 0.2);
+}
+
+.game-btn.survey-btn {
+  border-color: rgba(255, 152, 0, 0.4);
+}
+
+.game-btn.survey-btn:hover:not(.disabled) {
+  background: rgba(255, 152, 0, 0.1);
+  border-color: rgba(255, 152, 0, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.2);
+}
+
+.game-btn.auction-btn {
+  border-color: rgba(244, 67, 54, 0.4);
+  grid-column: 1 / -1;
+  min-height: 80px;
+}
+
+.game-btn.auction-btn:hover:not(.disabled) {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: rgba(244, 67, 54, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.2);
+}
+
+.game-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.game-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.game-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.game-subtitle {
+  font-size: 12px;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+.game-points {
+  font-size: 11px;
+  color: #888;
+}
+
+.active-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(45deg, #4caf50, #66bb6a);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  animation: glow-active 2s infinite;
+}
+
+.disabled-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(158, 158, 158, 0.7);
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 8px;
+}
+
+/* === МОБИЛЬНЫЕ ПРАВИЛА === */
+.mobile-rules {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.mobile-rules h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+}
+
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rule-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.rule-text {
+  font-size: 14px;
+  color: #bbb;
+  line-height: 1.4;
+}
+
+/* === TELEGRAM ПРОМО === */
+.telegram-promo {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.telegram-promo h4 {
+  margin: 0 0 8px 0;
+  color: #4a90e2;
+  font-size: 16px;
+}
+
+.telegram-promo p {
+  margin: 0 0 16px 0;
+  color: #bbb;
+  font-size: 14px;
+}
+
+.bot-link {
+  display: inline-block;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.bot-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+}
+
+/* === ИГРОВЫЕ ЭКРАНЫ === */
+.quiz-round, .logic-round, .survey-round, .auction-round {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+/* === АНИМАЦИИ === */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes glow-active {
+  0%, 100% { 
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
+  50% { 
+    box-shadow: 0 0 16px rgba(76, 175, 80, 0.8);
+  }
+}
+
+/* === АДАПТАЦИЯ ПОД МАЛЕНЬКИЕ ЭКРАНЫ === */
+@media (max-width: 360px) {
+  .mobile-lobby {
+    padding: 16px 12px;
+  }
+  
+  .games-grid {
+    gap: 12px;
+  }
+  
+  .game-btn {
+    padding: 16px 12px;
+    min-height: 120px;
+  }
+  
+  .game-icon {
+    font-size: 28px;
+  }
+  
+  .game-title {
+    font-size: 14px;
+  }
+  
+  .user-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+  
+  .points-value {
+    font-size: 18px;
+  }
+}
+
+/* === ИСПРАВЛЕНИЕ СКРОЛЛА === */
+@media (max-height: 600px) {
+  .mobile-lobby {
+    min-height: auto;
+    padding-bottom: 60px;
+  }
+}
+
+/* === Для iPhone с вырезом === */
+@supports (padding: max(0px)) {
+  .mobile-app {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* === Убираем проблемы с tap highlight на iOS === */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, select, button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* === Исправляем проблемы с viewport на мобильных === */
+@viewport {
+  width: device-width;
+}

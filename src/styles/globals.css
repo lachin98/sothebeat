@@ -3332,3 +3332,215 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* === ПОДКЛЮЧЕНИЕ МОБИЛЬНЫХ СТИЛЕЙ === */
+@import url('./mobile.css');
+
+/* === ПЕРЕОПРЕДЕЛЯЕМ ОСНОВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ === */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px; /* Базовый размер для читабельности на мобильных */
+  }
+  
+  /* Скрываем десктопные стили в мобильной версии */
+  .lobby {
+    display: none;
+  }
+  
+  /* Отображаем мобильную версию */
+  .mobile-app {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Скрываем мобильную версию на десктопе */
+  .mobile-app {
+    display: none;
+  }
+  
+  /* Отображаем десктопную версию */
+  .lobby {
+    display: block;
+  }
+}
+
+/* === ОБЩИЕ ИСПРАВЛЕНИЯ СКРОЛЛА === */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* === ИСПРАВЛЕНИЯ ДЛЯ TELEGRAM WEBAPP === */
+.tg-viewport {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+}
+
+/* === УБИРАЕМ ZOOM НА МОБИЛЬНЫХ === */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+textarea,
+select {
+  font-size: 16px !important; /* Предотвращает zoom на iOS */
+}
+
+/* === УЛУЧШАЕМ ПРОКРУТКУ === */
+* {
+  box-sizing: border-box;
+}
+
+.scroll-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100%;
+}
+
+/* === ИСПРАВЛЕНИЯ ДЛЯ ВСЕХ ИГРОВЫХ ЭКРАНОВ === */
+.quiz-intro, .logic-intro, .survey-intro, .auction-waiting {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.intro-content, .waiting-content {
+  padding: 20px 16px 60px 16px;
+  max-width: 100%;
+}
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ КНОПОК === */
+@media (max-width: 768px) {
+  .start-game-btn, .submit-btn, .next-btn, .bid-button {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px 20px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .answer-option, .survey-answer {
+    min-height: 56px;
+    padding: 16px;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  
+  .quick-bid, .quick-bids button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+/* === ПОДКЛЮЧЕНИЕ МОБИЛЬНЫХ СТИЛЕЙ === */
+@import url('./mobile.css');
+
+/* === ПЕРЕОПРЕДЕЛЯЕМ ОСНОВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ === */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px; /* Базовый размер для читабельности на мобильных */
+  }
+  
+  /* Скрываем десктопные стили в мобильной версии */
+  .lobby {
+    display: none;
+  }
+  
+  /* Отображаем мобильную версию */
+  .mobile-app {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Скрываем мобильную версию на десктопе */
+  .mobile-app {
+    display: none;
+  }
+  
+  /* Отображаем десктопную версию */
+  .lobby {
+    display: block;
+  }
+}
+
+/* === ОБЩИЕ ИСПРАВЛЕНИЯ СКРОЛЛА === */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* === ИСПРАВЛЕНИЯ ДЛЯ TELEGRAM WEBAPP === */
+.tg-viewport {
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+}
+
+/* === УБИРАЕМ ZOOM НА МОБИЛЬНЫХ === */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+textarea,
+select {
+  font-size: 16px !important; /* Предотвращает zoom на iOS */
+}
+
+/* === УЛУЧШАЕМ ПРОКРУТКУ === */
+* {
+  box-sizing: border-box;
+}
+
+.scroll-container {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100%;
+}
+
+/* === ИСПРАВЛЕНИЯ ДЛЯ ВСЕХ ИГРОВЫХ ЭКРАНОВ === */
+.quiz-intro, .logic-intro, .survey-intro, .auction-waiting {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.intro-content, .waiting-content {
+  padding: 20px 16px 60px 16px;
+  max-width: 100%;
+}
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ КНОПОК === */
+@media (max-width: 768px) {
+  .start-game-btn, .submit-btn, .next-btn, .bid-button {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px 20px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  .answer-option, .survey-answer {
+    min-height: 56px;
+    padding: 16px;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  
+  .quick-bid, .quick-bids button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}

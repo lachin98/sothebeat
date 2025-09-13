@@ -10,7 +10,6 @@ const HomePage = ({ user }) => {
   const [userPoints, setUserPoints] = useState(0);
   const [userName, setUserName] = useState('Участник');
   const [userId, setUserId] = useState(null);
-  const [teamId, setTeamId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isTelegramUser, setIsTelegramUser] = useState(false);
 
@@ -29,9 +28,7 @@ const HomePage = ({ user }) => {
         fetchUserProfile(user.id);
       } else {
         const savedPoints = localStorage.getItem(`sothebeat_points_${user.id}`) || '0';
-        const savedTeam = localStorage.getItem(`sothebeat_team_${user.id}`);
         setUserPoints(parseInt(savedPoints));
-        setTeamId(savedTeam);
         setLoading(false);
       }
     } else {
@@ -50,7 +47,6 @@ const HomePage = ({ user }) => {
       if (response.ok) {
         const userData = await response.json();
         setUserPoints(userData.total_points || 0);
-        setTeamId(userData.team_id);
       } else {
         setUserPoints(0);
       }
@@ -93,42 +89,6 @@ const HomePage = ({ user }) => {
     setCurrentView('lobby');
   };
 
-  const handleJoinTeam = async () => {
-    if (!userId) return;
-    
-    const teamCode = prompt('Введите код команды:');
-    if (!teamCode) return;
-    
-    if (isTelegramUser) {
-      try {
-        const response = await fetch('/api/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'join_team',
-            user_id: userId,
-            team_id: teamCode
-          })
-        });
-
-        if (response.ok) {
-          setTeamId(teamCode);
-          alert(`Вы присоединились к команде: ${teamCode}`);
-        } else {
-          throw new Error('Ошибка API');
-        }
-      } catch (error) {
-        localStorage.setItem(`sothebeat_team_${userId}`, teamCode);
-        setTeamId(teamCode);
-        alert(`Команда сохранена локально: ${teamCode}`);
-      }
-    } else {
-      localStorage.setItem(`sothebeat_team_${userId}`, teamCode);
-      setTeamId(teamCode);
-      alert(`Вы присоединились к команде: ${teamCode} (локально)`);
-    }
-  };
-
   // Проверяем доступность игр на основе текущей фазы
   const isGameAvailable = (gameType) => {
     if (currentPhase === gameType) return true; // Активная фаза
@@ -148,7 +108,7 @@ const HomePage = ({ user }) => {
 
   if (loading) {
     return (
-      <div className="loading-screen">
+      <div className="mobile-loading">
         <div className="spinner"></div>
         <p>Загрузка...</p>
       </div>
@@ -186,146 +146,144 @@ const HomePage = ({ user }) => {
           <AuctionRound
             userId={userId}
             userPoints={userPoints}
-            teamId={teamId}
+            userName={userName}
             onBack={() => setCurrentView('lobby')}
           />
         );
       default:
         return (
-          <div className="lobby">
-            <div className="header">
-              <img 
-                src="https://via.placeholder.com/120x50/4a90e2/white?text=SotheBEAT" 
-                alt="SotheBEAT" 
-                className="logo"
-              />
+          <div className="mobile-lobby">
+            {/* Логотип и заголовок */}
+            <div className="mobile-header">
+              <div className="logo">
+                <img 
+                  src="https://via.placeholder.com/120x50/4a90e2/white?text=SotheBEAT" 
+                  alt="SotheBEAT" 
+                />
+              </div>
+              <h1>SotheBEAT 2025</h1>
+              <p>Барный аукцион как у Сотбис</p>
             </div>
 
-            <div className="user-info">
-              <div className="user-card">
-                <div className="avatar">
-                  {userName.charAt(0).toUpperCase()}
+            {/* Профиль пользователя */}
+            <div className="mobile-user-card">
+              <div className="user-avatar">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <div className="user-info">
+                <h3>{userName}</h3>
+                <div className="user-type">
+                  {isTelegramUser ? '📱 Telegram' : '🌐 Веб'}
                 </div>
-                <div className="user-details">
-                  <h3>{userName}</h3>
-                  <p>{isTelegramUser ? 'Telegram пользователь' : 'Веб пользователь'}</p>
-                  
-                  <div className="points">
-                    Баланс: <span className="points-value">{userPoints}</span>
-                  </div>
-                  
-                  {/* LIVE СТАТУС ФАЗЫ */}
-                  <div className="phase-live" style={{ color: getPhaseStatus().color }}>
-                    {getPhaseStatus().emoji} Фаза: <span className="phase-value">{getPhaseStatus().text}</span>
-                    <div className="live-indicator">
-                      🟢 LIVE {lastUpdate && `(${lastUpdate})`}
-                    </div>
-                  </div>
-                  
-                  {teamId && (
-                    <div className="team-info">
-                      👥 Команда: {teamId}
-                    </div>
-                  )}
-                  
-                  {!isTelegramUser && (
-                    <div className="web-user-notice">
-                      🌐 Веб-версия (данные в браузере)
-                    </div>
-                  )}
+              </div>
+              <div className="user-points">
+                <div className="points-label">Баланс</div>
+                <div className="points-value">{userPoints.toLocaleString()}</div>
+              </div>
+            </div>
+
+            {/* Статус игры */}
+            <div className="game-status-card" style={{ borderColor: getPhaseStatus().color }}>
+              <div className="status-icon">{getPhaseStatus().emoji}</div>
+              <div className="status-info">
+                <div className="status-text">{getPhaseStatus().text}</div>
+                <div className="last-update">
+                  �� Live {lastUpdate && `(${lastUpdate})`}
                 </div>
               </div>
             </div>
 
-            <div className="games-grid">
-              <button 
-                className={`game-card quiz-card ${!isGameAvailable('quiz') ? 'disabled' : ''}`}
-                onClick={() => isGameAvailable('quiz') && setCurrentView('quiz')}
-                disabled={!isGameAvailable('quiz')}
-              >
-                <div className="game-icon">🎯</div>
-                <div className="game-info">
-                  <h4>Квиз</h4>
-                  <p>Раунды с вопросами и вариантами ответов</p>
-                  <div className="max-points">Макс: 200 баллов</div>
-                  {!isGameAvailable('quiz') && <div className="game-status">Недоступно</div>}
-                  {currentPhase === 'quiz' && <div className="game-status active">�� Активно сейчас!</div>}
-                </div>
-              </button>
+            {/* Игры */}
+            <div className="mobile-games">
+              <div className="games-grid">
+                <button 
+                  className={`game-btn quiz-btn ${!isGameAvailable('quiz') ? 'disabled' : ''}`}
+                  onClick={() => isGameAvailable('quiz') && setCurrentView('quiz')}
+                  disabled={!isGameAvailable('quiz')}
+                >
+                  <div className="game-icon">🎯</div>
+                  <div className="game-title">Квиз</div>
+                  <div className="game-subtitle">Ballantine's</div>
+                  <div className="game-points">до 200 баллов</div>
+                  {currentPhase === 'quiz' && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('quiz') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                </button>
 
-              <button 
-                className={`game-card logic-card ${!isGameAvailable('logic') ? 'disabled' : ''}`}
-                onClick={() => isGameAvailable('logic') && setCurrentView('logic')}
-                disabled={!isGameAvailable('logic')}
-              >
-                <div className="game-icon">🧩</div>
-                <div className="game-info">
-                  <h4>Где логика?</h4>
-                  <p>Угадай, что объединяет картинки</p>
-                  <div className="max-points">Макс: 200 баллов</div>
-                  {!isGameAvailable('logic') && <div className="game-status">Недоступно</div>}
-                  {currentPhase === 'logic' && <div className="game-status active">🔥 Активно сейчас!</div>}
-                </div>
-              </button>
+                <button 
+                  className={`game-btn logic-btn ${!isGameAvailable('logic') ? 'disabled' : ''}`}
+                  onClick={() => isGameAvailable('logic') && setCurrentView('logic')}
+                  disabled={!isGameAvailable('logic')}
+                >
+                  <div className="game-icon">🧩</div>
+                  <div className="game-title">Где логика?</div>
+                  <div className="game-subtitle">Угадай связь</div>
+                  <div className="game-points">до 200 баллов</div>
+                  {currentPhase === 'logic' && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('logic') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                </button>
 
-              <button 
-                className={`game-card survey-card ${!isGameAvailable('survey') ? 'disabled' : ''}`}
-                onClick={() => isGameAvailable('survey') && setCurrentView('survey')}
-                disabled={!isGameAvailable('survey')}
-              >
-                <div className="game-icon">📊</div>
-                <div className="game-info">
-                  <h4>100 к 1</h4>
-                  <p>Популярные ответы на необычные вопросы</p>
-                  <div className="max-points">Макс: 200 баллов</div>
-                  {!isGameAvailable('survey') && <div className="game-status">Недоступно</div>}
-                  {currentPhase === 'survey' && <div className="game-status active">🔥 Активно сейчас!</div>}
-                </div>
-              </button>
+                <button 
+                  className={`game-btn survey-btn ${!isGameAvailable('survey') ? 'disabled' : ''}`}
+                  onClick={() => isGameAvailable('survey') && setCurrentView('survey')}
+                  disabled={!isGameAvailable('survey')}
+                >
+                  <div className="game-icon">📊</div>
+                  <div className="game-title">100 к 1</div>
+                  <div className="game-subtitle">Мнение барменов</div>
+                  <div className="game-points">до 200 баллов</div>
+                  {currentPhase === 'survey' && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('survey') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                </button>
 
-              <button 
-                className="game-card team-card"
-                onClick={handleJoinTeam}
-              >
-                <div className="game-icon">🤝</div>
-                <div className="game-info">
-                  <h4>Есть контакт!</h4>
-                  <p>Командные ассоциации — найдите слово</p>
-                  <div className="max-points">Объединяй баллы</div>
-                </div>
-              </button>
-            </div>
-
-            <button 
-              className={`auction-button ${!isGameAvailable('auction') ? 'disabled' : ''}`}
-              onClick={() => isGameAvailable('auction') && setCurrentView('auction')}
-              disabled={!isGameAvailable('auction')}
-            >
-              <div className="auction-icon">🔥</div>
-              <div className="auction-info">
-                <h4>Аукцион</h4>
-                <p>Ставь баллы — забирай призы</p>
-                {!isGameAvailable('auction') && <div className="game-status">Недоступно</div>}
-                {currentPhase === 'auction' && <div className="game-status active">🔥 Активно сейчас!</div>}
+                <button 
+                  className={`game-btn auction-btn ${!isGameAvailable('auction') ? 'disabled' : ''}`}
+                  onClick={() => isGameAvailable('auction') && setCurrentView('auction')}
+                  disabled={!isGameAvailable('auction')}
+                >
+                  <div className="game-icon">🔥</div>
+                  <div className="game-title">Аукцион</div>
+                  <div className="game-subtitle">Ставь и выигрывай</div>
+                  <div className="game-points">Призы!</div>
+                  {currentPhase === 'auction' && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('auction') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                </button>
               </div>
-            </button>
-
-            <div className="rules">
-              <h3>Правила игры</h3>
-              <ul>
-                <li>3 раунда викторин по 5 минут каждый</li>
-                <li>За правильные ответы и скорость получаешь баллы</li>
-                <li>Максимум 200 баллов за раунд = 600 всего</li>
-                <li>В финале - аукцион призов за баллы!</li>
-                <li>Можно объединяться в команды</li>
-              </ul>
             </div>
 
+            {/* Правила */}
+            <div className="mobile-rules">
+              <h3>🎮 Правила игры</h3>
+              <div className="rules-list">
+                <div className="rule-item">
+                  <span className="rule-icon">🎯</span>
+                  <span className="rule-text">3 раунда викторин по 5 минут</span>
+                </div>
+                <div className="rule-item">
+                  <span className="rule-icon">⚡</span>
+                  <span className="rule-text">Баллы за правильность + скорость</span>
+                </div>
+                <div className="rule-item">
+                  <span className="rule-icon">🏆</span>
+                  <span className="rule-text">Максимум 600 баллов всего</span>
+                </div>
+                <div className="rule-item">
+                  <span className="rule-icon">🔥</span>
+                  <span className="rule-text">Финал — аукцион призов!</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Промо Telegram бота для веб-пользователей */}
             {!isTelegramUser && (
               <div className="telegram-promo">
-                <h4>🤖 Лучший опыт в Telegram!</h4>
-                <p>Для сохранения прогресса используй бот:</p>
-                <a href="https://t.me/sothebeatbot" className="bot-link" target="_blank" rel="noopener noreferrer">
+                <h4>🤖 Играй в Telegram!</h4>
+                <p>Для лучшего опыта используй наш бот</p>
+                <a 
+                  href="https://t.me/sothebeatbot" 
+                  className="bot-link"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   Открыть @sothebeatbot
                 </a>
               </div>
@@ -336,7 +294,7 @@ const HomePage = ({ user }) => {
   };
 
   return (
-    <div className="home-page">
+    <div className="mobile-app">
       {renderCurrentView()}
     </div>
   );

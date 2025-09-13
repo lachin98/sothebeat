@@ -5,7 +5,6 @@ const ConferenceTab = ({ adminToken }) => {
   const [phases, setPhases] = useState({
     quiz: false,
     logic: false,
-    contact: false,
     survey: false,
     auction: false
   });
@@ -17,7 +16,6 @@ const ConferenceTab = ({ adminToken }) => {
     lobby: 'Лобби',
     quiz: 'Квиз',
     logic: 'Где логика?',
-    contact: 'Есть контакт!',
     survey: '100 к 1',
     auction: 'Аукцион'
   };
