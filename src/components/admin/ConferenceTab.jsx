@@ -25,19 +25,19 @@ const ConferenceTab = ({ adminToken }) => {
   useEffect(() => {
     fetchGameState();
     fetchRounds();
-    
-    // Автообновление каждые 5 секунд
-    const interval = setInterval(fetchGameState, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   const fetchGameState = async () => {
     try {
+      console.log('Fetching game state...');
       const response = await fetch(`/api/admin?action=status&token=${adminToken}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Game state received:', data);
         setCurrentPhase(data.currentPhase || 'lobby');
         setPhases(data.phases || {});
+      } else {
+        console.error('Failed to fetch game state:', response.status);
       }
     } catch (error) {
       console.error('Ошибка загрузки состояния:', error);
@@ -62,6 +62,7 @@ const ConferenceTab = ({ adminToken }) => {
     
     setUpdating(true);
     try {
+      console.log('Updating phase to:', newPhase);
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,12 +74,13 @@ const ConferenceTab = ({ adminToken }) => {
       });
       
       if (response.ok) {
+        const result = await response.json();
+        console.log('Phase update result:', result);
         setCurrentPhase(newPhase);
         alert(`✅ Фаза изменена на: ${phaseLabels[newPhase]}`);
-        
-        // Немедленно обновляем состояние
-        setTimeout(fetchGameState, 500);
       } else {
+        const error = await response.text();
+        console.error('Phase update failed:', error);
         alert('❌ Ошибка смены фазы');
       }
     } catch (error) {
@@ -93,6 +95,7 @@ const ConferenceTab = ({ adminToken }) => {
     
     setUpdating(true);
     try {
+      console.log('Toggling phase:', phaseName);
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,16 +107,13 @@ const ConferenceTab = ({ adminToken }) => {
       });
       
       if (response.ok) {
-        const newPhases = {
-          ...phases,
-          [phaseName]: !phases[phaseName]
-        };
-        setPhases(newPhases);
+        const result = await response.json();
+        console.log('Phase toggle result:', result);
+        setPhases(result.phases);
         alert(`✅ Фаза "${phaseLabels[phaseName]}" ${phases[phaseName] ? 'отключена' : 'включена'}`);
-        
-        // Немедленно обновляем состояние
-        setTimeout(fetchGameState, 500);
       } else {
+        const error = await response.text();
+        console.error('Phase toggle failed:', error);
         alert('❌ Ошибка переключения фазы');
       }
     } catch (error) {
@@ -179,11 +179,6 @@ const ConferenceTab = ({ adminToken }) => {
     setUpdating(false);
   };
 
-  const openHallScreen = () => {
-    const hallUrl = `/hall-screen?token=${adminToken}`;
-    window.open(hallUrl, '_blank', 'width=1200,height=800');
-  };
-
   if (loading) {
     return <div className="loading">Загрузка...</div>;
   }
@@ -192,9 +187,13 @@ const ConferenceTab = ({ adminToken }) => {
     <div className="conference-tab">
       <div className="conference-header">
         <h2>🎪 Управление конференцией</h2>
-        <div className="live-indicator">
-          🟢 LIVE - обновляется каждые 5 сек
-        </div>
+        <button 
+          className="btn btn-secondary" 
+          onClick={fetchGameState}
+          disabled={updating}
+        >
+          🔄 Обновить статус
+        </button>
       </div>
 
       {/* Быстрое переключение фаз */}
@@ -208,7 +207,7 @@ const ConferenceTab = ({ adminToken }) => {
               onClick={() => updateCurrentPhase(phase)}
               disabled={updating}
             >
-              {phaseLabels[phase]}
+              {updating ? '⏳' : phaseLabels[phase]}
               {currentPhase === phase && <span className="current-indicator">●</span>}
             </button>
           ))}
@@ -226,7 +225,7 @@ const ConferenceTab = ({ adminToken }) => {
             </span>
           </div>
           <div className="state-item">
-            <span className="state-label">Последнее обновление:</span>
+            <span className="state-label">Статус обновлен:</span>
             <span className="state-value">
               {new Date().toLocaleTimeString()}
             </span>
@@ -297,22 +296,6 @@ const ConferenceTab = ({ adminToken }) => {
               <span className="phase-label">{phaseLabels[phase]}</span>
             </label>
           ))}
-        </div>
-
-        <div className="control-buttons">
-          <button 
-            className="btn btn-secondary" 
-            onClick={fetchGameState}
-            disabled={updating}
-          >
-            🔄 Обновить состояние
-          </button>
-          <button 
-            className="btn btn-primary" 
-            onClick={openHallScreen}
-          >
-            📺 Открыть экран зала
-          </button>
         </div>
       </div>
     </div>

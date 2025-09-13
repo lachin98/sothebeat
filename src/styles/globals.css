@@ -2249,3 +2249,45 @@ body {
     width: 100%;
   }
 }
+
+/* === LIVE СТАТУС === */
+.phase-live {
+  background: rgba(74, 144, 226, 0.15);
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border: 1px solid rgba(74, 144, 226, 0.3);
+}
+
+.live-indicator {
+  font-size: 10px;
+  color: #4caf50;
+  animation: pulse-live 2s infinite;
+  font-weight: 600;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.game-status.active {
+  background: linear-gradient(45deg, #4caf50, #66bb6a);
+  color: white;
+  animation: glow-active 2s infinite;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(76, 175, 80, 0.8);
+}
+
+@keyframes glow-active {
+  0%, 100% { 
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  }
+  50% { 
+    box-shadow: 0 0 16px rgba(76, 175, 80, 0.8);
+  }
+}

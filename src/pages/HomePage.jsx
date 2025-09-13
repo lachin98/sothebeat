@@ -15,7 +15,7 @@ const HomePage = ({ user }) => {
   const [isTelegramUser, setIsTelegramUser] = useState(false);
 
   // Используем хук для отслеживания фазы игры
-  const { currentPhase, phases, isLoading: phaseLoading } = useGamePhase();
+  const { currentPhase, phases, isLoading: phaseLoading, lastUpdate } = useGamePhase();
 
   useEffect(() => {
     if (user && user.id) {
@@ -139,14 +139,14 @@ const HomePage = ({ user }) => {
     switch (currentPhase) {
       case 'lobby': return { emoji: '🏠', text: 'Ожидание', color: '#888' };
       case 'quiz': return { emoji: '🎯', text: 'Квиз активен', color: '#4a90e2' };
-      case 'logic': return { emoji: '��', text: 'Где логика активна', color: '#9c27b0' };
+      case 'logic': return { emoji: '🧩', text: 'Где логика активна', color: '#9c27b0' };
       case 'survey': return { emoji: '📊', text: '100 к 1 активен', color: '#ff9800' };
       case 'auction': return { emoji: '🔥', text: 'Аукцион идет', color: '#f44336' };
       default: return { emoji: '❓', text: currentPhase, color: '#888' };
     }
   };
 
-  if (loading || phaseLoading) {
+  if (loading) {
     return (
       <div className="loading-screen">
         <div className="spinner"></div>
@@ -214,9 +214,12 @@ const HomePage = ({ user }) => {
                     Баланс: <span className="points-value">{userPoints}</span>
                   </div>
                   
-                  {/* РЕАЛ-ТАЙМ СТАТУС ФАЗЫ */}
-                  <div className="phase" style={{ color: getPhaseStatus().color }}>
+                  {/* LIVE СТАТУС ФАЗЫ */}
+                  <div className="phase-live" style={{ color: getPhaseStatus().color }}>
                     {getPhaseStatus().emoji} Фаза: <span className="phase-value">{getPhaseStatus().text}</span>
+                    <div className="live-indicator">
+                      🟢 LIVE {lastUpdate && `(${lastUpdate})`}
+                    </div>
                   </div>
                   
                   {teamId && (
@@ -230,10 +233,6 @@ const HomePage = ({ user }) => {
                       🌐 Веб-версия (данные в браузере)
                     </div>
                   )}
-                  
-                  <div className="updated">
-                    Обновлено: {new Date().toLocaleTimeString()}
-                  </div>
                 </div>
               </div>
             </div>
@@ -250,7 +249,7 @@ const HomePage = ({ user }) => {
                   <p>Раунды с вопросами и вариантами ответов</p>
                   <div className="max-points">Макс: 200 баллов</div>
                   {!isGameAvailable('quiz') && <div className="game-status">Недоступно</div>}
-                  {currentPhase === 'quiz' && <div className="game-status active">Активно сейчас!</div>}
+                  {currentPhase === 'quiz' && <div className="game-status active">�� Активно сейчас!</div>}
                 </div>
               </button>
 
@@ -265,7 +264,7 @@ const HomePage = ({ user }) => {
                   <p>Угадай, что объединяет картинки</p>
                   <div className="max-points">Макс: 200 баллов</div>
                   {!isGameAvailable('logic') && <div className="game-status">Недоступно</div>}
-                  {currentPhase === 'logic' && <div className="game-status active">Активно сейчас!</div>}
+                  {currentPhase === 'logic' && <div className="game-status active">🔥 Активно сейчас!</div>}
                 </div>
               </button>
 
@@ -280,7 +279,7 @@ const HomePage = ({ user }) => {
                   <p>Популярные ответы на необычные вопросы</p>
                   <div className="max-points">Макс: 200 баллов</div>
                   {!isGameAvailable('survey') && <div className="game-status">Недоступно</div>}
-                  {currentPhase === 'survey' && <div className="game-status active">Активно сейчас!</div>}
+                  {currentPhase === 'survey' && <div className="game-status active">🔥 Активно сейчас!</div>}
                 </div>
               </button>
 
@@ -307,7 +306,7 @@ const HomePage = ({ user }) => {
                 <h4>Аукцион</h4>
                 <p>Ставь баллы — забирай призы</p>
                 {!isGameAvailable('auction') && <div className="game-status">Недоступно</div>}
-                {currentPhase === 'auction' && <div className="game-status active">Активно сейчас!</div>}
+                {currentPhase === 'auction' && <div className="game-status active">🔥 Активно сейчас!</div>}
               </div>
             </button>
 

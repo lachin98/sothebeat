@@ -14,6 +14,8 @@ module.exports = async (req, res) => {
   }
 
   try {
+    console.log(`Admin API: ${method} ${JSON.stringify(body || query)}`);
+
     switch (method) {
       case 'GET':
         if (query.action === 'status') {
@@ -59,10 +61,12 @@ module.exports = async (req, res) => {
 
       case 'POST':
         if (body.action === 'updatePhase') {
+          console.log(`Updating phase to: ${body.phase}`);
           return await updatePhase(res, body.phase);
         }
         
         if (body.action === 'togglePhase') {
+          console.log(`Toggling phase: ${body.phase}`);
           return await togglePhase(res, body.phase);
         }
         
@@ -76,6 +80,7 @@ module.exports = async (req, res) => {
             SET is_active = true 
             WHERE id = ${body.round_id}
           `;
+          console.log(`Started round ${body.round_id}`);
           return res.json({ success: true });
         }
 
@@ -85,6 +90,7 @@ module.exports = async (req, res) => {
             SET is_active = false 
             WHERE id = ${body.round_id}
           `;
+          console.log(`Stopped round ${body.round_id}`);
           return res.json({ success: true });
         }
         
@@ -97,38 +103,120 @@ module.exports = async (req, res) => {
     res.status(400).json({ message: 'Invalid request' });
   } catch (error) {
     console.error('Admin API error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
 
 async function getGameStatus(res) {
-  const config = await sql`SELECT key, value FROM game_config`;
-  
-  const gameState = {
-    currentPhase: 'lobby',
-    phases: { quiz: false, logic: false, contact: false, survey: false, auction: false },
-    onlineUsers: 0,
-    totalRegistered: 0,
-    eventStarted: false,
-    lastUpdated: new Date().toISOString()
-  };
+  try {
+    const config = await sql`SELECT key, value FROM game_config`;
+    
+    const gameState = {
+      currentPhase: 'lobby',
+      phases: { quiz: false, logic: false, contact: false, survey: false, auction: false },
+      onlineUsers: 0,
+      totalRegistered: 0,
+      eventStarted: false,
+      lastUpdated: new Date().toISOString()
+    };
 
-  config.rows.forEach(row => {
-    if (row.key === 'current_phase') {
-      gameState.currentPhase = JSON.parse(row.value);
-    } else if (row.key === 'phases_status') {
-      gameState.phases = JSON.parse(row.value);
-    } else if (row.key === 'online_users') {
-      gameState.onlineUsers = JSON.parse(row.value);
-    } else if (row.key === 'event_started') {
-      gameState.eventStarted = JSON.parse(row.value);
+    config.rows.forEach(row => {
+      if (row.key === 'current_phase') {
+        gameState.currentPhase = JSON.parse(row.value);
+      } else if (row.key === 'phases_status') {
+        gameState.phases = JSON.parse(row.value);
+      } else if (row.key === 'online_users') {
+        gameState.onlineUsers = JSON.parse(row.value);
+      } else if (row.key === 'event_started') {
+        gameState.eventStarted = JSON.parse(row.value);
+      }
+    });
+
+    const userCount = await sql`SELECT COUNT(*) as count FROM telegram_users`;
+    gameState.totalRegistered = parseInt(userCount.rows[0].count);
+
+    console.log(`Current game status: ${JSON.stringify(gameState)}`);
+    return res.json(gameState);
+  } catch (error) {
+    console.error('Error getting game status:', error);
+    throw error;
+  }
+}
+
+async function updatePhase(res, phase) {
+  try {
+    console.log(`Updating current_phase to: ${phase}`);
+    
+    // Сначала проверяем существует ли запись
+    const existing = await sql`SELECT key FROM game_config WHERE key = 'current_phase'`;
+    
+    if (existing.rows.length === 0) {
+      // Создаем запись если не существует
+      await sql`
+        INSERT INTO game_config (key, value, updated_at)
+        VALUES ('current_phase', ${JSON.stringify(phase)}, CURRENT_TIMESTAMP)
+      `;
+      console.log(`Created new current_phase record: ${phase}`);
+    } else {
+      // Обновляем существующую
+      await sql`
+        UPDATE game_config 
+        SET value = ${JSON.stringify(phase)}, updated_at = CURRENT_TIMESTAMP
+        WHERE key = 'current_phase'
+      `;
+      console.log(`Updated current_phase record: ${phase}`);
     }
-  });
+    
+    // Проверяем что обновилось
+    const verification = await sql`SELECT value FROM game_config WHERE key = 'current_phase'`;
+    const newValue = JSON.parse(verification.rows[0].value);
+    console.log(`Verification - new value: ${newValue}`);
+    
+    return res.json({ success: true, phase: newValue });
+  } catch (error) {
+    console.error('Error updating phase:', error);
+    throw error;
+  }
+}
 
-  const userCount = await sql`SELECT COUNT(*) as count FROM telegram_users`;
-  gameState.totalRegistered = parseInt(userCount.rows[0].count);
-
-  return res.json(gameState);
+async function togglePhase(res, phase) {
+  try {
+    console.log(`Toggling phase: ${phase}`);
+    
+    // Получаем текущие фазы
+    const current = await sql`SELECT value FROM game_config WHERE key = 'phases_status'`;
+    let phases;
+    
+    if (current.rows.length === 0) {
+      // Создаем запись если не существует
+      phases = { quiz: false, logic: false, contact: false, survey: false, auction: false };
+    } else {
+      phases = JSON.parse(current.rows[0].value);
+    }
+    
+    // Переключаем фазу
+    phases[phase] = !phases[phase];
+    console.log(`New phases state:`, phases);
+    
+    if (current.rows.length === 0) {
+      await sql`
+        INSERT INTO game_config (key, value, updated_at)
+        VALUES ('phases_status', ${JSON.stringify(phases)}, CURRENT_TIMESTAMP)
+      `;
+    } else {
+      await sql`
+        UPDATE game_config 
+        SET value = ${JSON.stringify(phases)}, updated_at = CURRENT_TIMESTAMP
+        WHERE key = 'phases_status'
+      `;
+    }
+    
+    console.log(`Toggled phase ${phase} to ${phases[phase]}`);
+    return res.json({ success: true, phases });
+  } catch (error) {
+    console.error('Error toggling phase:', error);
+    throw error;
+  }
 }
 
 async function getLeaderboard(res) {
@@ -184,31 +272,6 @@ async function getGameStats(res) {
     avg_points: parseFloat(avgPoints.rows[0].avg || 0).toFixed(1),
     round_stats: roundStats.rows
   });
-}
-
-async function updatePhase(res, phase) {
-  await sql`
-    UPDATE game_config 
-    SET value = ${JSON.stringify(phase)}, updated_at = CURRENT_TIMESTAMP
-    WHERE key = 'current_phase'
-  `;
-  
-  return res.json({ success: true, phase });
-}
-
-async function togglePhase(res, phase) {
-  const current = await sql`SELECT value FROM game_config WHERE key = 'phases_status'`;
-  const phases = JSON.parse(current.rows[0].value);
-  
-  phases[phase] = !phases[phase];
-  
-  await sql`
-    UPDATE game_config 
-    SET value = ${JSON.stringify(phases)}, updated_at = CURRENT_TIMESTAMP
-    WHERE key = 'phases_status'
-  `;
-  
-  return res.json({ success: true, phases });
 }
 
 async function updateUserPoints(res, userId, points) {
