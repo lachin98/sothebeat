@@ -2291,3 +2291,618 @@ body {
     box-shadow: 0 0 16px rgba(76, 175, 80, 0.8);
   }
 }
+
+/* === СТИЛИ ДЛЯ АУКЦИОНА === */
+.auction-round {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.auction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.auction-header h2 {
+  margin: 0;
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auction-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Отображение лота */
+.lot-display {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+}
+
+.lot-image {
+  width: 100%;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 15px;
+  border: 2px solid rgba(244, 67, 54, 0.3);
+}
+
+.lot-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lot-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.lot-description {
+  color: #bbb;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.lot-details {
+  display: grid;
+  gap: 8px;
+}
+
+.lot-details .label {
+  color: #888;
+  font-size: 13px;
+}
+
+.lot-details .value {
+  color: white;
+  font-weight: 600;
+}
+
+.price-info, .current-price, .leading-bidder {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.current-price {
+  background: rgba(244, 67, 54, 0.15);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.current-price .value {
+  color: #f44336;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Таймер */
+.auction-timer {
+  text-align: center;
+  padding: 20px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid rgba(244, 67, 54, 0.3);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.auction-timer.urgent {
+  animation: pulse-urgent 1s infinite;
+  border-color: #ff5722;
+  background: rgba(255, 87, 34, 0.2);
+}
+
+.auction-timer.expired {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+@keyframes pulse-urgent {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.6);
+  }
+  50% { 
+    box-shadow: 0 0 0 8px rgba(244, 67, 54, 0);
+  }
+}
+
+.timer-label {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.timer-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #f44336;
+}
+
+.auction-timer.urgent .timer-value {
+  color: #ff5722;
+}
+
+.auction-timer.expired .timer-value {
+  color: #4caf50;
+}
+
+/* Секция ставок */
+.bid-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.balance {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.team {
+  color: #2196f3;
+  font-size: 14px;
+}
+
+.bid-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.bid-input-group {
+  flex: 1;
+  position: relative;
+}
+
+.bid-input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  padding-right: 70px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.bid-input-group input:focus {
+  outline: none;
+  border-color: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
+}
+
+.currency {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.bid-button {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.bid-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+}
+
+.bid-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.bid-hints {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-bid {
+  padding: 6px 12px;
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  border-radius: 8px;
+  color: #f44336;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-bid:hover:not(:disabled) {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.quick-bid:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* История ставок */
+.bids-history {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.bids-history h4 {
+  margin: 0 0 15px 0;
+  color: white;
+  font-size: 16px;
+}
+
+.no-bids {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+.bids-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bid-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bid-item.leading {
+  background: rgba(244, 67, 54, 0.15);
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+.bid-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.crown {
+  font-size: 16px;
+}
+
+.team-badge {
+  font-size: 12px;
+  color: #2196f3;
+}
+
+.bid-amount {
+  font-weight: bold;
+  color: #f44336;
+}
+
+.bid-time {
+  font-size: 11px;
+  color: #888;
+}
+
+/* Окончание аукциона */
+.auction-ended {
+  text-align: center;
+  padding: 20px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 16px;
+}
+
+.auction-ended h3 {
+  color: #4caf50;
+  margin-bottom: 10px;
+}
+
+/* Ожидание аукциона */
+.auction-waiting {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.waiting-content {
+  text-align: center;
+  max-width: 300px;
+}
+
+.auction-logo {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.waiting-content h2 {
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.user-balance {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 20px 0;
+  color: #4caf50;
+}
+
+/* === СТИЛИ ДЛЯ АДМИН АУКЦИОНА === */
+.active-lot-panel {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.active-lot-panel h3 {
+  margin: 0 0 15px 0;
+  color: #f44336;
+}
+
+.active-lot-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.lot-image-preview {
+  width: 120px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.lot-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lot-details {
+  flex: 1;
+}
+
+.lot-details h4 {
+  margin: 0 0 8px 0;
+  color: white;
+  font-size: 16px;
+}
+
+.lot-details p {
+  margin: 0 0 12px 0;
+  color: #bbb;
+  font-size: 13px;
+}
+
+.lot-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.lot-stats span {
+  color: #888;
+}
+
+.lot-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.timer {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f44336;
+  text-align: center;
+  min-width: 80px;
+}
+
+.timer.urgent {
+  color: #ff5722;
+  animation: pulse 1s infinite;
+}
+
+.lot-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.lot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.lot-number {
+  background: rgba(244, 67, 54, 0.3);
+  color: #f44336;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.lot-status {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lot-preview {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.lot-image-small {
+  width: 80px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.lot-image-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lot-info {
+  flex: 1;
+}
+
+.lot-title {
+  margin: 0 0 6px 0;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lot-description {
+  margin: 0 0 10px 0;
+  color: #bbb;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.lot-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: #888;
+}
+
+.lot-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.completed-badge {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.image-preview {
+  margin-bottom: 15px;
+}
+
+.image-preview img {
+  max-width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .auction-round, .auction-waiting {
+    padding: 15px;
+  }
+  
+  .bid-form {
+    flex-direction: column;
+  }
+  
+  .bid-button {
+    width: 100%;
+  }
+  
+  .bid-hints {
+    justify-content: center;
+  }
+  
+  .active-lot-card {
+    flex-direction: column;
+  }
+  
+  .lot-controls {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .lot-preview {
+    flex-direction: column;
+  }
+  
+  .lot-image-small {
+    width: 100%;
+    height: 120px;
+  }
+}

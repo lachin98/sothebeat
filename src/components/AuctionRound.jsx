@@ -1,144 +1,284 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const AuctionRound = ({ lots, userPoints, onBack }) => {
-  const [currentLot, setCurrentLot] = useState(0);
+const AuctionRound = ({ userId, userPoints, teamId, onBack }) => {
+  const [activeLot, setActiveLot] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [bids, setBids] = useState([]);
   const [bidAmount, setBidAmount] = useState('');
-  const [userBids, setUserBids] = useState([]);
-  const [teamCode, setTeamCode] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [placingBid, setPlacingBid] = useState(false);
+  const [userName] = useState('Участник');
 
-  const handlePlaceBid = () => {
-    const bid = parseInt(bidAmount);
-    if (bid < lots[currentLot].startPrice) {
-      alert(`Минимальная ставка: ${lots[currentLot].startPrice} баллов`);
+  useEffect(() => {
+    fetchActiveLot();
+    const interval = setInterval(fetchActiveLot, 1000); // Каждую секунду
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchActiveLot = async () => {
+    try {
+      const response = await fetch('/api/auction?action=active');
+      if (response.ok) {
+        const data = await response.json();
+        setActiveLot(data.lot);
+        setTimeLeft(data.timeLeft || 0);
+        
+        if (data.lot) {
+          fetchBids(data.lot.id);
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки лота:', error);
+    }
+    setLoading(false);
+  };
+
+  const fetchBids = async (lotId) => {
+    try {
+      const response = await fetch(`/api/auction?action=bids&lot_id=${lotId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setBids(data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки ставок:', error);
+    }
+  };
+
+  const handlePlaceBid = async () => {
+    if (!bidAmount || placingBid) return;
+    
+    const amount = parseInt(bidAmount);
+    if (amount <= 0) {
+      alert('Введите корректную сумму');
       return;
     }
-    if (bid > userPoints) {
+    
+    if (amount > userPoints) {
       alert('Недостаточно баллов!');
       return;
     }
-
-    const newBid = {
-      lotId: lots[currentLot].id,
-      amount: bid,
-      timestamp: new Date(),
-      teamCode: teamCode || null
-    };
-
-    setUserBids([...userBids, newBid]);
-    alert(`Ставка ${bid} баллов размещена на лот "${lots[currentLot].name}"`);
-    setBidAmount('');
-  };
-
-  const joinTeam = () => {
-    const code = prompt('Введите код команды для объединения баллов:');
-    if (code) {
-      setTeamCode(code);
-      alert(`Вы присоединились к команде: ${code}`);
+    
+    setPlacingBid(true);
+    
+    try {
+      const response = await fetch('/api/auction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'place_bid',
+          user_id: userId,
+          user_name: userName,
+          lot_id: activeLot.id,
+          bid_amount: amount,
+          team_id: teamId
+        })
+      });
+      
+      if (response.ok) {
+        setBidAmount('');
+        alert('✅ Ставка принята!');
+        fetchActiveLot(); // Обновляем данные
+      } else {
+        const error = await response.json();
+        alert(`❌ ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Ошибка ставки:', error);
+      alert('❌ Ошибка сети');
     }
+    
+    setPlacingBid(false);
   };
+
+  const formatTime = (seconds) => {
+    if (seconds <= 0) return 'Завершен';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getMinBid = () => {
+    if (!activeLot) return 200;
+    return Math.max(activeLot.current_price + 10, activeLot.starting_price);
+  };
+
+  if (loading) {
+    return (
+      <div className="auction-loading">
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <div className="loading-screen">
+          <div className="spinner"></div>
+          <p>Загрузка аукциона...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeLot) {
+    return (
+      <div className="auction-waiting">
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        
+        <div className="waiting-content">
+          <div className="auction-logo">🏛️</div>
+          <h2>Аукцион SotheBEAT</h2>
+          <p>В данный момент нет активных лотов</p>
+          <p>Дождитесь начала торгов!</p>
+          
+          <div className="user-balance">
+            💰 Ваш баланс: <strong>{userPoints} баллов</strong>
+          </div>
+          
+          {teamId && (
+            <div className="team-info">
+              👥 Команда: {teamId}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const isTimeUp = timeLeft <= 0;
+  const minBid = getMinBid();
 
   return (
     <div className="auction-round">
-      <button className="back-btn" onClick={onBack}>← Назад</button>
-      
       <div className="auction-header">
-        <h2>🔥 Аукцион SotheBEAT</h2>
-        <div className="user-balance">
-          💰 Ваши баллы: {userPoints}
-          {teamCode && <div className="team-info">👥 Команда: {teamCode}</div>}
-        </div>
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <h2>🏛️ Аукцион</h2>
       </div>
 
-      {!teamCode && (
-        <button className="join-team-btn" onClick={joinTeam}>
-          🤝 Объединиться в команду
-        </button>
-      )}
-
-      <div className="lots-navigation">
-        {lots.map((lot, index) => (
-          <button
-            key={lot.id}
-            className={`lot-nav-btn ${currentLot === index ? 'active' : ''}`}
-            onClick={() => setCurrentLot(index)}
-          >
-            Лот {lot.id}
-          </button>
-        ))}
-      </div>
-
-      <div className="current-lot">
-        <div className="lot-card">
+      <div className="auction-content">
+        {/* Лот */}
+        <div className="lot-display">
           <div className="lot-image">
-            {lots[currentLot].image}
+            <img src={activeLot.image_url} alt={activeLot.title} />
           </div>
+          
           <div className="lot-info">
-            <h3>Лот {lots[currentLot].id}</h3>
-            <h4>{lots[currentLot].name}</h4>
-            <div className="start-price">
-              Стартовая цена: {lots[currentLot].startPrice} баллов
+            <h3 className="lot-title">{activeLot.title}</h3>
+            <p className="lot-description">{activeLot.description}</p>
+            
+            <div className="lot-details">
+              <div className="price-info">
+                <span className="label">Стартовая цена:</span>
+                <span className="value">{activeLot.starting_price} баллов</span>
+              </div>
+              
+              <div className="current-price">
+                <span className="label">Текущая цена:</span>
+                <span className="value">{activeLot.current_price || activeLot.starting_price} баллов</span>
+              </div>
+              
+              {activeLot.leading_bidder && (
+                <div className="leading-bidder">
+                  <span className="label">Лидирует:</span>
+                  <span className="value">{activeLot.leading_bidder}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="bidding-section">
-          <div className="bid-input">
-            <input
-              type="number"
-              value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)}
-              placeholder="Ваша ставка"
-              min={lots[currentLot].startPrice}
-              max={userPoints}
-            />
-            <button 
-              className="bid-btn"
-              onClick={handlePlaceBid}
-              disabled={!bidAmount || parseInt(bidAmount) < lots[currentLot].startPrice}
-            >
-              Сделать ставку
-            </button>
-          </div>
-
-          <div className="quick-bids">
-            <h4>Быстрые ставки:</h4>
-            {[200, 250, 300, 400, 500].map(amount => (
-              <button
-                key={amount}
-                className="quick-bid-btn"
-                onClick={() => setBidAmount(amount.toString())}
-                disabled={amount > userPoints}
-              >
-                {amount}
-              </button>
-            ))}
-          </div>
+        {/* Таймер */}
+        <div className={`auction-timer ${isTimeUp ? 'expired' : ''} ${timeLeft <= 10 ? 'urgent' : ''}`}>
+          <div className="timer-label">Время до окончания:</div>
+          <div className="timer-value">{formatTime(timeLeft)}</div>
         </div>
 
-        {userBids.length > 0 && (
-          <div className="user-bids">
-            <h4>Ваши ставки:</h4>
-            {userBids.map((bid, index) => {
-              const lot = lots.find(l => l.id === bid.lotId);
-              return (
-                <div key={index} className="bid-item">
-                  Лот {bid.lotId} ({lot?.name}): {bid.amount} баллов
-                  {bid.teamCode && <span className="team-bid"> (команда: {bid.teamCode})</span>}
-                </div>
-              );
-            })}
+        {/* Форма ставки */}
+        {!isTimeUp && (
+          <div className="bid-section">
+            <div className="user-info">
+              <div className="balance">💰 Ваш баланс: <strong>{userPoints}</strong> баллов</div>
+              {teamId && <div className="team">👥 Команда: {teamId}</div>}
+            </div>
+            
+            <div className="bid-form">
+              <div className="bid-input-group">
+                <input
+                  type="number"
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  placeholder={`Мин. ставка: ${minBid}`}
+                  min={minBid}
+                  max={userPoints}
+                  disabled={placingBid}
+                />
+                <span className="currency">баллов</span>
+              </div>
+              
+              <button 
+                className="bid-button"
+                onClick={handlePlaceBid}
+                disabled={placingBid || !bidAmount || parseInt(bidAmount) < minBid}
+              >
+                {placingBid ? '⏳ Ставка...' : '🔥 Сделать ставку'}
+              </button>
+            </div>
+            
+            <div className="bid-hints">
+              <button 
+                className="quick-bid"
+                onClick={() => setBidAmount(minBid.toString())}
+                disabled={minBid > userPoints}
+              >
+                {minBid} баллов (мин.)
+              </button>
+              <button 
+                className="quick-bid"
+                onClick={() => setBidAmount((minBid + 50).toString())}
+                disabled={minBid + 50 > userPoints}
+              >
+                {minBid + 50} баллов
+              </button>
+              <button 
+                className="quick-bid"
+                onClick={() => setBidAmount((minBid + 100).toString())}
+                disabled={minBid + 100 > userPoints}
+              >
+                {minBid + 100} баллов
+              </button>
+            </div>
           </div>
         )}
 
-        <div className="auction-info">
-          <h4>ℹ️ Информация об аукционе:</h4>
-          <ul>
-            <li>Ставки принимаются в режиме реального времени</li>
-            <li>Можно объединяться в команды для совместных ставок</li>
-            <li>Победитель определяется в конце аукциона</li>
-            <li>При победе баллы списываются с вашего счета</li>
-          </ul>
+        {/* История ставок */}
+        <div className="bids-history">
+          <h4>История ставок</h4>
+          {bids.length === 0 ? (
+            <p className="no-bids">Пока никто не делал ставок</p>
+          ) : (
+            <div className="bids-list">
+              {bids.map((bid, index) => (
+                <div key={bid.id} className={`bid-item ${index === 0 ? 'leading' : ''}`}>
+                  <div className="bid-user">
+                    {index === 0 && <span className="crown">👑</span>}
+                    {bid.user_name}
+                    {bid.team_id && <span className="team-badge">👥</span>}
+                  </div>
+                  <div className="bid-amount">{bid.bid_amount} баллов</div>
+                  <div className="bid-time">
+                    {new Date(bid.created_at).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {isTimeUp && (
+          <div className="auction-ended">
+            <h3>🎉 Торги завершены!</h3>
+            {activeLot.leading_bidder ? (
+              <p>Победитель: <strong>{activeLot.leading_bidder}</strong></p>
+            ) : (
+              <p>Никто не сделал ставку</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

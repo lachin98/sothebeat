@@ -4,6 +4,7 @@ import ConferenceTab from '../components/admin/ConferenceTab';
 import QuizTab from '../components/admin/QuizTab';
 import LogicTab from '../components/admin/LogicTab';
 import SurveyTab from '../components/admin/SurveyTab';
+import AuctionTab from '../components/admin/AuctionTab';
 import LeaderboardTab from '../components/admin/LeaderboardTab';
 import ParticipantsTab from '../components/admin/ParticipantsTab';
 
@@ -15,7 +16,6 @@ const AdminPanel = () => {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    // Проверяем авторизацию в localStorage
     const savedAuth = localStorage.getItem('admin_authenticated');
     if (savedAuth === 'true') {
       setIsAuthenticated(true);
@@ -63,6 +63,7 @@ const AdminPanel = () => {
     { id: 'quiz', name: 'Квиз', icon: '🎯' },
     { id: 'logic', name: 'Где логика?', icon: '🧩' },
     { id: 'survey', name: '100 к 1', icon: '📋' },
+    { id: 'auction', name: 'Аукцион', icon: '🏛️' },
     { id: 'leaderboard', name: 'Лидерборд', icon: '🏆' },
     { id: 'participants', name: 'Участники', icon: '👥' }
   ];
@@ -79,6 +80,8 @@ const AdminPanel = () => {
         return <LogicTab adminToken={adminToken} />;
       case 'survey':
         return <SurveyTab adminToken={adminToken} />;
+      case 'auction':
+        return <AuctionTab adminToken={adminToken} />;
       case 'leaderboard':
         return <LeaderboardTab adminToken={adminToken} />;
       case 'participants':
