@@ -1535,3 +1535,407 @@
     justify-content: center;
   }
 }
+
+/* === СТИЛИ ДЛЯ АДМИН АУКЦИОНА === */
+.auction-admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 20px;
+  height: calc(100vh - 200px);
+}
+
+.auction-control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.current-auction {
+  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid rgba(244, 67, 54, 0.3);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.current-auction h3 {
+  margin: 0 0 15px 0;
+  color: #f44336;
+}
+
+.active-lot-card {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.active-lot-card .lot-image {
+  width: 120px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.active-lot-card .lot-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.active-lot-card .lot-details {
+  flex: 1;
+}
+
+.active-lot-card h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: white;
+}
+
+.lot-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.stat .label {
+  color: #bbb;
+}
+
+.stat .value {
+  color: white;
+  font-weight: bold;
+}
+
+.stat .value.highlight {
+  color: #f44336;
+  font-size: 14px;
+}
+
+.stat .value.winner {
+  color: #ffc107;
+}
+
+.auction-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timer {
+  text-align: center;
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: bold;
+  color: #4caf50;
+  padding: 8px;
+  background: rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+}
+
+.timer.urgent {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.2);
+  animation: blink 1s infinite;
+}
+
+.lots-list-compact {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.lots-list-compact h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: white;
+}
+
+.lot-item-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.lot-item-compact .lot-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.lot-number {
+  background: rgba(74, 144, 226, 0.3);
+  color: #4a90e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.lot-title {
+  font-size: 12px;
+  color: white;
+  flex: 1;
+}
+
+.lot-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.winner-badge {
+  font-size: 10px;
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* === ЖИВОЙ ЧАТ СТАВОК === */
+.live-bids-panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.live-bids-panel h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bids-chat {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 8px;
+  margin-bottom: 10px;
+}
+
+.bids-chat::-webkit-scrollbar {
+  width: 4px;
+}
+
+.bids-chat::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.bids-chat::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.no-bids-yet {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+.bid-message {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.bid-message.leading {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.2);
+}
+
+.bid-message.active-lot {
+  border-left: 3px solid #4caf50;
+}
+
+.bid-message.inactive-lot {
+  opacity: 0.6;
+}
+
+.bid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bid-user {
+  font-weight: 600;
+  font-size: 13px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-tag {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.bid-time {
+  font-size: 10px;
+  color: #888;
+}
+
+.bid-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bid-amount {
+  color: #f44336;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.bid-lot {
+  color: #bbb;
+  font-size: 11px;
+}
+
+.leading-indicator {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: linear-gradient(45deg, #ffc107, #ff9800);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 0 8px 0 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.chat-stats {
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+}
+
+/* === МОДАЛ ОБЪЯВЛЕНИЯ ПОБЕДИТЕЛЯ === */
+.winner-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #2d2d2d;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-content h3 {
+  margin: 0 0 20px 0;
+  color: white;
+  text-align: center;
+}
+
+.modal-content textarea {
+  width: 100%;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .auction-admin-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  
+  .live-bids-panel {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .auction-admin-layout {
+    gap: 15px;
+  }
+  
+  .active-lot-card {
+    flex-direction: column;
+  }
+  
+  .lot-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

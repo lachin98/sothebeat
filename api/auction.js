@@ -21,9 +21,16 @@ module.exports = async (req, res) => {
           return await getActiveLot(res);
         }
         
-        // Получить ставки по лоту
+        // Получить ставки по лоту (с лимитом)
         if (query.action === 'bids' && query.lot_id) {
-          return await getLotBids(res, query.lot_id);
+          const limit = query.limit || 20;
+          return await getLotBids(res, query.lot_id, limit);
+        }
+        
+        // НОВОЕ: Получить живой чат всех ставок для админки
+        if (query.action === 'live_bids' && query.admin_token === 'a') {
+          const limit = query.limit || 50;
+          return await getLiveBidsChat(res, limit);
         }
         
         break;
@@ -41,6 +48,11 @@ module.exports = async (req, res) => {
           
           if (body.action === 'add_lot') {
             return await addLot(res, body);
+          }
+          
+          // НОВОЕ: Объявить победителя
+          if (body.action === 'announce_winner') {
+            return await announceWinner(res, body.lot_id, body.winner_message);
           }
         }
 
@@ -108,20 +120,37 @@ async function getActiveLot(res) {
   });
 }
 
-async function getLotBids(res, lotId) {
+async function getLotBids(res, lotId, limit) {
   const bids = await sql`
     SELECT *
     FROM auction_bids
     WHERE lot_id = ${lotId}
     ORDER BY bid_amount DESC, created_at ASC
-    LIMIT 20
+    LIMIT ${limit}
+  `;
+  
+  return res.json(bids.rows);
+}
+
+// НОВАЯ ФУНКЦИЯ: Живой чат ставок для админки
+async function getLiveBidsChat(res, limit) {
+  const bids = await sql`
+    SELECT 
+      ab.*,
+      al.title as lot_title,
+      al.is_active as lot_is_active,
+      (ab.bid_amount = (SELECT MAX(bid_amount) FROM auction_bids WHERE lot_id = ab.lot_id)) as is_leading
+    FROM auction_bids ab
+    JOIN auction_lots al ON ab.lot_id = al.id
+    ORDER BY ab.created_at DESC
+    LIMIT ${limit}
   `;
   
   return res.json(bids.rows);
 }
 
 async function startLot(res, lotId) {
-  console.log(`Starting auction for lot ${lotId}`);
+  console.log(`🏛️ Starting auction for lot ${lotId}`);
   
   // Завершаем все активные лоты
   await sql`
@@ -130,8 +159,8 @@ async function startLot(res, lotId) {
     WHERE is_active = true
   `;
   
-  // Запускаем выбранный лот на 30 секунд
-  const auctionEndsAt = new Date(Date.now() + 30 * 1000); // 30 секунд для теста
+  // Запускаем выбранный лот на 60 секунд
+  const auctionEndsAt = new Date(Date.now() + 60 * 1000); // 60 секунд
   
   await sql`
     UPDATE auction_lots 
@@ -140,25 +169,28 @@ async function startLot(res, lotId) {
       is_completed = false,
       auction_started_at = CURRENT_TIMESTAMP,
       auction_ends_at = ${auctionEndsAt.toISOString()},
-      current_price = starting_price
+      current_price = starting_price,
+      winner_user_id = NULL,
+      winner_name = NULL
     WHERE id = ${lotId}
   `;
   
-  console.log(`Lot ${lotId} started, ends at ${auctionEndsAt.toISOString()}`);
+  console.log(`🔥 Lot ${lotId} started, ends at ${auctionEndsAt.toISOString()}`);
   
   return res.json({ 
     success: true, 
     lot_id: lotId,
-    ends_at: auctionEndsAt.toISOString()
+    ends_at: auctionEndsAt.toISOString(),
+    message: `Аукцион запущен на 60 секунд`
   });
 }
 
 async function endLot(res, lotId) {
-  console.log(`Ending auction for lot ${lotId}`);
+  console.log(`⏹️ Ending auction for lot ${lotId}`);
   
   // Находим победителя (самая высокая ставка)
   const winner = await sql`
-    SELECT user_id, user_name, bid_amount, team_id
+    SELECT user_id, user_name, bid_amount, team_id, created_at
     FROM auction_bids 
     WHERE lot_id = ${lotId}
     ORDER BY bid_amount DESC, created_at ASC
@@ -181,27 +213,19 @@ async function endLot(res, lotId) {
     `;
     
     // Списываем баллы у победителя
-    if (winnerData.team_id) {
-      // Если командная ставка - списываем с команды (пока просто с пользователя)
-      await sql`
-        UPDATE telegram_users 
-        SET total_points = total_points - ${winnerData.bid_amount}
-        WHERE id = ${winnerData.user_id}
-      `;
-    } else {
-      await sql`
-        UPDATE telegram_users 
-        SET total_points = total_points - ${winnerData.bid_amount}
-        WHERE id = ${winnerData.user_id}
-      `;
-    }
+    await sql`
+      UPDATE telegram_users 
+      SET total_points = total_points - ${winnerData.bid_amount}
+      WHERE id = ${winnerData.user_id}
+    `;
     
-    console.log(`Lot ${lotId} won by ${winnerData.user_name} for ${winnerData.bid_amount} points`);
+    console.log(`🏆 Lot ${lotId} won by ${winnerData.user_name} for ${winnerData.bid_amount} points`);
     
     return res.json({
       success: true,
       winner: winnerData,
-      final_price: winnerData.bid_amount
+      final_price: winnerData.bid_amount,
+      message: `Победитель: ${winnerData.user_name} за ${winnerData.bid_amount} баллов!`
     });
   } else {
     // Никто не делал ставок
@@ -211,22 +235,50 @@ async function endLot(res, lotId) {
       WHERE id = ${lotId}
     `;
     
-    console.log(`Lot ${lotId} ended with no bids`);
+    console.log(`❌ Lot ${lotId} ended with no bids`);
     
     return res.json({
       success: true,
       winner: null,
-      final_price: 0
+      final_price: 0,
+      message: 'Никто не сделал ставку'
     });
   }
 }
 
+// НОВАЯ ФУНКЦИЯ: Объявить победителя с кастомным сообщением
+async function announceWinner(res, lotId, message) {
+  console.log(`📢 Announcing winner for lot ${lotId}: ${message}`);
+  
+  const lot = await sql`
+    SELECT title, winner_name, current_price
+    FROM auction_lots
+    WHERE id = ${lotId}
+  `;
+  
+  if (lot.rows.length === 0) {
+    return res.status(404).json({ error: 'Лот не найден' });
+  }
+  
+  const lotData = lot.rows[0];
+  
+  // Можно добавить запись в лог объявлений
+  // await sql`INSERT INTO auction_announcements (lot_id, message, created_at) VALUES (${lotId}, ${message}, CURRENT_TIMESTAMP)`;
+  
+  return res.json({
+    success: true,
+    lot: lotData,
+    announcement: message,
+    message: 'Объявление сделано!'
+  });
+}
+
 async function placeBid(res, { user_id, user_name, lot_id, bid_amount, team_id }) {
-  console.log(`Placing bid: user=${user_name}, lot=${lot_id}, amount=${bid_amount}`);
+  console.log(`💰 Placing bid: user=${user_name}, lot=${lot_id}, amount=${bid_amount}`);
   
   // Проверяем что лот активен
   const lot = await sql`
-    SELECT id, is_active, is_completed, auction_ends_at, current_price, starting_price
+    SELECT id, is_active, is_completed, auction_ends_at, current_price, starting_price, title
     FROM auction_lots 
     WHERE id = ${lot_id}
   `;
@@ -287,16 +339,17 @@ async function placeBid(res, { user_id, user_name, lot_id, bid_amount, team_id }
       SET auction_ends_at = ${newEndTime.toISOString()}
       WHERE id = ${lot_id}
     `;
-    console.log(`Extended auction for lot ${lot_id} by 10 seconds`);
+    console.log(`⏰ Extended auction for lot ${lot_id} by 10 seconds`);
   }
   
-  console.log(`Bid placed successfully: ${bid_amount} points`);
+  console.log(`✅ Bid placed: ${bid_amount} points for "${lotData.title}"`);
   
   return res.json({
     success: true,
     bid_amount,
     new_leader: user_name,
-    time_left: Math.max(10, timeLeft)
+    time_left: Math.max(10, timeLeft),
+    lot_title: lotData.title
   });
 }
 

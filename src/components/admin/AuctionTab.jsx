@@ -1,26 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const AuctionTab = ({ adminToken }) => {
   const [lots, setLots] = useState([]);
   const [activeLot, setActiveLot] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [liveBids, setLiveBids] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingLot, setEditingLot] = useState(null);
   const [newLot, setNewLot] = useState({
     title: '',
     description: '',
     starting_price: 200,
     image_url: ''
   });
+  const [winnerMessage, setWinnerMessage] = useState('');
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const [selectedLotForWinner, setSelectedLotForWinner] = useState(null);
+  
+  const bidsEndRef = useRef(null);
 
   useEffect(() => {
     fetchLots();
     fetchActiveLot();
+    fetchLiveBids();
     
     // Обновляем активный лот каждую секунду
-    const interval = setInterval(fetchActiveLot, 1000);
+    const interval = setInterval(() => {
+      fetchActiveLot();
+      fetchLiveBids();
+    }, 1000);
+    
     return () => clearInterval(interval);
   }, []);
+
+  // Автоскролл чата вниз при новых ставках
+  useEffect(() => {
+    scrollToBottom();
+  }, [liveBids]);
+
+  const scrollToBottom = () => {
+    bidsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const fetchLots = async () => {
     try {
@@ -48,9 +67,21 @@ const AuctionTab = ({ adminToken }) => {
     }
   };
 
-  const startLotAuction = async (lotId) => {
-    if (!confirm('🔥 Запустить аукцион этого лота?')) return;
-    
+  const fetchLiveBids = async () => {
+    try {
+      const response = await fetch(`/api/auction?action=live_bids&admin_token=${adminToken}&limit=100`);
+      if (response.ok) {
+        const data = await response.json();
+        setLiveBids(data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки чата ставок:', error);
+    }
+  };
+
+  const handleStartLot = async (lotId) => {
+    if (!confirm('Запустить аукцион по этому лоту на 60 секунд?')) return;
+
     try {
       const response = await fetch('/api/auction', {
         method: 'POST',
@@ -61,13 +92,14 @@ const AuctionTab = ({ adminToken }) => {
           admin_token: adminToken
         })
       });
-      
+
       if (response.ok) {
-        alert('✅ Аукцион запущен!');
+        const result = await response.json();
+        alert(`✅ ${result.message}`);
         fetchLots();
         fetchActiveLot();
       } else {
-        alert('❌ Ошибка запуска');
+        alert('❌ Ошибка запуска аукциона');
       }
     } catch (error) {
       console.error('Ошибка запуска лота:', error);
@@ -75,9 +107,9 @@ const AuctionTab = ({ adminToken }) => {
     }
   };
 
-  const endLotAuction = async (lotId) => {
-    if (!confirm('⏹️ Завершить аукцион досрочно?')) return;
-    
+  const handleEndLot = async (lotId) => {
+    if (!confirm('Завершить текущий аукцион?')) return;
+
     try {
       const response = await fetch('/api/auction', {
         method: 'POST',
@@ -88,21 +120,59 @@ const AuctionTab = ({ adminToken }) => {
           admin_token: adminToken
         })
       });
-      
+
       if (response.ok) {
         const result = await response.json();
+        alert(`✅ ${result.message}`);
+        
+        // Показываем модал для объявления победителя
+        setSelectedLotForWinner(lotId);
         if (result.winner) {
-          alert(`✅ Лот продан!\nПобедитель: ${result.winner.user_name}\nЦена: ${result.final_price} баллов`);
+          setWinnerMessage(`🏆 Лот "${result.winner.lot_title || 'Лот'}" продан!\n\nПобедитель: ${result.winner.user_name}\nИтоговая цена: ${result.final_price} баллов\n\nПроданы раз, проданы два, проданы три! 🔥`);
         } else {
-          alert('✅ Лот снят с торгов (нет ставок)');
+          setWinnerMessage(`Лот завершен без ставок.`);
         }
+        setShowWinnerModal(true);
+        
         fetchLots();
         fetchActiveLot();
       } else {
-        alert('❌ Ошибка завершения');
+        alert('❌ Ошибка завершения аукциона');
       }
     } catch (error) {
       console.error('Ошибка завершения лота:', error);
+      alert('❌ Ошибка сети');
+    }
+  };
+
+  const handleAnnounceWinner = async () => {
+    if (!winnerMessage.trim()) {
+      alert('Введите сообщение для объявления');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'announce_winner',
+          lot_id: selectedLotForWinner,
+          winner_message: winnerMessage,
+          admin_token: adminToken
+        })
+      });
+
+      if (response.ok) {
+        alert('📢 Объявление сделано!');
+        setShowWinnerModal(false);
+        setWinnerMessage('');
+        setSelectedLotForWinner(null);
+      } else {
+        alert('❌ Ошибка объявления');
+      }
+    } catch (error) {
+      console.error('Ошибка объявления:', error);
       alert('❌ Ошибка сети');
     }
   };
@@ -112,7 +182,7 @@ const AuctionTab = ({ adminToken }) => {
       alert('Введите название лота');
       return;
     }
-    
+
     try {
       const response = await fetch('/api/auction', {
         method: 'POST',
@@ -123,28 +193,23 @@ const AuctionTab = ({ adminToken }) => {
           ...newLot
         })
       });
-      
+
       if (response.ok) {
-        resetForm();
-        fetchLots();
         alert('✅ Лот добавлен!');
+        setNewLot({
+          title: '',
+          description: '',
+          starting_price: 200,
+          image_url: ''
+        });
+        fetchLots();
       } else {
-        alert('❌ Ошибка добавления');
+        alert('❌ Ошибка добавления лота');
       }
     } catch (error) {
       console.error('Ошибка добавления лота:', error);
       alert('❌ Ошибка сети');
     }
-  };
-
-  const resetForm = () => {
-    setEditingLot(null);
-    setNewLot({
-      title: '',
-      description: '',
-      starting_price: 200,
-      image_url: ''
-    });
   };
 
   const formatTime = (seconds) => {
@@ -154,198 +219,184 @@ const AuctionTab = ({ adminToken }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const formatBidTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString();
+  };
+
   const getLotStatus = (lot) => {
-    if (lot.is_active) return { text: '🔥 Активный торг', color: '#f44336' };
-    if (lot.is_completed) return { text: '✅ Продан', color: '#4caf50' };
-    return { text: '⏳ Ожидает', color: '#888' };
+    if (lot.is_completed) return { text: 'Завершен', color: '#888', icon: '✅' };
+    if (lot.is_active) return { text: 'Активен', color: '#4caf50', icon: '🔥' };
+    return { text: 'Ожидает', color: '#2196f3', icon: '⏳' };
   };
 
   if (loading) {
-    return <div className="loading">Загрузка аукциона...</div>;
+    return <div className="loading">Загрузка лотов...</div>;
   }
 
   return (
     <div className="auction-tab">
       <div className="tab-header">
         <h2>🏛️ Управление аукционом</h2>
-        <div className="tab-stats">
-          Всего лотов: {lots.length}
+        <div className="tab-controls">
+          <button className="btn btn-secondary" onClick={fetchLots}>
+            🔄 Обновить
+          </button>
         </div>
       </div>
 
-      {/* Активный лот */}
-      {activeLot && (
-        <div className="active-lot-panel">
-          <h3>🔥 Активный лот</h3>
-          <div className="active-lot-card">
-            <div className="lot-image-preview">
-              <img src={activeLot.image_url} alt={activeLot.title} />
-            </div>
-            <div className="lot-details">
-              <h4>{activeLot.title}</h4>
-              <p>{activeLot.description}</p>
-              <div className="lot-stats">
-                <span>Стартовая цена: {activeLot.starting_price} баллов</span>
-                <span>Текущая цена: {activeLot.current_price || activeLot.starting_price} баллов</span>
-                <span>Ставок: {activeLot.bid_count || 0}</span>
-                {activeLot.leading_bidder && (
-                  <span>Лидер: {activeLot.leading_bidder}</span>
-                )}
+      <div className="auction-admin-layout">
+        {/* Левая панель - управление */}
+        <div className="auction-control-panel">
+          {/* Текущий аукцион */}
+          {activeLot && (
+            <div className="current-auction">
+              <h3>🔥 Текущий аукцион</h3>
+              <div className="active-lot-card">
+                <div className="lot-image">
+                  <img src={activeLot.image_url} alt={activeLot.title} />
+                </div>
+                <div className="lot-details">
+                  <h4>{activeLot.title}</h4>
+                  <div className="lot-stats">
+                    <div className="stat">
+                      <span className="label">Стартовая:</span>
+                      <span className="value">{activeLot.starting_price}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Текущая:</span>
+                      <span className="value highlight">{activeLot.current_price}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Ставок:</span>
+                      <span className="value">{activeLot.bid_count}</span>
+                    </div>
+                    {activeLot.leading_bidder && (
+                      <div className="stat">
+                        <span className="label">Лидирует:</span>
+                        <span className="value winner">{activeLot.leading_bidder}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="auction-controls">
+                    <div className={`timer ${timeLeft <= 10 ? 'urgent' : ''}`}>
+                      ⏰ {formatTime(timeLeft)}
+                    </div>
+                    <button 
+                      className="btn btn-warning"
+                      onClick={() => handleEndLot(activeLot.id)}
+                    >
+                      🛑 Завершить аукцион
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="lot-controls">
-              <div className={`timer ${timeLeft <= 10 ? 'urgent' : ''}`}>
-                {formatTime(timeLeft)}
+          )}
+
+          {/* Список лотов */}
+          <div className="lots-list-compact">
+            <h3>📋 Все лоты</h3>
+            {lots.map((lot) => {
+              const status = getLotStatus(lot);
+              return (
+                <div key={lot.id} className="lot-item-compact">
+                  <div className="lot-info">
+                    <span className="lot-number">#{lot.order_num}</span>
+                    <span className="lot-title">{lot.title}</span>
+                    <span className={`lot-status`} style={{ color: status.color }}>
+                      {status.icon} {status.text}
+                    </span>
+                  </div>
+                  
+                  <div className="lot-actions">
+                    {!lot.is_completed && !lot.is_active && (
+                      <button 
+                        className="btn btn-small btn-success"
+                        onClick={() => handleStartLot(lot.id)}
+                      >
+                        ▶️
+                      </button>
+                    )}
+                    
+                    {lot.winner_name && (
+                      <span className="winner-badge">👑 {lot.winner_name}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Правая панель - живой чат ставок */}
+        <div className="live-bids-panel">
+          <h3>💬 Живой чат ставок</h3>
+          <div className="bids-chat">
+            {liveBids.length === 0 ? (
+              <div className="no-bids-yet">
+                Пока никто не делал ставок...
               </div>
+            ) : (
+              liveBids.map((bid) => (
+                <div key={bid.id} className={`bid-message ${bid.is_leading ? 'leading' : ''} ${bid.lot_is_active ? 'active-lot' : 'inactive-lot'}`}>
+                  <div className="bid-header">
+                    <span className="bid-user">
+                      {bid.is_leading && '👑'} {bid.user_name}
+                      {bid.team_id && <span className="team-tag">👥{bid.team_id}</span>}
+                    </span>
+                    <span className="bid-time">{formatBidTime(bid.created_at)}</span>
+                  </div>
+                  
+                  <div className="bid-content">
+                    <div className="bid-amount">💰 {bid.bid_amount} баллов</div>
+                    <div className="bid-lot">на "{bid.lot_title}"</div>
+                  </div>
+                  
+                  {bid.is_leading && bid.lot_is_active && (
+                    <div className="leading-indicator">🔥 ЛИДИРУЕТ</div>
+                  )}
+                </div>
+              ))
+            )}
+            <div ref={bidsEndRef} />
+          </div>
+          
+          <div className="chat-stats">
+            📊 Всего ставок: {liveBids.length}
+          </div>
+        </div>
+      </div>
+
+      {/* Модал объявления победителя */}
+      {showWinnerModal && (
+        <div className="winner-modal">
+          <div className="modal-content">
+            <h3>📢 Объявить победителя</h3>
+            <textarea
+              value={winnerMessage}
+              onChange={(e) => setWinnerMessage(e.target.value)}
+              placeholder="Введите сообщение для объявления победителя..."
+              rows={6}
+            />
+            <div className="modal-actions">
               <button 
-                className="btn btn-warning"
-                onClick={() => endLotAuction(activeLot.id)}
+                className="btn btn-primary"
+                onClick={handleAnnounceWinner}
               >
-                ⏹️ Завершить досрочно
+                📢 Объявить
+              </button>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowWinnerModal(false)}
+              >
+                Отмена
               </button>
             </div>
           </div>
         </div>
       )}
-
-      <div className="tab-content">
-        <div className="lots-list">
-          <h3>Все лоты</h3>
-          
-          {lots.length === 0 ? (
-            <div className="empty-state">
-              <h4>Пока нет лотов</h4>
-              <p>Добавьте первый лот в форме справа →</p>
-            </div>
-          ) : (
-            lots.map((lot, index) => {
-              const status = getLotStatus(lot);
-              return (
-                <div key={lot.id} className="lot-item">
-                  <div className="lot-header">
-                    <span className="lot-number">#{index + 1}</span>
-                    <span className="lot-status" style={{ color: status.color }}>
-                      {status.text}
-                    </span>
-                  </div>
-                  
-                  <div className="lot-preview">
-                    <div className="lot-image-small">
-                      <img src={lot.image_url} alt={lot.title} />
-                    </div>
-                    
-                    <div className="lot-info">
-                      <h4 className="lot-title">{lot.title}</h4>
-                      <p className="lot-description">{lot.description}</p>
-                      
-                      <div className="lot-meta">
-                        <span>Стартовая цена: {lot.starting_price} баллов</span>
-                        {lot.current_price > 0 && (
-                          <span>Продано за: {lot.current_price} баллов</span>
-                        )}
-                        {lot.bid_count > 0 && (
-                          <span>Ставок: {lot.bid_count}</span>
-                        )}
-                        {lot.winner_name && (
-                          <span>Победитель: {lot.winner_name}</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="lot-actions">
-                    {!lot.is_active && !lot.is_completed && (
-                      <button 
-                        className="btn btn-success"
-                        onClick={() => startLotAuction(lot.id)}
-                      >
-                        🔥 Запустить торги
-                      </button>
-                    )}
-                    
-                    {lot.is_active && (
-                      <button 
-                        className="btn btn-warning"
-                        onClick={() => endLotAuction(lot.id)}
-                      >
-                        ⏹️ Завершить
-                      </button>
-                    )}
-                    
-                    {lot.is_completed && lot.winner_name && (
-                      <div className="completed-badge">
-                        ✅ Продан
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        <div className="add-lot-form">
-          <h3>➕ Добавить новый лот</h3>
-          
-          <div className="form-group">
-            <label>Название лота:</label>
-            <input
-              type="text"
-              value={newLot.title}
-              onChange={(e) => setNewLot({...newLot, title: e.target.value})}
-              placeholder="Название приза"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Описание:</label>
-            <textarea
-              value={newLot.description}
-              onChange={(e) => setNewLot({...newLot, description: e.target.value})}
-              placeholder="Подробное описание лота"
-              rows={3}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Стартовая цена (баллы):</label>
-            <input
-              type="number"
-              value={newLot.starting_price}
-              onChange={(e) => setNewLot({...newLot, starting_price: parseInt(e.target.value) || 200})}
-              min="50"
-              max="1000"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>URL изображения:</label>
-            <input
-              type="url"
-              value={newLot.image_url}
-              onChange={(e) => setNewLot({...newLot, image_url: e.target.value})}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-
-          {newLot.image_url && (
-            <div className="image-preview">
-              <label>Предпросмотр:</label>
-              <img src={newLot.image_url} alt="Предпросмотр" />
-            </div>
-          )}
-
-          <div className="form-buttons">
-            <button 
-              className="add-question-btn"
-              onClick={handleAddLot}
-              disabled={!newLot.title.trim()}
-            >
-              ➕ Добавить лот
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
