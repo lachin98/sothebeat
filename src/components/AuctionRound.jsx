@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const AuctionRound = ({ userId, userPoints, teamId, onBack, userName }) => {
+const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   const [activeLot, setActiveLot] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [loading, setLoading] = useState(true);
@@ -66,8 +66,7 @@ const AuctionRound = ({ userId, userPoints, teamId, onBack, userName }) => {
           user_id: userId,
           user_name: userName || 'Участник',
           lot_id: activeLot.id,
-          bid_amount: amount,
-          team_id: teamId
+          bid_amount: amount
         })
       });
       
@@ -139,12 +138,6 @@ const AuctionRound = ({ userId, userPoints, teamId, onBack, userName }) => {
           <div className="user-balance">
             💰 Ваш баланс: <strong>{currentUserPoints.toLocaleString()} баллов</strong>
           </div>
-          
-          {teamId && (
-            <div className="team-info">
-              👥 Команда: {teamId}
-            </div>
-          )}
 
           <div className="auction-info">
             <h4>ℹ️ Как проходят торги:</h4>
@@ -172,18 +165,6 @@ const AuctionRound = ({ userId, userPoints, teamId, onBack, userName }) => {
       </div>
 
       <div className="auction-content">
-        {/* Текущий баланс - всегда сверху */}
-        <div className="balance-display">
-          <div className="balance-info">
-            <div className="balance-amount">
-              💰 <strong>{currentUserPoints.toLocaleString()}</strong> <span>баллов</span>
-            </div>
-            {teamId && (
-              <div className="team-info">👥 Команда: {teamId}</div>
-            )}
-          </div>
-        </div>
-
         {/* Лот */}
         <div className="lot-display">
           <div className="lot-image">
@@ -224,6 +205,11 @@ const AuctionRound = ({ userId, userPoints, teamId, onBack, userName }) => {
 
         {/* Поле для ставки */}
         <div className="bid-section">
+          {/* Текущий баланс в секции ставки */}
+          <div className="current-balance">
+            💰 Ваш баланс: <strong>{currentUserPoints.toLocaleString()}</strong> баллов
+          </div>
+          
           <div className="bid-form">
             <div className="bid-input-container">
               <div className="bid-input-group">
