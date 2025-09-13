@@ -1,5 +1,30 @@
 const { sql } = require('@vercel/postgres');
 
+// Безопасный JSON парсер
+function safeJSONParse(value, fallback = null) {
+  try {
+    // Если уже объект - возвращаем как есть
+    if (typeof value === 'object' && value !== null) {
+      return value;
+    }
+    
+    // Если строка - пытаемся парсить
+    if (typeof value === 'string') {
+      // Если строка уже начинается с { или [ - парсим как JSON
+      if (value.startsWith('{') || value.startsWith('[')) {
+        return JSON.parse(value);
+      }
+      // Если просто строка без кавычек - оборачиваем в кавычки и парсим
+      return JSON.parse(`"${value}"`);
+    }
+    
+    return fallback;
+  } catch (error) {
+    console.log(`JSON parse error for value "${value}":`, error.message);
+    return fallback;
+  }
+}
+
 module.exports = async (req, res) => {
   const { method, body, query } = req;
   
@@ -44,17 +69,6 @@ module.exports = async (req, res) => {
             ORDER BY r.round_number
           `;
           return res.json(rounds.rows);
-        }
-
-        if (query.action === 'auction_lots') {
-          const lots = await sql`
-            SELECT l.*, 
-              (SELECT COUNT(*) FROM auction_bids WHERE lot_id = l.id) as bid_count,
-              (SELECT MAX(bid_amount) FROM auction_bids WHERE lot_id = l.id) as highest_bid
-            FROM auction_lots l
-            ORDER BY l.order_num
-          `;
-          return res.json(lots.rows);
         }
         
         break;
@@ -122,13 +136,13 @@ async function getGameStatus(res) {
 
     config.rows.forEach(row => {
       if (row.key === 'current_phase') {
-        gameState.currentPhase = JSON.parse(row.value);
+        gameState.currentPhase = safeJSONParse(row.value, 'lobby');
       } else if (row.key === 'phases_status') {
-        gameState.phases = JSON.parse(row.value);
+        gameState.phases = safeJSONParse(row.value, { quiz: false, logic: false, contact: false, survey: false, auction: false });
       } else if (row.key === 'online_users') {
-        gameState.onlineUsers = JSON.parse(row.value);
+        gameState.onlineUsers = safeJSONParse(row.value, 0);
       } else if (row.key === 'event_started') {
-        gameState.eventStarted = JSON.parse(row.value);
+        gameState.eventStarted = safeJSONParse(row.value, false);
       }
     });
 
@@ -169,7 +183,7 @@ async function updatePhase(res, phase) {
     
     // Проверяем что обновилось
     const verification = await sql`SELECT value FROM game_config WHERE key = 'current_phase'`;
-    const newValue = JSON.parse(verification.rows[0].value);
+    const newValue = safeJSONParse(verification.rows[0].value, 'lobby');
     console.log(`Verification - new value: ${newValue}`);
     
     return res.json({ success: true, phase: newValue });
@@ -191,7 +205,7 @@ async function togglePhase(res, phase) {
       // Создаем запись если не существует
       phases = { quiz: false, logic: false, contact: false, survey: false, auction: false };
     } else {
-      phases = JSON.parse(current.rows[0].value);
+      phases = safeJSONParse(current.rows[0].value, { quiz: false, logic: false, contact: false, survey: false, auction: false });
     }
     
     // Переключаем фазу
