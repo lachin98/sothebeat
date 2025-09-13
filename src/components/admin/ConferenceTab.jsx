@@ -2,12 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 const ConferenceTab = ({ adminToken }) => {
   const [currentPhase, setCurrentPhase] = useState('lobby');
-  const [phases, setPhases] = useState({
-    quiz: false,
-    logic: false,
-    survey: false,
-    auction: false
-  });
   const [rounds, setRounds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -33,7 +27,6 @@ const ConferenceTab = ({ adminToken }) => {
         const data = await response.json();
         console.log('Game state received:', data);
         setCurrentPhase(data.currentPhase || 'lobby');
-        setPhases(data.phases || {});
       } else {
         console.error('Failed to fetch game state:', response.status);
       }
@@ -83,39 +76,6 @@ const ConferenceTab = ({ adminToken }) => {
       }
     } catch (error) {
       console.error('Ошибка смены фазы:', error);
-      alert('❌ Ошибка сети');
-    }
-    setUpdating(false);
-  };
-
-  const togglePhase = async (phaseName) => {
-    if (updating) return;
-    
-    setUpdating(true);
-    try {
-      console.log('Toggling phase:', phaseName);
-      const response = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'togglePhase',
-          phase: phaseName,
-          token: adminToken
-        })
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Phase toggle result:', result);
-        setPhases(result.phases);
-        alert(`✅ Фаза "${phaseLabels[phaseName]}" ${phases[phaseName] ? 'отключена' : 'включена'}`);
-      } else {
-        const error = await response.text();
-        console.error('Phase toggle failed:', error);
-        alert('❌ Ошибка переключения фазы');
-      }
-    } catch (error) {
-      console.error('Ошибка переключения фазы:', error);
       alert('❌ Ошибка сети');
     }
     setUpdating(false);
@@ -196,7 +156,7 @@ const ConferenceTab = ({ adminToken }) => {
 
       {/* Быстрое переключение фаз */}
       <div className="quick-phase-control">
-        <h3>⚡ Быстрое переключение фаз</h3>
+        <h3>⚡ Переключение фаз</h3>
         <div className="phase-buttons">
           {Object.keys(phaseLabels).map(phase => (
             <button
@@ -210,25 +170,9 @@ const ConferenceTab = ({ adminToken }) => {
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Текущее состояние */}
-      <div className="current-state">
-        <h3>📊 Текущее состояние</h3>
-        <div className="state-info">
-          <div className="state-item">
-            <span className="state-label">Текущая фаза:</span>
-            <span className={`state-value phase-${currentPhase}`}>
-              {phaseLabels[currentPhase] || currentPhase}
-            </span>
-          </div>
-          <div className="state-item">
-            <span className="state-label">Статус обновлен:</span>
-            <span className="state-value">
-              {new Date().toLocaleTimeString()}
-            </span>
-          </div>
-        </div>
+        <p className="phase-hint">
+          Текущая фаза: <strong>{phaseLabels[currentPhase] || currentPhase}</strong>
+        </p>
       </div>
 
       {/* Управление раундами */}
@@ -270,29 +214,6 @@ const ConferenceTab = ({ adminToken }) => {
                 )}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Детальные настройки фаз */}
-      <div className="phase-management">
-        <h3>⚙️ Детальные настройки фаз</h3>
-        
-        <div className="phase-controls">
-          <h4>📋 Доступные фазы:</h4>
-          {Object.entries(phases).map(([phase, isActive]) => (
-            <label key={phase} className="phase-checkbox">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={() => togglePhase(phase)}
-                disabled={updating}
-              />
-              <span className={`phase-status ${isActive ? 'enabled' : 'disabled'}`}>
-                {isActive ? '✅' : '❌'}
-              </span>
-              <span className="phase-label">{phaseLabels[phase]}</span>
-            </label>
           ))}
         </div>
       </div>

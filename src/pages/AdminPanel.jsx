@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import StatusTab from '../components/admin/StatusTab';
 import ConferenceTab from '../components/admin/ConferenceTab';
 import QuizTab from '../components/admin/QuizTab';
 import LogicTab from '../components/admin/LogicTab';
@@ -9,7 +8,7 @@ import LeaderboardTab from '../components/admin/LeaderboardTab';
 import ParticipantsTab from '../components/admin/ParticipantsTab';
 
 const AdminPanel = () => {
-  const [activeTab, setActiveTab] = useState('status');
+  const [activeTab, setActiveTab] = useState('conference');
   const [adminToken] = useState('a');
   const [eventSlug] = useState('pr-demo');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,7 +33,7 @@ const AdminPanel = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('admin_authenticated');
-    setActiveTab('status');
+    setActiveTab('conference');
   };
 
   if (!isAuthenticated) {
@@ -58,7 +57,6 @@ const AdminPanel = () => {
   }
 
   const tabs = [
-    { id: 'status', name: 'Статус', icon: '📊' },
     { id: 'conference', name: 'Конференция', icon: '🎪' },
     { id: 'quiz', name: 'Квиз', icon: '🎯' },
     { id: 'logic', name: 'Где логика?', icon: '🧩' },
@@ -70,8 +68,6 @@ const AdminPanel = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'status':
-        return <StatusTab adminToken={adminToken} />;
       case 'conference':
         return <ConferenceTab adminToken={adminToken} />;
       case 'quiz':
@@ -87,7 +83,7 @@ const AdminPanel = () => {
       case 'participants':
         return <ParticipantsTab adminToken={adminToken} />;
       default:
-        return <StatusTab adminToken={adminToken} />;
+        return <ConferenceTab adminToken={adminToken} />;
     }
   };
 
@@ -95,14 +91,14 @@ const AdminPanel = () => {
     <div className="admin-panel">
       <div className="admin-header">
         <div className="admin-title">
-          <h1>Админка события</h1>
+          <h1>Админка SotheBEAT 2025</h1>
           <div className="admin-info">
             <div className="info-item">
-              <span>Event slug</span>
+              <span>Event</span>
               <span>{eventSlug}</span>
             </div>
             <div className="info-item">
-              <span>Admin token</span>
+              <span>Token</span>
               <span>{adminToken}</span>
             </div>
           </div>

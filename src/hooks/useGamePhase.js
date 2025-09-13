@@ -5,7 +5,6 @@ export const useGamePhase = () => {
   const [phases, setPhases] = useState({
     quiz: false,
     logic: false,
-    contact: false,
     survey: false,
     auction: false
   });
@@ -24,7 +23,12 @@ export const useGamePhase = () => {
         console.log('Game phase received:', data);
         
         setCurrentPhase(data.currentPhase || 'lobby');
-        setPhases(data.phases || {});
+        
+        // Убираем contact из phases если он там есть
+        const cleanPhases = data.phases || {};
+        delete cleanPhases.contact;
+        setPhases(cleanPhases);
+        
         setLastUpdate(new Date().toLocaleTimeString());
         setError(null);
       } else {
