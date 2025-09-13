@@ -1993,3 +1993,259 @@ body {
   font-weight: 600;
   margin: 0;
 }
+
+/* === СТИЛИ Для РЕАЛ-ТАЙМ СТАТУСОВ === */
+.phase {
+  background: rgba(74, 144, 226, 0.15);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: inline-block;
+  margin-bottom: 8px;
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  animation: pulse-phase 2s infinite;
+}
+
+@keyframes pulse-phase {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.game-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.game-card.disabled:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
+}
+
+.game-status {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.game-status.active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  animation: blink-active 1.5s infinite;
+}
+
+@keyframes blink-active {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.auction-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+  transform: none;
+  box-shadow: none;
+}
+
+.auction-button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* === СТИЛИ ДЛЯ АДМИН КОНФЕРЕНЦИИ === */
+.conference-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.live-indicator {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  animation: pulse-live 2s infinite;
+}
+
+@keyframes pulse-live {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0);
+  }
+}
+
+.quick-phase-control {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.phase-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.phase-btn {
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+}
+
+.phase-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(74, 144, 226, 0.5);
+}
+
+.phase-btn.active {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}
+
+.phase-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.current-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.current-state {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.state-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.state-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.state-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.state-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.state-value.phase-lobby { color: #888; }
+.state-value.phase-quiz { color: #4a90e2; }
+.state-value.phase-logic { color: #9c27b0; }
+.state-value.phase-survey { color: #ff9800; }
+.state-value.phase-auction { color: #f44336; }
+
+.rounds-management {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.round-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.round-info {
+  flex: 1;
+}
+
+.round-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.round-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 12px;
+  color: #888;
+}
+
+.round-status.active {
+  color: #4caf50;
+}
+
+.round-status.inactive {
+  color: #f44336;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .phase-buttons {
+    justify-content: center;
+  }
+  
+  .state-info {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .round-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .round-controls {
+    width: 100%;
+  }
+}

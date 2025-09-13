@@ -11,8 +11,10 @@ const ConferenceTab = ({ adminToken }) => {
   });
   const [rounds, setRounds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   const phaseLabels = {
+    lobby: 'Лобби',
     quiz: 'Квиз',
     logic: 'Где логика?',
     contact: 'Есть контакт!',
@@ -23,6 +25,10 @@ const ConferenceTab = ({ adminToken }) => {
   useEffect(() => {
     fetchGameState();
     fetchRounds();
+    
+    // Автообновление каждые 5 секунд
+    const interval = setInterval(fetchGameState, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchGameState = async () => {
@@ -30,8 +36,8 @@ const ConferenceTab = ({ adminToken }) => {
       const response = await fetch(`/api/admin?action=status&token=${adminToken}`);
       if (response.ok) {
         const data = await response.json();
-        setCurrentPhase(data.currentPhase);
-        setPhases(data.phases);
+        setCurrentPhase(data.currentPhase || 'lobby');
+        setPhases(data.phases || {});
       }
     } catch (error) {
       console.error('Ошибка загрузки состояния:', error);
@@ -51,7 +57,41 @@ const ConferenceTab = ({ adminToken }) => {
     setLoading(false);
   };
 
+  const updateCurrentPhase = async (newPhase) => {
+    if (updating) return;
+    
+    setUpdating(true);
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'updatePhase',
+          phase: newPhase,
+          token: adminToken
+        })
+      });
+      
+      if (response.ok) {
+        setCurrentPhase(newPhase);
+        alert(`✅ Фаза изменена на: ${phaseLabels[newPhase]}`);
+        
+        // Немедленно обновляем состояние
+        setTimeout(fetchGameState, 500);
+      } else {
+        alert('❌ Ошибка смены фазы');
+      }
+    } catch (error) {
+      console.error('Ошибка смены фазы:', error);
+      alert('❌ Ошибка сети');
+    }
+    setUpdating(false);
+  };
+
   const togglePhase = async (phaseName) => {
+    if (updating) return;
+    
+    setUpdating(true);
     try {
       const response = await fetch('/api/admin', {
         method: 'POST',
@@ -64,11 +104,15 @@ const ConferenceTab = ({ adminToken }) => {
       });
       
       if (response.ok) {
-        setPhases(prev => ({
-          ...prev,
-          [phaseName]: !prev[phaseName]
-        }));
+        const newPhases = {
+          ...phases,
+          [phaseName]: !phases[phaseName]
+        };
+        setPhases(newPhases);
         alert(`✅ Фаза "${phaseLabels[phaseName]}" ${phases[phaseName] ? 'отключена' : 'включена'}`);
+        
+        // Немедленно обновляем состояние
+        setTimeout(fetchGameState, 500);
       } else {
         alert('❌ Ошибка переключения фазы');
       }
@@ -76,32 +120,13 @@ const ConferenceTab = ({ adminToken }) => {
       console.error('Ошибка переключения фазы:', error);
       alert('❌ Ошибка сети');
     }
-  };
-
-  const updateCurrentPhase = async () => {
-    try {
-      const response = await fetch('/api/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'updatePhase',
-          phase: currentPhase,
-          token: adminToken
-        })
-      });
-      
-      if (response.ok) {
-        alert(`✅ Текущая фаза изменена на: ${currentPhase}`);
-      } else {
-        alert('❌ Ошибка смены фазы');
-      }
-    } catch (error) {
-      console.error('Ошибка смены фазы:', error);
-      alert('❌ Ошибка сети');
-    }
+    setUpdating(false);
   };
 
   const startRound = async (roundId) => {
+    if (updating) return;
+    
+    setUpdating(true);
     try {
       const response = await fetch('/api/admin', {
         method: 'POST',
@@ -123,9 +148,13 @@ const ConferenceTab = ({ adminToken }) => {
       console.error('Ошибка запуска раунда:', error);
       alert('❌ Ошибка сети');
     }
+    setUpdating(false);
   };
 
   const stopRound = async (roundId) => {
+    if (updating) return;
+    
+    setUpdating(true);
     try {
       const response = await fetch('/api/admin', {
         method: 'POST',
@@ -147,6 +176,7 @@ const ConferenceTab = ({ adminToken }) => {
       console.error('Ошибка остановки раунда:', error);
       alert('❌ Ошибка сети');
     }
+    setUpdating(false);
   };
 
   const openHallScreen = () => {
@@ -162,8 +192,49 @@ const ConferenceTab = ({ adminToken }) => {
     <div className="conference-tab">
       <div className="conference-header">
         <h2>🎪 Управление конференцией</h2>
+        <div className="live-indicator">
+          🟢 LIVE - обновляется каждые 5 сек
+        </div>
       </div>
 
+      {/* Быстрое переключение фаз */}
+      <div className="quick-phase-control">
+        <h3>⚡ Быстрое переключение фаз</h3>
+        <div className="phase-buttons">
+          {Object.keys(phaseLabels).map(phase => (
+            <button
+              key={phase}
+              className={`phase-btn ${currentPhase === phase ? 'active' : ''}`}
+              onClick={() => updateCurrentPhase(phase)}
+              disabled={updating}
+            >
+              {phaseLabels[phase]}
+              {currentPhase === phase && <span className="current-indicator">●</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Текущее состояние */}
+      <div className="current-state">
+        <h3>📊 Текущее состояние</h3>
+        <div className="state-info">
+          <div className="state-item">
+            <span className="state-label">Текущая фаза:</span>
+            <span className={`state-value phase-${currentPhase}`}>
+              {phaseLabels[currentPhase] || currentPhase}
+            </span>
+          </div>
+          <div className="state-item">
+            <span className="state-label">Последнее обновление:</span>
+            <span className="state-value">
+              {new Date().toLocaleTimeString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Управление раундами */}
       <div className="rounds-management">
         <h3>🎮 Управление раундами</h3>
         <div className="rounds-list">
@@ -187,6 +258,7 @@ const ConferenceTab = ({ adminToken }) => {
                   <button 
                     className="btn btn-warning"
                     onClick={() => stopRound(round.id)}
+                    disabled={updating}
                   >
                     ⏹️ Остановить
                   </button>
@@ -194,6 +266,7 @@ const ConferenceTab = ({ adminToken }) => {
                   <button 
                     className="btn btn-success"
                     onClick={() => startRound(round.id)}
+                    disabled={updating}
                   >
                     ▶️ Запустить
                   </button>
@@ -204,29 +277,10 @@ const ConferenceTab = ({ adminToken }) => {
         </div>
       </div>
 
+      {/* Детальные настройки фаз */}
       <div className="phase-management">
-        <h3>⚙️ Управление фазами</h3>
+        <h3>⚙️ Детальные настройки фаз</h3>
         
-        <div className="phase-selector">
-          <label>Текущая фаза:</label>
-          <div className="phase-selector-row">
-            <select 
-              value={currentPhase} 
-              onChange={(e) => setCurrentPhase(e.target.value)}
-            >
-              <option value="lobby">🏠 lobby</option>
-              <option value="quiz">🎯 quiz</option>
-              <option value="logic">🧩 logic</option>
-              <option value="contact">🤝 contact</option>
-              <option value="survey">📊 survey</option>
-              <option value="auction">🔥 auction</option>
-            </select>
-            <button className="btn btn-primary" onClick={updateCurrentPhase}>
-              💾 Применить
-            </button>
-          </div>
-        </div>
-
         <div className="phase-controls">
           <h4>📋 Доступные фазы:</h4>
           {Object.entries(phases).map(([phase, isActive]) => (
@@ -235,6 +289,7 @@ const ConferenceTab = ({ adminToken }) => {
                 type="checkbox"
                 checked={isActive}
                 onChange={() => togglePhase(phase)}
+                disabled={updating}
               />
               <span className={`phase-status ${isActive ? 'enabled' : 'disabled'}`}>
                 {isActive ? '✅' : '❌'}
@@ -245,10 +300,17 @@ const ConferenceTab = ({ adminToken }) => {
         </div>
 
         <div className="control-buttons">
-          <button className="btn btn-secondary" onClick={fetchGameState}>
-            📥 Загрузить состояние
+          <button 
+            className="btn btn-secondary" 
+            onClick={fetchGameState}
+            disabled={updating}
+          >
+            🔄 Обновить состояние
           </button>
-          <button className="btn btn-primary" onClick={openHallScreen}>
+          <button 
+            className="btn btn-primary" 
+            onClick={openHallScreen}
+          >
             📺 Открыть экран зала
           </button>
         </div>

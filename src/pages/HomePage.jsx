@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useGamePhase } from '../hooks/useGamePhase';
 import QuizRound from '../components/QuizRound';
 import LogicRound from '../components/LogicRound';
 import SurveyRound from '../components/SurveyRound';
@@ -13,21 +14,20 @@ const HomePage = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [isTelegramUser, setIsTelegramUser] = useState(false);
 
+  // Используем хук для отслеживания фазы игры
+  const { currentPhase, phases, isLoading: phaseLoading } = useGamePhase();
+
   useEffect(() => {
     if (user && user.id) {
-      // Есть пользователь - может быть Telegram или гостевой
       setUserName(user.first_name || user.username || 'Участник');
       setUserId(user.id);
       
-      // Определяем тип пользователя по ID
-      const isTgUser = user.id < 999999999999; // Telegram ID обычно меньше
+      const isTgUser = user.id < 999999999999;
       setIsTelegramUser(isTgUser);
       
       if (isTgUser) {
-        // Реальный Telegram пользователь - загружаем из БД
         fetchUserProfile(user.id);
       } else {
-        // Гостевой пользователь - используем localStorage
         const savedPoints = localStorage.getItem(`sothebeat_points_${user.id}`) || '0';
         const savedTeam = localStorage.getItem(`sothebeat_team_${user.id}`);
         setUserPoints(parseInt(savedPoints));
@@ -35,14 +35,7 @@ const HomePage = ({ user }) => {
         setLoading(false);
       }
     } else {
-      // Нет пользователя - создаем гостевого
       const guestId = Date.now();
-      const guestUser = {
-        id: guestId,
-        first_name: 'Гость',
-        username: 'guest'
-      };
-      
       setUserName('Гость');
       setUserId(guestId);
       setIsTelegramUser(false);
@@ -59,7 +52,6 @@ const HomePage = ({ user }) => {
         setUserPoints(userData.total_points || 0);
         setTeamId(userData.team_id);
       } else {
-        // Пользователь не найден - создаем с 0 баллами
         setUserPoints(0);
       }
     } catch (error) {
@@ -72,12 +64,10 @@ const HomePage = ({ user }) => {
   const handleRoundComplete = async (roundNumber, earnedPoints, roundType, answers) => {
     if (!userId) return;
     
-    // Обновляем баллы локально
     const newTotal = userPoints + earnedPoints;
     setUserPoints(newTotal);
     
     if (isTelegramUser) {
-      // Telegram пользователь - сохраняем в БД
       try {
         await fetch('/api/results', {
           method: 'POST',
@@ -94,15 +84,12 @@ const HomePage = ({ user }) => {
         });
       } catch (error) {
         console.error('Ошибка сохранения в БД:', error);
-        // Fallback к localStorage
         localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
       }
     } else {
-      // Гостевой пользователь - сохраняем в localStorage
       localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
     }
     
-    alert(`Раунд завершен! Заработано: ${earnedPoints} баллов`);
     setCurrentView('lobby');
   };
 
@@ -113,7 +100,6 @@ const HomePage = ({ user }) => {
     if (!teamCode) return;
     
     if (isTelegramUser) {
-      // Telegram пользователь - сохраняем в БД
       try {
         const response = await fetch('/api/users', {
           method: 'POST',
@@ -132,26 +118,38 @@ const HomePage = ({ user }) => {
           throw new Error('Ошибка API');
         }
       } catch (error) {
-        console.error('Ошибка присоединения к команде:', error);
-        // Fallback к localStorage
         localStorage.setItem(`sothebeat_team_${userId}`, teamCode);
         setTeamId(teamCode);
         alert(`Команда сохранена локально: ${teamCode}`);
       }
     } else {
-      // Гостевой пользователь - сохраняем в localStorage
       localStorage.setItem(`sothebeat_team_${userId}`, teamCode);
       setTeamId(teamCode);
       alert(`Вы присоединились к команде: ${teamCode} (локально)`);
     }
   };
 
-  if (loading) {
+  // Проверяем доступность игр на основе текущей фазы
+  const isGameAvailable = (gameType) => {
+    if (currentPhase === gameType) return true; // Активная фаза
+    return phases[gameType] || false; // Или разрешенная фаза
+  };
+
+  const getPhaseStatus = () => {
+    switch (currentPhase) {
+      case 'lobby': return { emoji: '🏠', text: 'Ожидание', color: '#888' };
+      case 'quiz': return { emoji: '🎯', text: 'Квиз активен', color: '#4a90e2' };
+      case 'logic': return { emoji: '��', text: 'Где логика активна', color: '#9c27b0' };
+      case 'survey': return { emoji: '📊', text: '100 к 1 активен', color: '#ff9800' };
+      case 'auction': return { emoji: '🔥', text: 'Аукцион идет', color: '#f44336' };
+      default: return { emoji: '❓', text: currentPhase, color: '#888' };
+    }
+  };
+
+  if (loading || phaseLoading) {
     return (
       <div className="loading-screen">
-        <div className="loader">
-          <div className="spinner"></div>
-        </div>
+        <div className="spinner"></div>
         <p>Загрузка...</p>
       </div>
     );
@@ -210,25 +208,29 @@ const HomePage = ({ user }) => {
                 </div>
                 <div className="user-details">
                   <h3>{userName}</h3>
-                  <p>
-                    {isTelegramUser ? 'Telegram пользователь' : 'Веб пользователь'}
-                  </p>
+                  <p>{isTelegramUser ? 'Telegram пользователь' : 'Веб пользователь'}</p>
+                  
                   <div className="points">
                     Баланс: <span className="points-value">{userPoints}</span>
                   </div>
-                  <div className="phase">
-                    Фаза: <span className="phase-value">lobby</span>
+                  
+                  {/* РЕАЛ-ТАЙМ СТАТУС ФАЗЫ */}
+                  <div className="phase" style={{ color: getPhaseStatus().color }}>
+                    {getPhaseStatus().emoji} Фаза: <span className="phase-value">{getPhaseStatus().text}</span>
                   </div>
+                  
                   {teamId && (
                     <div className="team-info">
                       👥 Команда: {teamId}
                     </div>
                   )}
+                  
                   {!isTelegramUser && (
                     <div className="web-user-notice">
                       🌐 Веб-версия (данные в браузере)
                     </div>
                   )}
+                  
                   <div className="updated">
                     Обновлено: {new Date().toLocaleTimeString()}
                   </div>
@@ -238,38 +240,47 @@ const HomePage = ({ user }) => {
 
             <div className="games-grid">
               <button 
-                className="game-card quiz-card"
-                onClick={() => setCurrentView('quiz')}
+                className={`game-card quiz-card ${!isGameAvailable('quiz') ? 'disabled' : ''}`}
+                onClick={() => isGameAvailable('quiz') && setCurrentView('quiz')}
+                disabled={!isGameAvailable('quiz')}
               >
                 <div className="game-icon">🎯</div>
                 <div className="game-info">
                   <h4>Квиз</h4>
                   <p>Раунды с вопросами и вариантами ответов</p>
                   <div className="max-points">Макс: 200 баллов</div>
+                  {!isGameAvailable('quiz') && <div className="game-status">Недоступно</div>}
+                  {currentPhase === 'quiz' && <div className="game-status active">Активно сейчас!</div>}
                 </div>
               </button>
 
               <button 
-                className="game-card logic-card"
-                onClick={() => setCurrentView('logic')}
+                className={`game-card logic-card ${!isGameAvailable('logic') ? 'disabled' : ''}`}
+                onClick={() => isGameAvailable('logic') && setCurrentView('logic')}
+                disabled={!isGameAvailable('logic')}
               >
                 <div className="game-icon">🧩</div>
                 <div className="game-info">
                   <h4>Где логика?</h4>
                   <p>Угадай, что объединяет картинки</p>
                   <div className="max-points">Макс: 200 баллов</div>
+                  {!isGameAvailable('logic') && <div className="game-status">Недоступно</div>}
+                  {currentPhase === 'logic' && <div className="game-status active">Активно сейчас!</div>}
                 </div>
               </button>
 
               <button 
-                className="game-card survey-card"
-                onClick={() => setCurrentView('survey')}
+                className={`game-card survey-card ${!isGameAvailable('survey') ? 'disabled' : ''}`}
+                onClick={() => isGameAvailable('survey') && setCurrentView('survey')}
+                disabled={!isGameAvailable('survey')}
               >
                 <div className="game-icon">📊</div>
                 <div className="game-info">
                   <h4>100 к 1</h4>
                   <p>Популярные ответы на необычные вопросы</p>
                   <div className="max-points">Макс: 200 баллов</div>
+                  {!isGameAvailable('survey') && <div className="game-status">Недоступно</div>}
+                  {currentPhase === 'survey' && <div className="game-status active">Активно сейчас!</div>}
                 </div>
               </button>
 
@@ -287,13 +298,16 @@ const HomePage = ({ user }) => {
             </div>
 
             <button 
-              className="auction-button"
-              onClick={() => setCurrentView('auction')}
+              className={`auction-button ${!isGameAvailable('auction') ? 'disabled' : ''}`}
+              onClick={() => isGameAvailable('auction') && setCurrentView('auction')}
+              disabled={!isGameAvailable('auction')}
             >
               <div className="auction-icon">🔥</div>
               <div className="auction-info">
                 <h4>Аукцион</h4>
                 <p>Ставь баллы — забирай призы</p>
+                {!isGameAvailable('auction') && <div className="game-status">Недоступно</div>}
+                {currentPhase === 'auction' && <div className="game-status active">Активно сейчас!</div>}
               </div>
             </button>
 
