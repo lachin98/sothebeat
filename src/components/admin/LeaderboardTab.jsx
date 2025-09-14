@@ -55,9 +55,9 @@ const LeaderboardTab = ({ adminToken }) => {
       <div className="leaderboard-header">
         <h2>🏆 Лидерборд</h2>
         <div className="leaderboard-controls">
-          <button className="btn btn-primary" onClick={openHallScreen}>
+          {/* <button className="btn btn-primary" onClick={openHallScreen}>
             📺 Экран зала
-          </button>
+          </button> */}
           <button className="btn btn-secondary" onClick={refreshData}>
             🔄 Обновить
           </button>

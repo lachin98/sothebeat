@@ -91,7 +91,7 @@ const AdminPanel = () => {
     <div className="admin-panel">
       <div className="admin-header">
         <div className="admin-title">
-          <h1>Админка SotheBEAT 2025</h1>
+          <h1>Панель администратора SotheBEAT 2025</h1>
           <div className="admin-info">
             <div className="info-item">
               <span>Event</span>

@@ -280,7 +280,7 @@ const HomePage = ({ user }) => {
               <div className="user-points">
                 <div className="points-label">
                   Баллы{" "}
-                  {isUpdating && <span className="updating-indicator">🔄</span>}
+                  {isUpdating && <span className="updating-indicator"></span>}
                 </div>
                 <div className={`points-value ${isUpdating ? "updating" : ""}`}>
                   {userPoints.toLocaleString()}
