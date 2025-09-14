@@ -122,7 +122,7 @@ module.exports = async (req, res) => {
   }
 };
 
-// Полный сброс игры - только пользователи, результаты, аукцион, фаза
+// Полный сброс игры - ПРАВИЛЬНЫЙ ПОРЯДОК удаления
 async function fullGameReset(res) {
   console.log('🔄 Starting FULL GAME RESET...');
   
@@ -133,19 +133,21 @@ async function fullGameReset(res) {
     const bidsBefore = await sql`SELECT COUNT(*) as count FROM auction_bids`;
     const teamsBefore = await sql`SELECT COUNT(*) as count FROM teams`;
 
-    // 1. 🗑️ Удаляем всех пользователей
-    console.log('1️⃣ Deleting all users...');
-    await sql`DELETE FROM telegram_users`;
+    console.log(`📊 Before reset: ${usersBefore.rows[0].count} users, ${resultsBefore.rows[0].count} results, ${bidsBefore.rows[0].count} bids`);
 
-    // 2. 🗑️ Удаляем все результаты игр
-    console.log('2️⃣ Deleting all game results...');
+    // 1. 🗑️ СНАЧАЛА удаляем все результаты игр (зависимые записи)
+    console.log('1️⃣ Deleting all game results...');
     await sql`DELETE FROM player_results`;
 
-    // 3. 🗑️ Очищаем аукционные ставки
-    console.log('3️⃣ Clearing auction bids...');
+    // 2. 🗑️ Удаляем аукционные ставки (зависимые записи)
+    console.log('2️⃣ Clearing auction bids...');
     await sql`DELETE FROM auction_bids`;
 
-    // 4. 🗑️ Очищаем команды (неиспользуемые)
+    // 3. 🗑️ ПОТОМ удаляем всех пользователей (основная таблица)
+    console.log('3️⃣ Deleting all users...');
+    await sql`DELETE FROM telegram_users`;
+
+    // 4. 🗑️ Очищаем команды
     console.log('4️⃣ Clearing teams...');
     await sql`DELETE FROM teams`;
 
@@ -204,6 +206,17 @@ async function fullGameReset(res) {
     
   } catch (error) {
     console.error('❌ Error in full game reset:', error);
+    
+    // Дополнительная информация об ошибке
+    if (error.code === '23503') {
+      console.error('🔗 Foreign key constraint violation detected');
+      return res.status(500).json({
+        error: 'Database constraint error',
+        message: 'Ошибка связей в базе данных. Попробуйте еще раз.',
+        code: error.code
+      });
+    }
+    
     throw error;
   }
 }
