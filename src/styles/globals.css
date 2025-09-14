@@ -701,7 +701,7 @@ select {
 
 .lot-display {
   background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(244, 67, 54, 0.3);
+  border: 2px solid #ffdb30;
   border-radius: 16px;
   padding: 20px;
   backdrop-filter: blur(20px);
@@ -740,7 +740,7 @@ select {
   justify-content: space-between;
   align-items: center;
   background: rgba(244, 67, 54, 0.1);
-  border: 2px solid rgba(244, 67, 54, 0.3);
+  border: 2px solid #ffdb30;
   border-radius: 12px;
   padding: 16px 20px;
   margin: 20px 0;
