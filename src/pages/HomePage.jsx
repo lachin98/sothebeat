@@ -276,7 +276,7 @@ const HomePage = ({ user }) => {
               </div>
               <div className="user-points">
                 <div className="points-label">
-                  Баллыыыыыыы{" "}
+                  Баллыыыыы{" "}
                   {isUpdating && <span className="updating-indicator">🔄</span>}
                 </div>
                 <div className={`points-value ${isUpdating ? "updating" : ""}`}>
