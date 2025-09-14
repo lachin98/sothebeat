@@ -264,7 +264,9 @@ const HomePage = ({ user }) => {
                 {userName.charAt(0).toUpperCase()}
               </div>
               <div className="user-info">
-                <h3>{userName}</h3>
+                <h3>
+                  {userName} <span className="user-id">({userId})</span>
+                </h3>
                 <div className="user-type">
                   {isTelegramUser ? "📱 Telegram" : "🌐 Веб"}
                 </div>
@@ -274,6 +276,7 @@ const HomePage = ({ user }) => {
                   </div>
                 )}
               </div>
+
               <div className="user-points">
                 <div className="points-label">
                   Баллы{" "}
