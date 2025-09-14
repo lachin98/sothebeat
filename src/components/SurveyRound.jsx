@@ -124,7 +124,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
           } else {
             finishGameWithPoints(totalPoints + questionPoints);
           }
-        }, 2000);
+        }, 500);
       }
     };
 
