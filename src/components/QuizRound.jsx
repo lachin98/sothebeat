@@ -171,8 +171,8 @@ const QuizRound = ({ userId, onComplete, onBack }) => {
             <ul>
               <li>{questions.length} вопросов с вариантами ответов</li>
               <li>5 минут на все вопросы</li>
-              <li>10+ баллов за правильный ответ + бонус за скорость</li>
-              <li>Максимум ~{questions.length * 15} баллов за раунд</li>
+              <li>10+ баллов за правильный ответ</li>
+              <li>Максимум ~{questions.length * 10} баллов за раунд</li>
             </ul>
           </div>
           
