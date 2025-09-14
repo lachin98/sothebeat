@@ -739,7 +739,7 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(244, 67, 54, 0.1);
+  background: #ffdb3017;
   border: 2px solid #ffdb30;
   border-radius: 12px;
   padding: 16px 20px;
@@ -749,7 +749,7 @@ select {
 .status-indicator.active {
   font-size: 18px;
   font-weight: bold;
-  color: #f44336;
+  color: #ffdb30;
 }
 
 .bid-section {
