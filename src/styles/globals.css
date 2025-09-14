@@ -7,12 +7,13 @@
   -webkit-touch-callout: none;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
 }
@@ -28,7 +29,7 @@ html, body {
   min-height: 100dvh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   color: white;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   position: relative;
@@ -57,8 +58,12 @@ html, body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .mobile-lobby {
@@ -411,7 +416,10 @@ html, body {
 }
 
 /* === ИГРОВЫЕ ЭКРАНЫ === */
-.quiz-round, .logic-round, .survey-round, .auction-round {
+.quiz-round,
+.logic-round,
+.survey-round,
+.auction-round {
   min-height: 100vh;
   min-height: 100dvh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
@@ -444,7 +452,10 @@ html, body {
 }
 
 /* === ИНТРО ЭКРАНЫ === */
-.quiz-intro, .logic-intro, .survey-intro, .auction-waiting {
+.quiz-intro,
+.logic-intro,
+.survey-intro,
+.auction-waiting {
   min-height: 100vh;
   min-height: 100dvh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
@@ -454,7 +465,8 @@ html, body {
   flex-direction: column;
 }
 
-.intro-content, .waiting-content {
+.intro-content,
+.waiting-content {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -464,7 +476,8 @@ html, body {
   padding: 20px;
 }
 
-.intro-content h2, .waiting-content h2 {
+.intro-content h2,
+.waiting-content h2 {
   font-size: 28px;
   margin-bottom: 10px;
   background: linear-gradient(135deg, #4a90e2, #357abd);
@@ -473,7 +486,8 @@ html, body {
   background-clip: text;
 }
 
-.intro-content h3, .waiting-content h3 {
+.intro-content h3,
+.waiting-content h3 {
   font-size: 16px;
   color: #888;
   margin-bottom: 30px;
@@ -575,15 +589,21 @@ html, body {
 
 /* === АНИМАЦИИ === */
 @keyframes pulse-live {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes glow-active {
-  0%, 100% { 
+  0%,
+  100% {
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 16px rgba(76, 175, 80, 0.8);
   }
 }
@@ -593,30 +613,30 @@ html, body {
   .mobile-lobby {
     padding: 16px 12px 60px 12px;
   }
-  
+
   .games-grid {
     gap: 12px;
   }
-  
+
   .game-btn {
     padding: 16px 12px;
     min-height: 120px;
   }
-  
+
   .game-icon {
     font-size: 28px;
   }
-  
+
   .game-title {
     font-size: 14px;
   }
-  
+
   .user-avatar {
     width: 50px;
     height: 50px;
     font-size: 20px;
   }
-  
+
   .points-value {
     font-size: 18px;
   }
@@ -812,16 +832,16 @@ select {
   .balance-amount {
     font-size: 20px;
   }
-  
+
   .balance-amount strong {
     font-size: 28px;
   }
-  
+
   .bid-input {
     font-size: 20px;
     padding: 16px 20px;
   }
-  
+
   .bid-button {
     font-size: 18px;
     padding: 16px 20px;
@@ -1195,32 +1215,32 @@ select {
   .admin-panel {
     padding: 10px;
   }
-  
+
   .admin-header {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
   }
-  
+
   .admin-info {
     gap: 10px;
     flex-wrap: wrap;
   }
-  
+
   .tab-name {
     display: none;
   }
-  
+
   .phase-buttons {
     justify-content: center;
   }
-  
+
   .round-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .round-controls {
     width: 100%;
   }
@@ -1505,7 +1525,11 @@ select {
   align-items: center;
   justify-content: center;
   font-size: 48px;
-  background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(103, 58, 183, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(156, 39, 176, 0.1),
+    rgba(103, 58, 183, 0.1)
+  );
 }
 
 .logic-image {
@@ -1710,13 +1734,18 @@ select {
 }
 
 .survey-answer::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
 }
 
 .survey-answer:hover {
@@ -1733,7 +1762,11 @@ select {
 }
 
 .survey-answer.revealed {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(56, 142, 60, 0.2));
+  background: linear-gradient(
+    135deg,
+    rgba(76, 175, 80, 0.2),
+    rgba(56, 142, 60, 0.2)
+  );
   border-color: #4caf50;
   transform: none;
 }
@@ -1838,61 +1871,65 @@ select {
 
 /* === АДАПТИВНОСТЬ ДЛЯ ИГРОВЫХ РАУНДОВ === */
 @media (max-width: 480px) {
-  .quiz-round, .logic-round, .survey-round {
+  .quiz-round,
+  .logic-round,
+  .survey-round {
     padding: 12px;
   }
-  
-  .quiz-header, .logic-header, .survey-header {
+
+  .quiz-header,
+  .logic-header,
+  .survey-header {
     flex-direction: column;
     gap: 12px;
     text-align: center;
     padding: 12px 16px;
   }
-  
+
   .quiz-header .progress,
   .logic-header .progress,
   .survey-header .progress {
     margin: 0;
     width: 100%;
   }
-  
+
   .images-grid {
     gap: 15px;
     max-width: 100%;
   }
-  
+
   .image-placeholder {
     font-size: 36px;
   }
-  
+
   .question-container,
   .logic-question-container,
   .survey-question-container {
     padding: 20px 16px;
   }
-  
+
   .logic-answer-input {
     flex-direction: column;
     gap: 12px;
     max-width: 100%;
   }
-  
+
   .logic-submit-btn {
     width: 100%;
   }
-  
+
   .question-text,
   .logic-question-text,
   .survey-question-text {
     font-size: 16px;
   }
-  
+
   .answer-option,
   .survey-answer {
     padding: 12px 16px;
     font-size: 14px;
   }
-  
+
   .option-letter {
     width: 28px;
     height: 28px;
@@ -1905,11 +1942,11 @@ select {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .logic-answer-input input {
     padding: 12px 16px;
   }
-  
+
   .answer-option {
     gap: 12px;
   }
@@ -1941,11 +1978,11 @@ select {
 }
 
 @keyframes confetti-fall {
-  0% { 
+  0% {
     transform: translateX(-50%) translateY(-100px) rotate(0deg);
     opacity: 1;
   }
-  100% { 
+  100% {
     transform: translateX(-50%) translateY(100px) rotate(360deg);
     opacity: 0;
   }
@@ -2006,7 +2043,8 @@ select {
   gap: 15px;
 }
 
-.winner-name, .final-price {
+.winner-name,
+.final-price {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2015,7 +2053,8 @@ select {
   border-radius: 8px;
 }
 
-.winner-name .label, .final-price .label {
+.winner-name .label,
+.final-price .label {
   color: #bbb;
   font-size: 14px;
 }
@@ -2137,24 +2176,26 @@ select {
     padding: 30px 20px;
     margin: 20px;
   }
-  
+
   .winner-card h3 {
     font-size: 16px;
   }
-  
-  .winner-name, .final-price {
+
+  .winner-name,
+  .final-price {
     flex-direction: column;
     gap: 4px;
     text-align: center;
   }
-  
+
   .final-price .price {
     font-size: 20px;
   }
 }
 
 /* === СТИЛИ ДЛЯ НИКНЕЙМА И КНОПКИ СБРОСА ЛОТА === */
-.username, .winner-username {
+.username,
+.winner-username {
   color: #888;
   font-size: 11px;
   margin-left: 4px;
@@ -2538,8 +2579,12 @@ select {
 
 /* === АНИМАЦИИ === */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideDown {
@@ -2554,7 +2599,8 @@ select {
 }
 
 @keyframes pulse-score {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.4);
   }
   50% {
@@ -2567,54 +2613,54 @@ select {
   .results-container {
     padding: 16px 12px;
   }
-  
+
   .main-score {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .score-circle {
     width: 100px;
     height: 100px;
   }
-  
+
   .score-number {
     font-size: 28px;
   }
-  
+
   .rank-badge {
     padding: 12px 20px;
   }
-  
+
   .rank-emoji {
     font-size: 28px;
   }
-  
+
   .rank-title {
     font-size: 14px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .stat-item {
     padding: 16px 12px;
   }
-  
+
   .stat-value {
     font-size: 20px;
   }
-  
+
   .encouragement p {
     font-size: 14px;
   }
-  
+
   .results-header h2 {
     font-size: 24px;
   }
-  
+
   .results-header h3 {
     font-size: 14px;
   }
@@ -2625,15 +2671,15 @@ select {
     width: 90px;
     height: 90px;
   }
-  
+
   .score-number {
     font-size: 24px;
   }
-  
+
   .answers-breakdown {
     padding: 16px;
   }
-  
+
   .answer-detail {
     padding: 10px 12px;
     font-size: 13px;
@@ -2646,15 +2692,15 @@ select {
     padding: 12px 16px;
     margin: 0;
   }
-  
+
   .main-score {
     margin-bottom: 20px;
   }
-  
+
   .stats-grid {
     margin-bottom: 20px;
   }
-  
+
   .encouragement {
     margin-bottom: 20px;
   }
@@ -2675,7 +2721,7 @@ select {
 }
 
 .pernod-logo {
-  height: 60px;
+  height: 120px;
   width: auto;
   max-width: 280px;
   filter: brightness(1.1);
@@ -2683,7 +2729,7 @@ select {
 }
 
 .pernod-logo:hover {
-  filter: brightness(1.2) drop-shadow(0 4px 8px rgba(255,255,255,0.1));
+  filter: brightness(1.2) drop-shadow(0 4px 8px rgba(255, 255, 255, 0.1));
 }
 
 .event-title {
@@ -2731,23 +2777,23 @@ select {
     height: 50px;
     max-width: 240px;
   }
-  
+
   .event-title h1 {
     font-size: 28px;
     letter-spacing: 1px;
   }
-  
+
   .event-title .year {
     font-size: 18px;
     letter-spacing: 3px;
     padding: 3px 10px;
   }
-  
+
   .mobile-header {
     margin-bottom: 24px;
     padding: 16px 0;
   }
-  
+
   .main-logo {
     margin-bottom: 16px;
   }
@@ -2758,11 +2804,11 @@ select {
     height: 45px;
     max-width: 200px;
   }
-  
+
   .event-title h1 {
     font-size: 24px;
   }
-  
+
   .event-title .year {
     font-size: 16px;
     letter-spacing: 2px;
@@ -2775,12 +2821,12 @@ select {
     height: 40px;
     max-width: 180px;
   }
-  
+
   .event-title h1 {
     font-size: 22px;
     letter-spacing: 0px;
   }
-  
+
   .event-title .year {
     font-size: 14px;
   }
@@ -2823,11 +2869,12 @@ select {
 }
 
 @keyframes pulse-points {
-  0%, 100% { 
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
-  50% { 
+  50% {
     transform: scale(1.05);
     opacity: 0.8;
   }
