@@ -41,8 +41,9 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
           id: q.id,
           question: q.question_text,
           answers: Array.isArray(q.answers)
-            ? q.answers.sort((a, b) => b.points - a.points)
-            : [],
+            ? q.answers
+            : // .sort((a, b) => b.points - a.points)
+              [],
         }));
         setQuestions(formattedQuestions);
       } else {
