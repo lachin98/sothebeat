@@ -37,41 +37,53 @@ const LogicTab = ({ adminToken }) => {
     setUploadingImages(true);
     
     try {
-      const formData = new FormData();
-      Array.from(files).forEach((file, index) => {
-        if (index < 4) { // Максимум 4 картинки
-          formData.append(`image_${index}`, file);
-        }
-      });
+      console.log('📤 Starting multiple file upload...');
+      const imageUrls = [...newQuestion.image_urls];
+      let uploadedCount = 0;
+      
+      // Загружаем файлы по одному
+      for (let i = 0; i < Math.min(files.length, 4); i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('image_0', file); // Upload API ожидает такое имя
 
-      const response = await fetch(`/api/upload?token=${adminToken}`, {
-        method: 'POST',
-        body: formData
-      });
+        console.log(`📤 Uploading file ${i + 1}/${Math.min(files.length, 4)}: ${file.name}`);
 
-      if (response.ok) {
-        const result = await response.json();
-        const imageUrls = [...newQuestion.image_urls];
-        
-        result.files.forEach((file, index) => {
-          if (index < 4) {
-            imageUrls[index] = file.url;
-          }
+        const response = await fetch(`/api/upload?token=${adminToken}`, {
+          method: 'POST',
+          body: formData
         });
 
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Upload result:', result);
+          
+          // Находим первое пустое место для URL
+          const emptyIndex = imageUrls.findIndex(url => !url.trim());
+          if (emptyIndex !== -1) {
+            imageUrls[emptyIndex] = result.url;
+            uploadedCount++;
+          }
+        } else {
+          const errorData = await response.json();
+          console.error(`❌ Upload failed for file ${i + 1}:`, errorData);
+          alert(`Ошибка загрузки файла "${file.name}": ${errorData.error}`);
+          break;
+        }
+      }
+
+      if (uploadedCount > 0) {
         setNewQuestion({
           ...newQuestion,
           image_urls: imageUrls,
           use_images: true
         });
-
-        alert(`✅ Загружено ${result.files.length} картинок`);
-      } else {
-        alert('❌ Ошибка загрузки картинок');
+        alert(`✅ Загружено ${uploadedCount} картинок`);
       }
+
     } catch (error) {
-      console.error('Ошибка загрузки:', error);
-      alert('❌ Ошибка сети');
+      console.error('❌ Upload error:', error);
+      alert('❌ Ошибка сети при загрузке');
     }
     
     setUploadingImages(false);
@@ -367,8 +379,8 @@ const LogicTab = ({ adminToken }) => {
                   id="image-upload"
                   style={{ display: 'none' }}
                 />
-                <label htmlFor="image-upload" className="upload-btn">
-                  {uploadingImages ? '⏳ Загрузка...' : '📁 Выбрать картинки'}
+                <label htmlFor="image-upload" className={`upload-btn ${uploadingImages ? 'uploading' : ''}`}>
+                  {uploadingImages ? '⏳ Загружаем картинки...' : '📁 Выбрать картинки (до 4 шт.)'}
                 </label>
               </div>
 
@@ -382,6 +394,7 @@ const LogicTab = ({ adminToken }) => {
                           type="button"
                           className="remove-image-btn"
                           onClick={() => handleImageUrlChange(index, '')}
+                          title="Удалить картинку"
                         >
                           ×
                         </button>
@@ -396,7 +409,7 @@ const LogicTab = ({ adminToken }) => {
               </div>
 
               <p className="upload-hint">
-                💡 Поддерживаются: JPG, PNG, GIF, WEBP. Максимум 5MB на файл.
+                💡 Поддерживаются: JPG, PNG, GIF, WEBP. Максимум 5MB на файл. Файлы загружаются по очереди.
               </p>
             </div>
           )}
@@ -436,6 +449,7 @@ const LogicTab = ({ adminToken }) => {
                     type="button"
                     onClick={() => removeAlternative(index)}
                     className="remove-alt-btn"
+                    title="Удалить альтернативу"
                   >
                     ×
                   </button>
