@@ -2152,3 +2152,59 @@ select {
     font-size: 20px;
   }
 }
+
+/* === СТИЛИ ДЛЯ НИКНЕЙМА И КНОПКИ СБРОСА ЛОТА === */
+.username, .winner-username {
+  color: #888;
+  font-size: 11px;
+  margin-left: 4px;
+  font-weight: normal;
+}
+
+.winner-badge {
+  font-size: 10px;
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-width: 80px;
+}
+
+.btn-small.btn-warning {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-small.btn-warning:hover {
+  background: #f57c00;
+}
+
+.leading-stat .value.winner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.leading-stat .username {
+  font-size: 10px;
+  color: #888;
+}
+
+/* Улучшения для чата ставок */
+.bid-user strong {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.bid-user .username {
+  font-size: 10px;
+  color: #888;
+  font-weight: normal;
+}

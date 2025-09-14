@@ -14,6 +14,8 @@ const AuctionTab = ({ adminToken }) => {
   const [winnerMessage, setWinnerMessage] = useState('');
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const [selectedLotForWinner, setSelectedLotForWinner] = useState(null);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetting, setResetting] = useState(false);
   
   const bidsEndRef = useRef(null);
 
@@ -77,6 +79,72 @@ const AuctionTab = ({ adminToken }) => {
     }
   };
 
+  const handleResetLot = async (lotId, lotTitle) => {
+    if (!confirm(`Сбросить лот "${lotTitle}"?\n\n⚠️ Это вернет все баллы участникам и очистит все ставки по этому лоту.`)) return;
+
+    try {
+      const response = await fetch('/api/auction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reset_lot',
+          lot_id: lotId,
+          admin_token: adminToken
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`✅ ${result.message}\n\nВозвращено: ${result.stats.points_returned} баллов\nПользователей: ${result.stats.users_affected}\nСтавок очищено: ${result.stats.bids_cleared}`);
+        
+        // Обновляем все данные
+        fetchLots();
+        fetchActiveLot();
+        fetchLiveBids();
+      } else {
+        const error = await response.json();
+        alert(`❌ Ошибка сброса лота: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Ошибка сброса лота:', error);
+      alert('❌ Ошибка сети');
+    }
+  };
+
+  const handleResetAuction = async () => {
+    if (resetting) return;
+    
+    setResetting(true);
+    try {
+      const response = await fetch('/api/auction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reset_auction',
+          admin_token: adminToken
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`✅ ${result.message}\n\nВозвращено: ${result.stats.points_returned} баллов\nПользователей: ${result.stats.users_affected}\nСтавок очищено: ${result.stats.bids_cleared}`);
+        setShowResetModal(false);
+        
+        // Обновляем все данные
+        fetchLots();
+        fetchActiveLot();
+        fetchLiveBids();
+      } else {
+        const error = await response.json();
+        alert(`❌ Ошибка сброса: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Ошибка сброса аукциона:', error);
+      alert('❌ Ошибка сети');
+    }
+    setResetting(false);
+  };
+
   const handleStartLot = async (lotId) => {
     const lot = lots.find(l => l.id === lotId);
     if (!confirm(`Запустить аукцион по лоту:\n"${lot?.title}"\n\nЗавершение только вручную!`)) return;
@@ -127,7 +195,8 @@ const AuctionTab = ({ adminToken }) => {
         // Показываем модал для объявления победителя
         setSelectedLotForWinner(lotId);
         if (result.winner) {
-          setWinnerMessage(`🎪 Внимание! Торги завершены!\n\n🏆 Лот "${result.winner.lot_title}" продан!\n\nПобедитель: ${result.winner.user_name}\nИтоговая цена: ${result.final_price} баллов\n\n📣 Продано раз, продано два, продано три!\nПоздравляем победителя! 🎉`);
+          const winnerDisplay = `${result.winner.user_name}${result.winner.winner_username ? ` (@${result.winner.winner_username})` : ''}`;
+          setWinnerMessage(`🎪 Внимание! Торги завершены!\n\n🏆 Лот "${result.winner.lot_title}" продан!\n\nПобедитель: ${winnerDisplay}\nИтоговая цена: ${result.final_price} баллов\n\n📣 Продано раз, продано два, продано три!\nПоздравляем победителя! 🎉`);
         } else {
           setWinnerMessage(`🎪 Торги по лоту "${result.lot_title}" завершены.\n\nК сожалению, никто не сделал ставку.\nЛот снят с торгов.`);
         }
@@ -163,7 +232,7 @@ const AuctionTab = ({ adminToken }) => {
       });
 
       if (response.ok) {
-        alert('📢 Объявление сделано!\nСообщение передано ведущему.');
+        alert('📢 Объявление готово!\nТекст можно зачитать гостям.');
         setShowWinnerModal(false);
         setWinnerMessage('');
         setSelectedLotForWinner(null);
@@ -218,8 +287,12 @@ const AuctionTab = ({ adminToken }) => {
 
   const getLotStatus = (lot) => {
     if (lot.is_completed) return { text: 'Завершен', color: '#888', icon: '✅' };
-    if (lot.is_active) return { text: 'АКТИВЕН', color: '#4caf50', icon: '��' };
+    if (lot.is_active) return { text: 'АКТИВЕН', color: '#4caf50', icon: '🔥' };
     return { text: 'Ожидает', color: '#2196f3', icon: '⏳' };
+  };
+
+  const formatUserDisplay = (bid) => {
+    return `${bid.user_name}${bid.user_username ? ` (@${bid.user_username})` : ''}`;
   };
 
   if (loading) {
@@ -231,6 +304,13 @@ const AuctionTab = ({ adminToken }) => {
       <div className="tab-header">
         <h2>🏛️ Управление аукционом</h2>
         <div className="tab-controls">
+          <button 
+            className="btn btn-danger"
+            onClick={() => setShowResetModal(true)}
+            title="Сбросить весь аукцион"
+          >
+            🔄 Сброс аукциона
+          </button>
           <button className="btn btn-secondary" onClick={() => {fetchLots(); fetchActiveLot(); fetchLiveBids();}}>
             🔄 Обновить все
           </button>
@@ -268,7 +348,12 @@ const AuctionTab = ({ adminToken }) => {
                     {activeLot.leading_bidder && (
                       <div className="stat leading-stat">
                         <span className="label">👑 Лидирует:</span>
-                        <span className="value winner">{activeLot.leading_bidder}</span>
+                        <span className="value winner">
+                          {activeLot.leading_bidder}
+                          {activeLot.leading_username && (
+                            <span className="username">@{activeLot.leading_username}</span>
+                          )}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -320,8 +405,23 @@ const AuctionTab = ({ adminToken }) => {
                       </button>
                     )}
                     
+                    {lot.is_completed && (
+                      <button 
+                        className="btn btn-small btn-warning"
+                        onClick={() => handleResetLot(lot.id, lot.title)}
+                        title="Сбросить этот лот для повторных торгов"
+                      >
+                        🔄 Сброс
+                      </button>
+                    )}
+                    
                     {lot.winner_name && (
-                      <span className="winner-badge">👑 {lot.winner_name}</span>
+                      <span className="winner-badge">
+                        👑 {lot.winner_name}
+                        {lot.winner_username && (
+                          <span className="winner-username">@{lot.winner_username}</span>
+                        )}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -346,7 +446,7 @@ const AuctionTab = ({ adminToken }) => {
                   <div className="bid-header">
                     <span className="bid-user">
                       {bid.is_leading && '👑'} 
-                      <strong>{bid.user_name}</strong>
+                      <strong>{formatUserDisplay(bid)}</strong>
                       {bid.team_id && <span className="team-tag">👥{bid.team_id}</span>}
                     </span>
                     <span className="bid-time">{formatBidTime(bid.created_at)}</span>
@@ -375,18 +475,54 @@ const AuctionTab = ({ adminToken }) => {
         </div>
       </div>
 
+      {/* Модал сброса всего аукциона */}
+      {showResetModal && (
+        <div className="winner-modal">
+          <div className="modal-content">
+            <h3>�� Сброс всего аукциона</h3>
+            <p className="modal-description warning">
+              ⚠️ <strong>Внимание!</strong> Это действие:
+            </p>
+            <ul className="reset-warning-list">
+              <li>🔄 Вернет ВСЕ потраченные баллы всем участникам</li>
+              <li>🗑️ Очистит все ставки по всем лотам</li>
+              <li>📋 Сбросит все лоты в исходное состояние</li>
+              <li>❌ Отменит всех победителей</li>
+            </ul>
+            <p className="modal-description">
+              Используйте только для полного перезапуска аукциона!
+            </p>
+            <div className="modal-actions">
+              <button 
+                className="btn btn-danger btn-large"
+                onClick={handleResetAuction}
+                disabled={resetting}
+              >
+                {resetting ? '⏳ Сбрасываю...' : '🔄 СБРОСИТЬ АУКЦИОН'}
+              </button>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowResetModal(false)}
+                disabled={resetting}
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Модал объявления победителя */}
       {showWinnerModal && (
         <div className="winner-modal">
           <div className="modal-content">
-            <h3>📢 Объявление результатов торгов</h3>
+            <h3>📢 Текст объявления результатов</h3>
             <p className="modal-description">
-              Отредактируйте текст объявления и передайте ведущему:
+              Зачитайте этот текст гостям или отредактируйте по желанию:
             </p>
             <textarea
               value={winnerMessage}
               onChange={(e) => setWinnerMessage(e.target.value)}
-              placeholder="Введите сообщение для объявления результатов торгов..."
               rows={8}
             />
             <div className="modal-actions">
@@ -394,7 +530,7 @@ const AuctionTab = ({ adminToken }) => {
                 className="btn btn-primary btn-large"
                 onClick={handleAnnounceWinner}
               >
-                📢 Передать ведущему
+                ✅ Готово
               </button>
               <button 
                 className="btn btn-secondary"
