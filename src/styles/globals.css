@@ -237,7 +237,7 @@ body {
 }
 
 .game-btn.quiz-btn {
-  border-color: rgba(74, 144, 226, 0.4);
+  border-color: #ffdb30;
 }
 
 .game-btn.quiz-btn:hover:not(.disabled) {
@@ -248,7 +248,7 @@ body {
 }
 
 .game-btn.logic-btn {
-  border-color: rgba(156, 39, 176, 0.4);
+  border-color: #ffdb30;
 }
 
 .game-btn.logic-btn:hover:not(.disabled) {
@@ -259,7 +259,7 @@ body {
 }
 
 .game-btn.survey-btn {
-  border-color: rgba(255, 152, 0, 0.4);
+  border-color: #ffdb30;
 }
 
 .game-btn.survey-btn:hover:not(.disabled) {
@@ -270,7 +270,7 @@ body {
 }
 
 .game-btn.auction-btn {
-  border-color: rgba(244, 67, 54, 0.4);
+  border-color: #ffdb30;
   grid-column: 1 / -1;
   min-height: 80px;
 }
