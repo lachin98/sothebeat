@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AuctionWinnerAnnouncement from "./AuctionWinnerAnnouncement";
 import firstImg from "../images/1.jpg";
 import secondImg from "../images/2.jpg";
 import thirdImg from "../images/3.jpg";
@@ -8,15 +7,26 @@ import fifthImg from "../images/5.jpg";
 import sixImg from "../images/6.jpg";
 import seventhImg from "../images/7.jpg";
 
+const imagesByOrder = {
+  1: seventhImg, // как у тебя в исходнике
+  2: sixImg,
+  3: firstImg,
+  4: secondImg,
+  5: thirdImg,
+  6: fourthImg,
+  7: fifthImg,
+};
+
 const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   const [activeLot, setActiveLot] = useState(null);
   const [bidAmount, setBidAmount] = useState("");
   const [loading, setLoading] = useState(true);
   const [placingBid, setPlacingBid] = useState(false);
   const [currentUserPoints, setCurrentUserPoints] = useState(userPoints);
-  const [lastCompletedLot, setLastCompletedLot] = useState(null);
-  const [showWinnerAnnouncement, setShowWinnerAnnouncement] = useState(false);
-  const [winnerData, setWinnerData] = useState(null);
+
+  // инлайн-объявление
+  const [announcedLotId, setAnnouncedLotId] = useState(null);
+  const [winnerBanner, setWinnerBanner] = useState(null); // { lot_id, lot_title, user_name, bid_amount } | null
 
   useEffect(() => {
     setCurrentUserPoints(userPoints);
@@ -32,10 +42,9 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
         const data = await response.json();
         const newActiveLot = data.lot;
 
-        // Проверяем смену лота - если предыдущий завершился, показываем результат
+        // если был активный лот и он пропал -> завершился -> узнаём победителя один раз
         if (!newActiveLot && activeLot && activeLot.is_active) {
-          // Лот завершился - получаем данные о победителе
-          checkForWinner(activeLot.id);
+          await checkForWinner(activeLot.id);
         }
 
         setActiveLot(newActiveLot);
@@ -49,33 +58,41 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   const checkForWinner = async (lotId) => {
     try {
       const response = await fetch("/api/auction?action=lots");
-      if (response.ok) {
-        const lots = await response.json();
-        const completedLot = lots.find(
-          (lot) => lot.id === lotId && lot.is_completed
-        );
+      if (!response.ok) return;
+      const lots = await response.json();
+      const completedLot = lots.find((lot) => lot.id === lotId && lot.is_completed);
+      if (!completedLot) return;
 
-        if (completedLot && completedLot.winner_name) {
-          setWinnerData({
-            lot_title: completedLot.title,
-            user_name: completedLot.winner_name,
-            bid_amount: completedLot.current_price,
-          });
-          setShowWinnerAnnouncement(true);
-        }
+      // если уже показывали баннер для этого лота — не повторяем
+      if (completedLot.id === announcedLotId) return;
+
+      if (completedLot.winner_name) {
+        setWinnerBanner({
+          lot_id: completedLot.id,
+          lot_title: completedLot.title,
+          user_name: completedLot.winner_name,
+          bid_amount: completedLot.current_price,
+        });
+        setAnnouncedLotId(completedLot.id);
+      } else {
+        // лот завершился без ставок
+        setWinnerBanner({
+          lot_id: completedLot.id,
+          lot_title: completedLot.title,
+          user_name: null,
+          bid_amount: null,
+        });
+        setAnnouncedLotId(completedLot.id);
       }
-    } catch (error) {
-      console.error("Ошибка получения данных о победителе:", error);
+    } catch (e) {
+      console.error("Ошибка получения победителя:", e);
     }
   };
 
   const fetchUserBalance = async () => {
     if (!userId) return;
-
     try {
-      const response = await fetch(
-        `/api/users?action=profile&user_id=${userId}`
-      );
+      const response = await fetch(`/api/users?action=profile&user_id=${userId}`);
       if (response.ok) {
         const userData = await response.json();
         setCurrentUserPoints(userData.total_points || 0);
@@ -87,22 +104,17 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
 
   const handlePlaceBid = async () => {
     if (!bidAmount || placingBid) return;
-
-    const amount = parseInt(bidAmount);
-    if (amount <= 0) {
+    const amount = parseInt(bidAmount, 10);
+    if (Number.isNaN(amount) || amount <= 0) {
       alert("Введите корректную сумму");
       return;
     }
-
     if (amount > currentUserPoints) {
-      alert(
-        `Недостаточно баллов!\nУ вас: ${currentUserPoints.toLocaleString()} баллов`
-      );
+      alert(`Недостаточно баллов!\nУ вас: ${currentUserPoints.toLocaleString()} баллов`);
       return;
     }
 
     setPlacingBid(true);
-
     try {
       const response = await fetch("/api/auction", {
         method: "POST",
@@ -119,50 +131,38 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
       if (response.ok) {
         const result = await response.json();
         setBidAmount("");
-
-        // Обновляем баланс сразу после ставки
         setCurrentUserPoints((prev) => prev - amount);
-
-        alert(
-          `✅ Ставка принята!\n${result.message}\n\nВаш баланс: ${(
-            currentUserPoints - amount
-          ).toLocaleString()} баллов`
-        );
-
+        alert(`✅ Ставка принята!\n${result.message}\n\nВаш баланс: ${(currentUserPoints - amount).toLocaleString()} баллов`);
         fetchActiveLot();
-        fetchUserBalance(); // Дополнительная проверка баланса
+        fetchUserBalance();
       } else {
         const error = await response.json();
         alert(`❌ ${error.error}`);
-        fetchUserBalance(); // Обновляем баланс на случай изменений
+        fetchUserBalance();
       }
-    } catch (error) {
-      console.error("Ошибка ставки:", error);
+    } catch (e) {
+      console.error("Ошибка ставки:", e);
       alert("❌ Ошибка сети");
       fetchUserBalance();
     }
-
     setPlacingBid(false);
   };
 
   const getMinBid = () => {
     if (!activeLot) return 200;
-    return Math.max(activeLot.current_price + 10, activeLot.starting_price);
+    return Math.max((activeLot.current_price ?? 0) + 10, activeLot.starting_price);
   };
 
   const getQuickBidOptions = () => {
     const minBid = getMinBid();
     const options = [minBid, minBid + 50, minBid + 100, minBid + 200];
-
     return options.filter((amount) => amount <= currentUserPoints);
   };
 
   if (loading) {
     return (
       <div className="auction-loading">
-        <button className="back-btn" onClick={onBack}>
-          ← Назад
-        </button>
+        <button className="back-btn" onClick={onBack}>← Назад</button>
         <div className="loading-screen">
           <div className="spinner"></div>
           <p>Загрузка аукциона...</p>
@@ -174,9 +174,25 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   if (!activeLot) {
     return (
       <div className="auction-waiting">
-        <button className="back-btn" onClick={onBack}>
-          ← Назад
-        </button>
+        <button className="back-btn" onClick={onBack}>← Назад</button>
+
+        {/* Инлайн-объявление победителя, если только что завершился лот */}
+        {winnerBanner && (
+          <div className="winner-banner">
+            {winnerBanner.user_name ? (
+              <>
+                <div className="wb-title">🏆 Лот «{winnerBanner.lot_title}» продан</div>
+                <div className="wb-line">Победитель: <strong>{winnerBanner.user_name}</strong></div>
+                <div className="wb-line">Итоговая цена: <strong>{winnerBanner.bid_amount?.toLocaleString()} баллов</strong></div>
+              </>
+            ) : (
+              <>
+                <div className="wb-title">ℹ️ Лот «{winnerBanner.lot_title}» снят с торгов</div>
+                <div className="wb-line">Ставок не было</div>
+              </>
+            )}
+          </div>
+        )}
 
         <div className="waiting-content">
           <div className="auction-logo">🏛️</div>
@@ -185,8 +201,7 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
           <p>Дождитесь начала следующего лота!</p>
 
           <div className="user-balance">
-            💰 Ваш баланс:{" "}
-            <strong>{currentUserPoints.toLocaleString()} баллов</strong>
+            💰 Ваш баланс: <strong>{currentUserPoints.toLocaleString()} баллов</strong>
           </div>
 
           <div className="auction-info">
@@ -195,22 +210,11 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
               <li>Ведущий объявляет лот</li>
               <li>Вы делаете ставки в приложении</li>
               <li>Баллы списываются сразу при ставке</li>
-              <li>Если не выиграли - баллы вернутся</li>
+              <li>Если не выиграли — баллы вернутся</li>
               <li>Ведущий завершает торги и объявляет победителя</li>
             </ul>
           </div>
         </div>
-
-        {/* Объявление победителя */}
-        {showWinnerAnnouncement && (
-          <AuctionWinnerAnnouncement
-            winnerData={winnerData}
-            onClose={() => {
-              setShowWinnerAnnouncement(false);
-              setWinnerData(null);
-            }}
-          />
-        )}
       </div>
     );
   }
@@ -221,38 +225,33 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   return (
     <div className="auction-round">
       <div className="auction-header">
-        <button className="back-btn" onClick={onBack}>
-          ← Назад
-        </button>
+        <button className="back-btn" onClick={onBack}>← Назад</button>
         <h2>🏛️ Аукцион</h2>
       </div>
 
+      {/* Инлайн-объявление (если вдруг ведущий быстро закрыл/открыл лоты) */}
+      {winnerBanner && (
+        <div className="winner-banner">
+          {winnerBanner.user_name ? (
+            <>
+              <div className="wb-title">🏆 Лот «{winnerBanner.lot_title}» продан</div>
+              <div className="wb-line">Победитель: <strong>{winnerBanner.user_name}</strong></div>
+              <div className="wb-line">Итоговая цена: <strong>{winnerBanner.bid_amount?.toLocaleString()} баллов</strong></div>
+            </>
+          ) : (
+            <>
+              <div className="wb-title">ℹ️ Лот «{winnerBanner.lot_title}» снят с торгов</div>
+              <div className="wb-line">Ставок не было</div>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="auction-content">
-        {/* Лот */}
         <div className="lot-display">
           <div className="lot-image">
-            <img
-              src={
-                activeLot.order_num === 1
-                  ? seventhImg
-                  : activeLot.order_num === 2
-                  ? sixImg
-                  : activeLot.order_num === 3
-                  ? firstImg
-                  : activeLot.order_num === 4
-                  ? secondImg
-                  : activeLot.order_num === 5
-                  ? thirdImg
-                  : activeLot.order_num === 6
-                  ? fourthImg
-                  : activeLot.order_num === 7
-                  ? fifthImg
-                  : ""
-              }
-              alt={activeLot.title}
-            />
+            <img src={imagesByOrder[activeLot.order_num] || ""} alt={activeLot.title} />
           </div>
-
           <div className="lot-info">
             <h3 className="lot-title">{activeLot.title}</h3>
             <p className="lot-description">{activeLot.description}</p>
@@ -260,41 +259,27 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
             <div className="price-display">
               <div className="price-row">
                 <span className="price-label">Стартовая цена:</span>
-                <span className="price-value">
-                  {activeLot.starting_price.toLocaleString()}
-                </span>
+                <span className="price-value">{activeLot.starting_price.toLocaleString()}</span>
               </div>
-
               <div className="price-row current">
                 <span className="price-label">Текущая цена:</span>
-                <span className="price-value highlight">
-                  {(
-                    activeLot.current_price || activeLot.starting_price
-                  ).toLocaleString()}
-                </span>
+                <span className="price-value highlight">{(activeLot.current_price || activeLot.starting_price).toLocaleString()}</span>
               </div>
-
               {activeLot.leading_bidder && (
-                <div className="leader-info">
-                  👑 Лидирует: <strong>{activeLot.leading_bidder}</strong>
-                </div>
+                <div className="leader-info">👑 Лидирует: <strong>{activeLot.leading_bidder}</strong></div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Статус торгов */}
         <div className="auction-status">
           <div className="status-indicator active">🔥 ТОРГИ ИДУТ</div>
           <div className="bid-count">Ставок: {activeLot.bid_count}</div>
         </div>
 
-        {/* Поле для ставки */}
         <div className="bid-section">
-          {/* Текущий баланс в секции ставки */}
           <div className="current-balance">
-            💰 Ваш баланс: <strong>{currentUserPoints.toLocaleString()}</strong>{" "}
-            баллов
+            💰 Ваш баланс: <strong>{currentUserPoints.toLocaleString()}</strong> баллов
           </div>
 
           <div className="bid-form">
@@ -312,33 +297,21 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
                 />
                 <span className="currency">баллов</span>
               </div>
-
               <button
                 className="bid-button"
                 onClick={handlePlaceBid}
-                disabled={
-                  placingBid ||
-                  !bidAmount ||
-                  parseInt(bidAmount) < minBid ||
-                  parseInt(bidAmount) > currentUserPoints
-                }
+                disabled={placingBid || !bidAmount || parseInt(bidAmount,10) < minBid || parseInt(bidAmount,10) > currentUserPoints}
               >
                 {placingBid ? "⏳ Делаю ставку..." : "🔥 Сделать ставку"}
               </button>
             </div>
 
-            {/* Быстрые ставки */}
-            {quickBidOptions.length > 0 && (
+            {getQuickBidOptions().length > 0 && (
               <div className="quick-bids">
                 <div className="quick-bids-label">Быстрые ставки:</div>
                 <div className="quick-bids-buttons">
-                  {quickBidOptions.map((amount, index) => (
-                    <button
-                      key={index}
-                      className="quick-bid"
-                      onClick={() => setBidAmount(amount.toString())}
-                      disabled={placingBid}
-                    >
+                  {getQuickBidOptions().map((amount, i) => (
+                    <button key={i} className="quick-bid" onClick={() => setBidAmount(amount.toString())} disabled={placingBid}>
                       {amount.toLocaleString()}
                     </button>
                   ))}
@@ -346,33 +319,15 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
               </div>
             )}
 
-            {/* Предупреждения */}
             <div className="bid-warnings">
               {currentUserPoints < minBid && (
-                <div className="warning insufficient">
-                  ⚠️ Недостаточно баллов для участия в торгах
-                </div>
+                <div className="warning insufficient">⚠️ Недостаточно баллов для участия в торгах</div>
               )}
-
-              <div className="info">
-                💡 Баллы списываются сразу при ставке. Если не выиграете -
-                вернутся.
-              </div>
+              <div className="info">💡 Баллы списываются сразу при ставке. Если не выиграете — вернутся.</div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Объявление победителя */}
-      {showWinnerAnnouncement && (
-        <AuctionWinnerAnnouncement
-          winnerData={winnerData}
-          onClose={() => {
-            setShowWinnerAnnouncement(false);
-            setWinnerData(null);
-          }}
-        />
-      )}
     </div>
   );
 };
