@@ -492,7 +492,7 @@ const AuctionTab = ({ adminToken }) => {
 
                     {lot.winner_name && (
                       <span className="winner-badge">
-                        👑 {lot.winner_name + lot.winner_username}
+                        👑 {lot.winner_name}
                         {lot.winner_username && (
                           <span className="winner-username">
                             @{lot.winner_username}
