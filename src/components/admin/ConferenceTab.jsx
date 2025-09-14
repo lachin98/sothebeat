@@ -7,6 +7,7 @@ const ConferenceTab = ({ adminToken }) => {
   const [updating, setUpdating] = useState(false);
   const [showFullResetModal, setShowFullResetModal] = useState(false);
   const [resettingFull, setResettingFull] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false); // Добавляем состояние для чекбокса
 
   const phaseLabels = {
     lobby: 'Лобби',
@@ -101,6 +102,7 @@ const ConferenceTab = ({ adminToken }) => {
         const result = await response.json();
         alert(`✅ ${result.message}\n\n📊 Что было сброшено:\n• Пользователей удалено: ${result.stats.users_deleted}\n• Результатов игр удалено: ${result.stats.results_deleted}\n• Аукционных ставок удалено: ${result.stats.auction_bids_deleted}\n• Команд удалено: ${result.stats.teams_deleted}\n• Фаза сброшена: ${result.stats.game_phase_reset}\n• Раунды деактивированы\n• ${result.stats.questions_preserved}`);
         setShowFullResetModal(false);
+        setConfirmReset(false); // Сбрасываем чекбокс
         
         // Обновляем все данные
         fetchGameState();
@@ -233,7 +235,7 @@ const ConferenceTab = ({ adminToken }) => {
                     📝 Вопросов: {round.quiz_count || round.logic_count || round.survey_count || 0}
                   </span>
                   <span className={`round-status ${round.is_active ? 'active' : 'inactive'}`}>
-                    {round.is_active ? '🟢 Активен' : '�� Остановлен'}
+                    {round.is_active ? '🟢 Активен' : '🔴 Остановлен'}
                   </span>
                 </div>
               </div>
@@ -278,7 +280,7 @@ const ConferenceTab = ({ adminToken }) => {
               <li>📊 Очистит результаты прошлых игр</li>
               <li>💰 Удалит все аукционные ставки</li>
               <li>👥 Очистит команды (неиспользуемые)</li>
-              <li>🏠 Сбросит фазу игры на "Лобби"</li>
+              <li>�� Сбросит фазу игры на "Лобби"</li>
               <li>⏹️ Деактивирует все раунды</li>
             </ul>
             <div className="preserve-notice">
@@ -296,7 +298,8 @@ const ConferenceTab = ({ adminToken }) => {
               <label className="danger-checkbox">
                 <input 
                   type="checkbox" 
-                  id="confirm-full-reset"
+                  checked={confirmReset}
+                  onChange={(e) => setConfirmReset(e.target.checked)}
                 />
                 <span>Да, подготовить систему к новому мероприятию</span>
               </label>
@@ -306,13 +309,16 @@ const ConferenceTab = ({ adminToken }) => {
               <button 
                 className="btn btn-danger btn-large"
                 onClick={handleFullReset}
-                disabled={resettingFull || !document.getElementById('confirm-full-reset')?.checked}
+                disabled={resettingFull || !confirmReset}
               >
                 {resettingFull ? '⏳ Подготавливаю...' : '💥 ПОДГОТОВИТЬ К НОВОМУ СОБЫТИЮ'}
               </button>
               <button 
                 className="btn btn-secondary"
-                onClick={() => setShowFullResetModal(false)}
+                onClick={() => {
+                  setShowFullResetModal(false);
+                  setConfirmReset(false); // Сбрасываем чекбокс при закрытии
+                }}
                 disabled={resettingFull}
               >
                 Отмена
