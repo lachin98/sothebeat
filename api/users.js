@@ -8,12 +8,18 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
+    console.log(`Users API: ${method}`, body || query);
+
     switch (method) {
       case 'GET':
         if (query.action === 'profile' && query.user_id) {
+          console.log(`🔍 Looking for user: ${query.user_id}`);
+          
           const user = await sql`
             SELECT * FROM telegram_users WHERE id = ${query.user_id}
           `;
+          
+          console.log(`📋 Found ${user.rows.length} users`);
           
           if (user.rows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
@@ -44,6 +50,34 @@ module.exports = async (req, res) => {
         break;
 
       case 'POST':
+        // НОВЫЙ ACTION для App.jsx
+        if (body.action === 'register') {
+          console.log('📝 Registering user with new action:', body.user_data);
+          
+          const userData = body.user_data;
+          const result = await sql`
+            INSERT INTO telegram_users (id, username, first_name, last_name, language_code)
+            VALUES (
+              ${userData.id}, 
+              ${userData.username || ''}, 
+              ${userData.first_name || 'Пользователь'}, 
+              ${userData.last_name || ''}, 
+              ${userData.language_code || 'ru'}
+            )
+            ON CONFLICT (id) DO UPDATE SET
+              username = EXCLUDED.username,
+              first_name = EXCLUDED.first_name,
+              last_name = EXCLUDED.last_name,
+              language_code = EXCLUDED.language_code,
+              updated_at = CURRENT_TIMESTAMP
+            RETURNING *
+          `;
+          
+          console.log('✅ User registered/updated:', result.rows[0]);
+          return res.json(result.rows[0]);
+        }
+
+        // СТАРЫЙ ACTION для обратной совместимости
         if (body.action === 'register_user') {
           const result = await sql`
             INSERT INTO telegram_users (id, username, first_name, last_name, language_code)
