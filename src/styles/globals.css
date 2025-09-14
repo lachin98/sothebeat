@@ -123,7 +123,7 @@ body {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a90e2, #357abd);
+  background: linear-gradient(135deg, #ffdb30, #ffc930);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +163,7 @@ body {
 .points-value {
   font-size: 20px;
   font-weight: bold;
-  color: #4a90e2;
+  color: #ffdb30;
   margin-top: 2px;
 }
 
@@ -2121,7 +2121,7 @@ select {
 }
 
 .game-btn.completed {
-  background: rgba(76, 175, 80, 0.15);
+  background: #ffdb3033;
   border-color: rgba(76, 175, 80, 0.4);
   opacity: 0.8;
 }
