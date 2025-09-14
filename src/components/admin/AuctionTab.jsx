@@ -42,7 +42,7 @@ const AuctionTab = ({ adminToken }) => {
 
   // Автоскролл чата вниз при новых ставках
   useEffect(() => {
-    scrollToBottom();
+    // scrollToBottom();
   }, [liveBids]);
 
   const scrollToBottom = () => {
