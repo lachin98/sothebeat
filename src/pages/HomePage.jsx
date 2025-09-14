@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGamePhase } from '../hooks/useGamePhase';
+import { useUserPoints } from '../hooks/useUserPoints';
 import QuizRound from '../components/QuizRound';
 import LogicRound from '../components/LogicRound';
 import SurveyRound from '../components/SurveyRound';
@@ -7,15 +8,22 @@ import AuctionRound from '../components/AuctionRound';
 
 const HomePage = ({ user }) => {
   const [currentView, setCurrentView] = useState('lobby');
-  const [userPoints, setUserPoints] = useState(0);
   const [userName, setUserName] = useState('Участник');
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isTelegramUser, setIsTelegramUser] = useState(false);
   const [completedRounds, setCompletedRounds] = useState([]);
+  const [initialPoints, setInitialPoints] = useState(0);
 
   // Используем хук для отслеживания фазы игры
   const { currentPhase, phases, isLoading: phaseLoading, lastUpdate } = useGamePhase();
+
+  // Используем хук для live обновления баллов
+  const { userPoints, isUpdating, updatePoints, refreshPoints } = useUserPoints(
+    userId, 
+    initialPoints, 
+    isTelegramUser
+  );
 
   useEffect(() => {
     if (user && user.id) {
@@ -30,7 +38,8 @@ const HomePage = ({ user }) => {
       } else {
         const savedPoints = localStorage.getItem(`sothebeat_points_${user.id}`) || '0';
         const savedCompleted = localStorage.getItem(`sothebeat_completed_${user.id}`);
-        setUserPoints(parseInt(savedPoints));
+        const points = parseInt(savedPoints);
+        setInitialPoints(points);
         setCompletedRounds(savedCompleted ? JSON.parse(savedCompleted) : []);
         setLoading(false);
       }
@@ -39,7 +48,7 @@ const HomePage = ({ user }) => {
       setUserName('Гость');
       setUserId(guestId);
       setIsTelegramUser(false);
-      setUserPoints(0);
+      setInitialPoints(0);
       setCompletedRounds([]);
       setLoading(false);
     }
@@ -50,7 +59,8 @@ const HomePage = ({ user }) => {
       const response = await fetch(`/api/users?action=profile&user_id=${uid}`);
       if (response.ok) {
         const userData = await response.json();
-        setUserPoints(userData.total_points || 0);
+        const points = userData.total_points || 0;
+        setInitialPoints(points);
         
         // Получаем завершенные раунды
         const resultsResponse = await fetch(`/api/results?action=user_results&user_id=${uid}`);
@@ -60,12 +70,12 @@ const HomePage = ({ user }) => {
           setCompletedRounds(completed);
         }
       } else {
-        setUserPoints(0);
+        setInitialPoints(0);
         setCompletedRounds([]);
       }
     } catch (error) {
       console.error('Ошибка загрузки профиля:', error);
-      setUserPoints(0);
+      setInitialPoints(0);
       setCompletedRounds([]);
     }
     setLoading(false);
@@ -75,7 +85,7 @@ const HomePage = ({ user }) => {
     if (!userId) return;
     
     const newTotal = userPoints + earnedPoints;
-    setUserPoints(newTotal);
+    updatePoints(newTotal);
     
     // Добавляем раунд к завершенным
     const newCompleted = [...completedRounds, roundType];
@@ -96,6 +106,9 @@ const HomePage = ({ user }) => {
             answers: answers
           })
         });
+        
+        // Принудительно обновляем баллы после сохранения
+        setTimeout(() => refreshPoints(), 1000);
       } catch (error) {
         console.error('Ошибка сохранения в БД:', error);
         localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
@@ -183,7 +196,11 @@ const HomePage = ({ user }) => {
             userId={userId}
             userPoints={userPoints}
             userName={userName}
-            onBack={() => setCurrentView('lobby')}
+            onBack={() => {
+              setCurrentView('lobby');
+              // Обновляем баллы при возврате из аукциона
+              setTimeout(() => refreshPoints(), 500);
+            }}
           />
         );
       default:
@@ -225,8 +242,12 @@ const HomePage = ({ user }) => {
                 )}
               </div>
               <div className="user-points">
-                <div className="points-label">Баланс</div>
-                <div className="points-value">{userPoints.toLocaleString()}</div>
+                <div className="points-label">
+                  Баланс {isUpdating && <span className="updating-indicator">🔄</span>}
+                </div>
+                <div className={`points-value ${isUpdating ? 'updating' : ''}`}>
+                  {userPoints.toLocaleString()}
+                </div>
               </div>
             </div>
 

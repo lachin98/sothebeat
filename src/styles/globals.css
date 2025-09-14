@@ -2809,3 +2809,31 @@ select {
   padding: 4px 8px;
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* === LIVE ОБНОВЛЕНИЕ БАЛЛОВ === */
+.updating-indicator {
+  animation: spin 1s linear infinite;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.points-value.updating {
+  color: #4a90e2;
+  animation: pulse-points 1s ease infinite;
+}
+
+@keyframes pulse-points {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* Плавное обновление цифр */
+.points-value {
+  transition: all 0.3s ease;
+}
