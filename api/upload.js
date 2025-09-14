@@ -35,8 +35,8 @@ module.exports = async (req, res) => {
             console.error("Form parse error:", err);
             reject(err);
           } else {
-            console.log("📋 Fields:", fields);
-            console.log("📎 Files:", Object.keys(files));
+            console.log("📋 Raw fields:", fields);
+            console.log("📎 Raw files:", files);
             resolve({ fields, files });
           }
         });
@@ -45,9 +45,35 @@ module.exports = async (req, res) => {
 
     const { fields, files } = await parseForm();
 
-    // Получаем загруженный файл
-    const uploadedFile = files.file || files.file?.[0];
+    // ИСПРАВЛЯЕМ: правильно извлекаем токен из массива или строки
+    let token;
+    if (fields.token) {
+      if (Array.isArray(fields.token)) {
+        token = fields.token[0];
+      } else {
+        token = fields.token;
+      }
+    }
+
+    console.log("🔑 Extracted token:", token);
+
+    if (token !== "a") {
+      console.log('❌ Invalid token, expected "a", got:', token);
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // ИСПРАВЛЯЕМ: правильно извлекаем файл
+    let uploadedFile;
+    if (files.file) {
+      if (Array.isArray(files.file)) {
+        uploadedFile = files.file[0];
+      } else {
+        uploadedFile = files.file;
+      }
+    }
+
     if (!uploadedFile) {
+      console.log("❌ No file found in upload");
       return res.status(400).json({ error: "No file uploaded" });
     }
 
@@ -79,8 +105,7 @@ module.exports = async (req, res) => {
     const fileExtension = path.extname(uploadedFile.originalFilename || ".jpg");
     const fileName = `upload_${Date.now()}${fileExtension}`;
 
-    // В production на Vercel файлы нельзя сохранять локально,
-    // поэтому возвращаем Base64 или используем внешний сервис
+    // Возвращаем Base64 data URL
     const base64Data = fileData.toString("base64");
     const dataUrl = `data:${uploadedFile.mimetype};base64,${base64Data}`;
 
@@ -91,15 +116,14 @@ module.exports = async (req, res) => {
       console.error("Cleanup error:", cleanupError);
     }
 
-    console.log("✅ File upload completed");
+    console.log("✅ File upload completed successfully");
 
     return res.json({
       success: true,
       filename: fileName,
       size: uploadedFile.size,
       mimetype: uploadedFile.mimetype,
-      // В реальном проекте здесь должна быть ссылка на CDN или файловое хранилище
-      url: dataUrl, // Временное решение - base64 data URL
+      url: dataUrl,
       message: "File uploaded successfully",
     });
   } catch (error) {
