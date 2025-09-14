@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const SurveyRound = ({ userId, onComplete, onBack }) => {
   const [questions, setQuestions] = useState([]);
@@ -8,7 +8,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
   const [totalPoints, setTotalPoints] = useState(0);
   const [timeLeft, setTimeLeft] = useState(300);
   const [gameStarted, setGameStarted] = useState(false);
-  const [gamePhase, setGamePhase] = useState('selecting'); // selecting, revealing, next
+  const [gamePhase, setGamePhase] = useState("selecting"); // selecting, revealing, next
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,9 +17,9 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
 
   useEffect(() => {
     if (!gameStarted) return;
-    
+
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           finishGame();
           return 0;
@@ -33,18 +33,20 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
 
   const fetchQuestions = async () => {
     try {
-      const response = await fetch('/api/questions?action=survey');
+      const response = await fetch("/api/questions?action=survey");
       if (response.ok) {
         const data = await response.json();
         // Преобразуем данные из БД в формат компонента
-        const formattedQuestions = data.map(q => ({
+        const formattedQuestions = data.map((q) => ({
           id: q.id,
           question: q.question_text,
-          answers: Array.isArray(q.answers) ? q.answers.sort((a, b) => b.points - a.points) : []
+          answers: Array.isArray(q.answers)
+            ? q.answers.sort((a, b) => b.points - a.points)
+            : [],
         }));
         setQuestions(formattedQuestions);
       } else {
-        console.warn('Не удалось загрузить вопросы из БД');
+        console.warn("Не удалось загрузить вопросы из БД");
         setQuestions([
           {
             id: 1,
@@ -52,21 +54,19 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
             answers: [
               { text: "Тестовый ответ 1", points: 50 },
               { text: "Тестовый ответ 2", points: 30 },
-              { text: "Тестовый ответ 3", points: 20 }
-            ]
-          }
+              { text: "Тестовый ответ 3", points: 20 },
+            ],
+          },
         ]);
       }
     } catch (error) {
-      console.error('Ошибка загрузки вопросов:', error);
+      console.error("Ошибка загрузки вопросов:", error);
       setQuestions([
         {
           id: 1,
           question: "Тестовый вопрос (ошибка сети)",
-          answers: [
-            { text: "Ошибка загрузки", points: 100 }
-          ]
-        }
+          answers: [{ text: "Ошибка загрузки", points: 100 }],
+        },
       ]);
     }
     setLoading(false);
@@ -75,43 +75,48 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleAnswerSelect = (answerIndex) => {
-    if (gamePhase !== 'selecting') return;
-    
+    if (gamePhase !== "selecting") return;
+
     if (selectedAnswers.includes(answerIndex)) {
-      setSelectedAnswers(selectedAnswers.filter(index => index !== answerIndex));
+      setSelectedAnswers(
+        selectedAnswers.filter((index) => index !== answerIndex)
+      );
     } else if (selectedAnswers.length < 3) {
       setSelectedAnswers([...selectedAnswers, answerIndex]);
     }
   };
 
   const submitAnswers = () => {
-    setGamePhase('revealing');
-    
+    setGamePhase("revealing");
+
     // Показываем правильные ответы один за другим
     const currentQ = questions[currentQuestion];
     let revealIndex = 0;
     let questionPoints = 0;
-    
+
     const revealNext = () => {
       if (revealIndex < selectedAnswers.length) {
         const answerIndex = selectedAnswers[revealIndex];
         const points = currentQ.answers[answerIndex].points;
         questionPoints += points;
-        
-        setRevealedAnswers(prev => [...prev, {
-          index: answerIndex,
-          points: points,
-          text: currentQ.answers[answerIndex].text
-        }]);
-        
+
+        setRevealedAnswers((prev) => [
+          ...prev,
+          {
+            index: answerIndex,
+            points: points,
+            text: currentQ.answers[answerIndex].text,
+          },
+        ]);
+
         revealIndex++;
         setTimeout(revealNext, 1500);
       } else {
-        setTotalPoints(prev => prev + questionPoints);
+        setTotalPoints((prev) => prev + questionPoints);
         setTimeout(() => {
           if (currentQuestion < questions.length - 1) {
             nextQuestion();
@@ -121,7 +126,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
         }, 2000);
       }
     };
-    
+
     setTimeout(revealNext, 1000);
   };
 
@@ -129,7 +134,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
     setCurrentQuestion(currentQuestion + 1);
     setSelectedAnswers([]);
     setRevealedAnswers([]);
-    setGamePhase('selecting');
+    setGamePhase("selecting");
   };
 
   const finishGame = () => {
@@ -137,11 +142,17 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
   };
 
   const finishGameWithPoints = (finalPoints) => {
-    const allAnswers = questions.slice(0, currentQuestion + 1).map((q, index) => ({
-      questionId: q.id,
-      selectedAnswers: index === currentQuestion ? selectedAnswers : [],
-      points: index === currentQuestion ? (totalPoints - (questions.slice(0, index).reduce((sum, _, i) => sum + 0, 0))) : 0
-    }));
+    const allAnswers = questions
+      .slice(0, currentQuestion + 1)
+      .map((q, index) => ({
+        questionId: q.id,
+        selectedAnswers: index === currentQuestion ? selectedAnswers : [],
+        points:
+          index === currentQuestion
+            ? totalPoints -
+              questions.slice(0, index).reduce((sum, _, i) => sum + 0, 0)
+            : 0,
+      }));
     onComplete(finalPoints, allAnswers);
   };
 
@@ -152,7 +163,9 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
   if (loading) {
     return (
       <div className="survey-intro">
-        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <button className="back-btn" onClick={onBack}>
+          ← Назад
+        </button>
         <div className="loading-screen">
           <div className="spinner"></div>
           <p>Загрузка вопросов...</p>
@@ -164,12 +177,14 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
   if (!gameStarted) {
     return (
       <div className="survey-intro">
-        <button className="back-btn" onClick={onBack}>← Назад</button>
-        
+        <button className="back-btn" onClick={onBack}>
+          ← Назад
+        </button>
+
         <div className="intro-content">
           <h2>📊 100 к 1</h2>
           <h3>Мнение большинства барменов!</h3>
-          
+
           <div className="game-rules">
             <h4>Правила:</h4>
             <ul>
@@ -179,7 +194,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
               <li>5 минут на все вопросы</li>
             </ul>
           </div>
-          
+
           <button className="start-game-btn" onClick={startGame}>
             🚀 Начать игру!
           </button>
@@ -191,7 +206,9 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
   if (questions.length === 0) {
     return (
       <div className="survey-intro">
-        <button className="back-btn" onClick={onBack}>← Назад</button>
+        <button className="back-btn" onClick={onBack}>
+          ← Назад
+        </button>
         <div className="error-screen">
           <h2>⚠️ Вопросы не загружены</h2>
           <p>Попробуйте обновить страницу или обратитесь к администратору</p>
@@ -200,7 +217,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
     );
   }
 
-  const progress = ((currentQuestion) / questions.length) * 100;
+  const progress = (currentQuestion / questions.length) * 100;
   const currentQ = questions[currentQuestion];
 
   return (
@@ -209,51 +226,54 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
         <div className="timer">⏱️ {formatTime(timeLeft)}</div>
         <div className="progress">
           <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-          <span className="progress-text">{currentQuestion + 1}/{questions.length}</span>
+          <span className="progress-text">
+            {currentQuestion + 1}/{questions.length}
+          </span>
         </div>
         <div className="total-points">💰 {totalPoints}</div>
       </div>
 
       <div className="question-container">
-        <h3 className="question-text">
-          {currentQ.question}
-        </h3>
-        
+        <h3 className="question-text">{currentQ.question}</h3>
+
         <div className="instruction">
-          {gamePhase === 'selecting' && (
-            selectedAnswers.length < 3 ? 
-            `Выбери ${3 - selectedAnswers.length} ответ${3 - selectedAnswers.length === 1 ? '' : 'а'}` :
-            'Готов? Проверь свои ответы!'
-          )}
-          {gamePhase === 'revealing' && 'Смотри результаты...'}
+          {gamePhase === "selecting" &&
+            (selectedAnswers.length < 3
+              ? `Выбери ${3 - selectedAnswers.length} ответ${
+                  3 - selectedAnswers.length === 1 ? "" : "а"
+                }`
+              : "Готов? Проверь свои ответы!")}
+          {gamePhase === "revealing" && "Смотри результаты..."}
         </div>
 
         <div className="answers-board">
           {currentQ.answers.map((answer, index) => {
             const isSelected = selectedAnswers.includes(index);
-            const isRevealed = revealedAnswers.find(r => r.index === index);
-            
+            const isRevealed = revealedAnswers.find((r) => r.index === index);
+
             return (
               <button
                 key={index}
-                className={`survey-answer ${isSelected ? 'selected' : ''} ${isRevealed ? 'revealed' : ''}`}
+                className={`survey-answer ${isSelected ? "selected" : ""} ${
+                  isRevealed ? "revealed" : ""
+                }`}
                 onClick={() => handleAnswerSelect(index)}
-                disabled={gamePhase !== 'selecting'}
+                disabled={gamePhase !== "selecting"}
               >
                 <span className="answer-text">{answer.text}</span>
                 {isRevealed && (
-                  <span className="answer-points">
-                    {answer.points} очков
-                  </span>
+                  <span className="answer-points">{answer.points} очков</span>
                 )}
               </button>
             );
           })}
         </div>
 
-        {gamePhase === 'selecting' && (
+        {gamePhase === "selecting" && (
           <button
-            className={`submit-btn ${selectedAnswers.length === 3 ? 'active' : ''}`}
+            className={`survey-submit-btn ${
+              selectedAnswers.length === 3 ? "active" : ""
+            }`}
             onClick={submitAnswers}
             disabled={selectedAnswers.length !== 3}
           >

@@ -189,16 +189,23 @@ const HomePage = ({ user }) => {
       default:
         return (
           <div className="mobile-lobby">
-            {/* Логотип и заголовок */}
+            {/* Логотип */}
             <div className="mobile-header">
-              <div className="logo">
+              <div className="main-logo">
                 <img 
-                  src="https://via.placeholder.com/120x50/4a90e2/white?text=SotheBEAT" 
-                  alt="SotheBEAT" 
+                  src="https://www.pernod-ricard.com/themes/custom/pr2021_front/assets/images/logo50/logo-white-50.svg"
+                  alt="Pernod Ricard" 
+                  className="pernod-logo"
+                  onError={(e) => {
+                    // Fallback если логотип не загрузится
+                    e.target.src = "https://via.placeholder.com/200x80/ffffff/000000?text=PERNOD+RICARD";
+                  }}
                 />
               </div>
-              <h1>SotheBEAT 2025</h1>
-              <p>Барный аукцион как у Сотбис</p>
+              <div className="event-title">
+                <h1>SotheBEAT</h1>
+                <div className="year">2025</div>
+              </div>
             </div>
 
             {/* Профиль пользователя */}
