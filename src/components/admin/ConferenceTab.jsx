@@ -222,7 +222,7 @@ const ConferenceTab = ({ adminToken }) => {
       </div>
 
       {/* Управление раундами */}
-      <div className="rounds-management">
+      {/* <div className="rounds-management">
         <h3>🎮 Управление раундами</h3>
         <div className="rounds-list">
           {rounds.map(round => (
@@ -262,7 +262,7 @@ const ConferenceTab = ({ adminToken }) => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Модал сброса для нового мероприятия */}
       {showFullResetModal && (
