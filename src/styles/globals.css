@@ -51,7 +51,7 @@ body {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #4a90e2;
+  border-left: 4px solid #ffdb30;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -388,7 +388,7 @@ body {
 
 .telegram-promo h4 {
   margin: 0 0 8px 0;
-  color: #4a90e2;
+  color: #ffdb30;
   font-size: 16px;
 }
 
@@ -558,7 +558,7 @@ body {
   border-radius: 12px;
   padding: 15px;
   margin: 20px 0;
-  color: #4a90e2;
+  color: #ffdb30;
 }
 
 .auction-info {
@@ -573,7 +573,7 @@ body {
 
 .auction-info h4 {
   margin: 0 0 15px 0;
-  color: #4a90e2;
+  color: #ffdb30;
 }
 
 .auction-info ul {
@@ -945,7 +945,7 @@ select {
 }
 
 .info-item span:last-child {
-  color: #4a90e2;
+  color: #ffdb30;
   font-family: monospace;
   background: rgba(74, 144, 226, 0.1);
   padding: 2px 6px;
@@ -996,8 +996,8 @@ select {
 }
 
 .tab-btn.active {
-  color: #4a90e2;
-  border-bottom-color: #4a90e2;
+  color: #ffdb30;
+  border-bottom-color: #ffdb30;
   background: rgba(74, 144, 226, 0.1);
 }
 
@@ -1075,7 +1075,7 @@ select {
 
 .phase-btn.active {
   background: linear-gradient(135deg, #4a90e2, #357abd);
-  border-color: #4a90e2;
+  border-color: #ffdb30;
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
 }
 
@@ -1254,7 +1254,7 @@ select {
   border: 1px solid rgba(74, 144, 226, 0.3);
   border-radius: 12px;
   margin-bottom: 20px;
-  color: #4a90e2;
+  color: #ffdb30;
   font-size: 16px;
 }
 
@@ -1377,7 +1377,7 @@ select {
 
 .answer-option.selected {
   background: rgba(74, 144, 226, 0.2);
-  border-color: #4a90e2;
+  border-color: #ffdb30;
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
 }
 
@@ -1414,7 +1414,7 @@ select {
 
 .next-btn.active {
   background: linear-gradient(135deg, #4a90e2, #357abd);
-  border-color: #4a90e2;
+  border-color: #ffdb30;
   color: white;
   cursor: pointer;
 }
@@ -2386,7 +2386,7 @@ select {
 
 .rank-badge {
   padding: 16px 24px;
-  border: 2px solid #4a90e2;
+  border: 2px solid #ffdb30;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
@@ -2403,7 +2403,7 @@ select {
   font-size: 16px;
   font-weight: bold;
   letter-spacing: 1px;
-  color: #4a90e2;
+  color: #ffdb30;
 }
 
 .stats-grid {
@@ -2438,7 +2438,7 @@ select {
 .stat-value {
   font-size: 24px;
   font-weight: bold;
-  color: #4a90e2;
+  color: #ffdb30;
   margin-bottom: 4px;
   display: block;
 }
@@ -2469,7 +2469,7 @@ select {
 
 .encouragement p {
   margin: 0;
-  color: #4a90e2;
+  color: #ffdb30;
   font-weight: 500;
   line-height: 1.4;
   font-size: 16px;
@@ -2535,7 +2535,7 @@ select {
 }
 
 .answer-points {
-  color: #4a90e2;
+  color: #ffdb30;
   font-weight: bold;
   font-size: 15px;
 }
