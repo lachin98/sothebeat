@@ -2774,8 +2774,8 @@ select {
 /* === АДАПТАЦИЯ ЛОГОТИПА ДЛЯ МОБИЛЬНЫХ === */
 @media (max-width: 480px) {
   .pernod-logo {
-    height: 50px;
-    max-width: 240px;
+    height: 150px;
+    max-width: 350px;
   }
 
   .event-title h1 {
