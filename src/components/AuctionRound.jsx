@@ -47,6 +47,11 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
           await checkForWinner(activeLot.id);
         }
 
+        // если аукцион снова активен — скрываем баннер победителя
+        if (newActiveLot) {
+          setWinnerBanner(null);
+        }
+
         setActiveLot(newActiveLot);
       }
     } catch (error) {
@@ -72,6 +77,10 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
           lot_title: completedLot.title,
           user_name: completedLot.winner_name,
           bid_amount: completedLot.current_price,
+         user_id: completedLot.winner_user_id
+           ?? completedLot.winner_id
+           ?? completedLot.user_id
+           ?? null,
         });
         setAnnouncedLotId(completedLot.id);
       } else {
@@ -81,6 +90,7 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
           lot_title: completedLot.title,
           user_name: null,
           bid_amount: null,
+          user_id: null,
         });
         setAnnouncedLotId(completedLot.id);
       }
@@ -183,6 +193,9 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
               <>
                 <div className="wb-title">🏆 Лот «{winnerBanner.lot_title}» продан</div>
                 <div className="wb-line">Победитель: <strong>{winnerBanner.user_name}</strong></div>
+                {winnerBanner.user_id != null && (
+                <div className="wb-line">ID победителя: <code>{winnerBanner.user_id}</code></div>
+       )}
                 <div className="wb-line">Итоговая цена: <strong>{winnerBanner.bid_amount?.toLocaleString()} баллов</strong></div>
               </>
             ) : (
@@ -228,24 +241,6 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
         <button className="back-btn" onClick={onBack}>← Назад</button>
         <h2>🏛️ Аукцион</h2>
       </div>
-
-      {/* Инлайн-объявление (если вдруг ведущий быстро закрыл/открыл лоты) */}
-      {winnerBanner && (
-        <div className="winner-banner">
-          {winnerBanner.user_name ? (
-            <>
-              <div className="wb-title">🏆 Лот «{winnerBanner.lot_title}» продан</div>
-              <div className="wb-line">Победитель: <strong>{winnerBanner.user_name}</strong></div>
-              <div className="wb-line">Итоговая цена: <strong>{winnerBanner.bid_amount?.toLocaleString()} баллов</strong></div>
-            </>
-          ) : (
-            <>
-              <div className="wb-title">ℹ️ Лот «{winnerBanner.lot_title}» снят с торгов</div>
-              <div className="wb-line">Ставок не было</div>
-            </>
-          )}
-        </div>
-      )}
 
       <div className="auction-content">
         <div className="lot-display">
