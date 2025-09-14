@@ -268,7 +268,7 @@ const HomePage = ({ user }) => {
                   {userName} <span className="user-id">({userId})</span>
                 </h3>
                 <div className="user-type">
-                  {isTelegramUser ? "📱 Telegram" : "🌐 Веб"}
+                  {isTelegramUser ? " TG" : "WEB"}
                 </div>
                 {completedRounds.length > 0 && (
                   <div className="completed-rounds">
@@ -409,10 +409,6 @@ const HomePage = ({ user }) => {
                   <span className="rule-text">
                     Баллы за правильность + скорость
                   </span>
-                </div>
-                <div className="rule-item">
-                  <span className="rule-icon">🏆</span>
-                  <span className="rule-text">Максимум 600 баллов всего</span>
                 </div>
                 <div className="rule-item">
                   <span className="rule-icon">🔥</span>
