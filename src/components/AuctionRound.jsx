@@ -234,13 +234,13 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
             <img
               src={
                 activeLot.order_num === 1
-                  ? secondImg
+                  ? seventhImg
                   : activeLot.order_num === 2
                   ? sixImg
                   : activeLot.order_num === 3
                   ? firstImg
                   : activeLot.order_num === 4
-                  ? seventhImg
+                  ? secondImg
                   : activeLot.order_num === 5
                   ? thirdImg
                   : activeLot.order_num === 6
