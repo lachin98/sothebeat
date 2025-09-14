@@ -52,31 +52,31 @@ module.exports = async (req, res) => {
           `🤝 Можете объединяться в команды для покупки лотов\n\n` +
           `Готовы начать? Нажмите кнопку ниже! 👇`;
 
-        await bot.sendMessage(chatId, welcomeMessage, { 
-          reply_markup: keyboard
-        });
+        // await bot.sendMessage(chatId, welcomeMessage, { 
+        //   reply_markup: keyboard
+        // });
 
         // Дублируем с Web App кнопкой для поддерживающих клиентов
-        try {
-          const webAppKeyboard = {
-            inline_keyboard: [[
-              {
-                text: '🎮 Web App Игра',
-                web_app: { url: webAppUrl }
-              }
-            ]]
-          };
+      //   try {
+      //     const webAppKeyboard = {
+      //       inline_keyboard: [[
+      //         {
+      //           text: '🎮 Web App Игра',
+      //           web_app: { url: webAppUrl }
+      //         }
+      //       ]]
+      //     };
 
-          await bot.sendMessage(chatId, 
-            'Или используйте Web App версию (если поддерживается):', 
-            { reply_markup: webAppKeyboard }
-          );
-        } catch (webAppError) {
-          console.log('Web App кнопка не поддерживается:', webAppError.message);
-        }
+      //     await bot.sendMessage(chatId, 
+      //       'Или используйте Web App версию (если поддерживается):', 
+      //       { reply_markup: webAppKeyboard }
+      //     );
+      //   } catch (webAppError) {
+      //     console.log('Web App кнопка не поддерживается:', webAppError.message);
+      //   }
 
-        console.log(`Пользователь ${user.first_name} (${user.id}) начал игру`);
-      }
+      //   console.log(`Пользователь ${user.first_name} (${user.id}) начал игру`);
+      // }
 
       if (body.message.text === '/play') {
         await bot.sendMessage(chatId, 
