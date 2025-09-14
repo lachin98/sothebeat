@@ -5,6 +5,8 @@ const ConferenceTab = ({ adminToken }) => {
   const [rounds, setRounds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [showFullResetModal, setShowFullResetModal] = useState(false);
+  const [resettingFull, setResettingFull] = useState(false);
 
   const phaseLabels = {
     lobby: 'Лобби',
@@ -81,6 +83,39 @@ const ConferenceTab = ({ adminToken }) => {
     setUpdating(false);
   };
 
+  const handleFullReset = async () => {
+    if (resettingFull) return;
+    
+    setResettingFull(true);
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'full_reset',
+          token: adminToken
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`✅ ${result.message}\n\n📊 Что было сброшено:\n• Пользователей удалено: ${result.stats.users_deleted}\n• Результатов игр удалено: ${result.stats.results_deleted}\n• Аукционных ставок удалено: ${result.stats.auction_bids_deleted}\n• Команд удалено: ${result.stats.teams_deleted}\n• Фаза сброшена: ${result.stats.game_phase_reset}\n• Раунды деактивированы\n• ${result.stats.questions_preserved}`);
+        setShowFullResetModal(false);
+        
+        // Обновляем все данные
+        fetchGameState();
+        fetchRounds();
+      } else {
+        const error = await response.json();
+        alert(`❌ Ошибка полного сброса: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Ошибка полного сброса игры:', error);
+      alert('❌ Ошибка сети');
+    }
+    setResettingFull(false);
+  };
+
   const startRound = async (roundId) => {
     if (updating) return;
     
@@ -145,13 +180,22 @@ const ConferenceTab = ({ adminToken }) => {
     <div className="conference-tab">
       <div className="conference-header">
         <h2>🎪 Управление конференцией</h2>
-        <button 
-          className="btn btn-secondary" 
-          onClick={fetchGameState}
-          disabled={updating}
-        >
-          🔄 Обновить статус
-        </button>
+        <div className="header-controls">
+          <button 
+            className="btn btn-danger"
+            onClick={() => setShowFullResetModal(true)}
+            title="Подготовка к новому мероприятию"
+          >
+            💥 СБРОС ДЛЯ НОВОГО СОБЫТИЯ
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            onClick={fetchGameState}
+            disabled={updating}
+          >
+            🔄 Обновить статус
+          </button>
+        </div>
       </div>
 
       {/* Быстрое переключение фаз */}
@@ -189,7 +233,7 @@ const ConferenceTab = ({ adminToken }) => {
                     📝 Вопросов: {round.quiz_count || round.logic_count || round.survey_count || 0}
                   </span>
                   <span className={`round-status ${round.is_active ? 'active' : 'inactive'}`}>
-                    {round.is_active ? '🟢 Активен' : '🔴 Остановлен'}
+                    {round.is_active ? '🟢 Активен' : '�� Остановлен'}
                   </span>
                 </div>
               </div>
@@ -217,6 +261,66 @@ const ConferenceTab = ({ adminToken }) => {
           ))}
         </div>
       </div>
+
+      {/* Модал сброса для нового мероприятия */}
+      {showFullResetModal && (
+        <div className="winner-modal">
+          <div className="modal-content">
+            <h3>💥 ПОДГОТОВКА К НОВОМУ СОБЫТИЮ</h3>
+            <p className="modal-description danger">
+              ⚠️ <strong>ПОДГОТОВКА К НОВОМУ МЕРОПРИЯТИЮ!</strong>
+            </p>
+            <p className="modal-description">
+              Это действие подготовит систему к новому мероприятию:
+            </p>
+            <ul className="reset-info-list">
+              <li>🗑️ Удалит всех участников предыдущего события</li>
+              <li>📊 Очистит результаты прошлых игр</li>
+              <li>💰 Удалит все аукционные ставки</li>
+              <li>👥 Очистит команды (неиспользуемые)</li>
+              <li>🏠 Сбросит фазу игры на "Лобби"</li>
+              <li>⏹️ Деактивирует все раунды</li>
+            </ul>
+            <div className="preserve-notice">
+              <strong>✅ СОХРАНЯЕТСЯ:</strong>
+              <ul>
+                <li>❓ Все вопросы для квизов</li>
+                <li>🖼️ Картинки для "Где логика?"</li>
+                <li>📋 Вопросы для "100 к 1"</li>
+                <li>🏛️ Лоты аукциона</li>
+                <li>⚙️ Настройки системы</li>
+              </ul>
+            </div>
+            
+            <div className="danger-confirmation">
+              <label className="danger-checkbox">
+                <input 
+                  type="checkbox" 
+                  id="confirm-full-reset"
+                />
+                <span>Да, подготовить систему к новому мероприятию</span>
+              </label>
+            </div>
+            
+            <div className="modal-actions">
+              <button 
+                className="btn btn-danger btn-large"
+                onClick={handleFullReset}
+                disabled={resettingFull || !document.getElementById('confirm-full-reset')?.checked}
+              >
+                {resettingFull ? '⏳ Подготавливаю...' : '💥 ПОДГОТОВИТЬ К НОВОМУ СОБЫТИЮ'}
+              </button>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowFullResetModal(false)}
+                disabled={resettingFull}
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

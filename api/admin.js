@@ -103,6 +103,11 @@ module.exports = async (req, res) => {
           console.log(`Stopped round ${body.round_id}`);
           return res.json({ success: true });
         }
+
+        // Полный сброс игры
+        if (body.action === 'full_reset') {
+          return await fullGameReset(res);
+        }
         
         break;
 
@@ -117,13 +122,99 @@ module.exports = async (req, res) => {
   }
 };
 
+// Полный сброс игры - только пользователи, результаты, аукцион, фаза
+async function fullGameReset(res) {
+  console.log('🔄 Starting FULL GAME RESET...');
+  
+  try {
+    // Считаем что было до сброса
+    const usersBefore = await sql`SELECT COUNT(*) as count FROM telegram_users`;
+    const resultsBefore = await sql`SELECT COUNT(*) as count FROM player_results`;
+    const bidsBefore = await sql`SELECT COUNT(*) as count FROM auction_bids`;
+    const teamsBefore = await sql`SELECT COUNT(*) as count FROM teams`;
+
+    // 1. 🗑️ Удаляем всех пользователей
+    console.log('1️⃣ Deleting all users...');
+    await sql`DELETE FROM telegram_users`;
+
+    // 2. 🗑️ Удаляем все результаты игр
+    console.log('2️⃣ Deleting all game results...');
+    await sql`DELETE FROM player_results`;
+
+    // 3. 🗑️ Очищаем аукционные ставки
+    console.log('3️⃣ Clearing auction bids...');
+    await sql`DELETE FROM auction_bids`;
+
+    // 4. 🗑️ Очищаем команды (неиспользуемые)
+    console.log('4️⃣ Clearing teams...');
+    await sql`DELETE FROM teams`;
+
+    // 5. 🔄 Сбрасываем лоты аукциона
+    console.log('5️⃣ Resetting auction lots...');
+    await sql`
+      UPDATE auction_lots 
+      SET 
+        is_active = false,
+        is_completed = false,
+        current_price = 0,
+        winner_user_id = NULL,
+        winner_name = NULL,
+        auction_started_at = NULL,
+        auction_ends_at = NULL
+    `;
+
+    // 6. 🏠 Сбрасываем игровые состояния на лобби
+    console.log('6️⃣ Resetting game phase to lobby...');
+    await sql`DELETE FROM game_config`;
+    
+    // Устанавливаем начальные состояния
+    await sql`
+      INSERT INTO game_config (key, value, updated_at) VALUES 
+      ('current_phase', '"lobby"', CURRENT_TIMESTAMP),
+      ('phases_status', '{"quiz": false, "logic": false, "survey": false, "auction": false}', CURRENT_TIMESTAMP),
+      ('online_users', '0', CURRENT_TIMESTAMP),
+      ('event_started', 'false', CURRENT_TIMESTAMP)
+    `;
+
+    // 7. ⏹️ Деактивируем все раунды
+    console.log('7️⃣ Deactivating all rounds...');
+    await sql`UPDATE game_rounds SET is_active = false`;
+
+    // ✅ ВОПРОСЫ НЕ ТРОГАЕМ! Таблицы quiz_questions, logic_questions, survey_questions остаются целыми!
+
+    // Собираем статистику
+    const stats = {
+      users_deleted: parseInt(usersBefore.rows[0].count),
+      results_deleted: parseInt(resultsBefore.rows[0].count),
+      auction_bids_deleted: parseInt(bidsBefore.rows[0].count),
+      teams_deleted: parseInt(teamsBefore.rows[0].count),
+      auction_lots_reset: true,
+      game_phase_reset: 'lobby',
+      rounds_deactivated: true,
+      questions_preserved: '✅ ВСЕ ВОПРОСЫ СОХРАНЕНЫ'
+    };
+
+    console.log('✅ FULL GAME RESET COMPLETE:', stats);
+    
+    return res.json({
+      success: true,
+      message: 'Игра сброшена для нового мероприятия',
+      stats
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in full game reset:', error);
+    throw error;
+  }
+}
+
 async function getGameStatus(res) {
   try {
     const config = await sql`SELECT key, value FROM game_config`;
     
     const gameState = {
       currentPhase: 'lobby',
-      phases: { quiz: false, logic: false, survey: false, auction: false }, // Убрали contact
+      phases: { quiz: false, logic: false, survey: false, auction: false },
       onlineUsers: 0,
       totalRegistered: 0,
       eventStarted: false,
@@ -135,7 +226,6 @@ async function getGameStatus(res) {
         gameState.currentPhase = safeJSONParse(row.value, 'lobby');
       } else if (row.key === 'phases_status') {
         const phases = safeJSONParse(row.value, { quiz: false, logic: false, survey: false, auction: false });
-        // Убираем contact если он есть
         delete phases.contact;
         gameState.phases = phases;
       } else if (row.key === 'online_users') {
@@ -196,14 +286,12 @@ async function togglePhase(res, phase) {
     let phases;
     
     if (current.rows.length === 0) {
-      phases = { quiz: false, logic: false, survey: false, auction: false }; // Убрали contact
+      phases = { quiz: false, logic: false, survey: false, auction: false };
     } else {
       phases = safeJSONParse(current.rows[0].value, { quiz: false, logic: false, survey: false, auction: false });
-      // Убираем contact если он есть
       delete phases.contact;
     }
     
-    // Переключаем фазу (только если она поддерживается)
     if (['quiz', 'logic', 'survey', 'auction'].includes(phase)) {
       phases[phase] = !phases[phase];
     }
