@@ -165,7 +165,9 @@
 }
 
 /* УНИВЕРСАЛЬНАЯ СТРУКТУРА ДЛЯ ВСЕХ ТАБОВ */
-.quiz-tab, .logic-tab, .survey-tab {
+.quiz-tab,
+.logic-tab,
+.survey-tab {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -241,7 +243,9 @@
 }
 
 /* ИСПРАВЛЕННЫЕ СТИЛИ КАРТОЧЕК ВОПРОСОВ */
-.question-item, .logic-question-item, .survey-question-item {
+.question-item,
+.logic-question-item,
+.survey-question-item {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -251,7 +255,9 @@
   transition: all 0.3s ease;
 }
 
-.question-item:hover, .logic-question-item:hover, .survey-question-item:hover {
+.question-item:hover,
+.logic-question-item:hover,
+.survey-question-item:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(74, 144, 226, 0.3);
 }
@@ -304,7 +310,8 @@
   opacity: 1;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn,
+.delete-btn {
   padding: 6px 8px;
   border: none;
   border-radius: 4px;
@@ -531,7 +538,8 @@
   margin-bottom: 0;
 }
 
-.remove-alt-btn, .remove-answer-btn {
+.remove-alt-btn,
+.remove-answer-btn {
   background: rgba(244, 67, 54, 0.2);
   color: #f44336;
   border: 1px solid rgba(244, 67, 54, 0.3);
@@ -548,12 +556,14 @@
   justify-content: center;
 }
 
-.remove-alt-btn:hover, .remove-answer-btn:hover {
+.remove-alt-btn:hover,
+.remove-answer-btn:hover {
   background: rgba(244, 67, 54, 0.3);
   transform: translateY(-1px);
 }
 
-.add-alt-btn, .add-answer-btn {
+.add-alt-btn,
+.add-answer-btn {
   background: rgba(76, 175, 80, 0.2);
   color: #4caf50;
   border: 1px solid rgba(76, 175, 80, 0.3);
@@ -565,7 +575,8 @@
   margin-top: 8px;
 }
 
-.add-alt-btn:hover, .add-answer-btn:hover {
+.add-alt-btn:hover,
+.add-answer-btn:hover {
   background: rgba(76, 175, 80, 0.3);
   transform: translateY(-1px);
 }
@@ -681,12 +692,12 @@
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .add-question-form {
     min-width: auto;
     max-height: 500px;
   }
-  
+
   .questions-list {
     max-height: 400px;
   }
@@ -696,26 +707,27 @@
   .admin-panel {
     padding: 10px;
   }
-  
+
   .admin-header {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
   }
-  
+
   .admin-info {
     gap: 10px;
     flex-wrap: wrap;
   }
-  
+
   .tab-name {
     display: none;
   }
-  
-  .options-grid, .form-row {
+
+  .options-grid,
+  .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .form-buttons {
     flex-direction: column;
   }
@@ -736,9 +748,15 @@
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .phase-item {
@@ -759,7 +777,10 @@
 }
 
 /* Дополнительные стили для других табов */
-.status-tab, .conference-tab, .leaderboard-tab, .participants-tab {
+.status-tab,
+.conference-tab,
+.leaderboard-tab,
+.participants-tab {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   padding: 20px;
@@ -803,7 +824,9 @@
 }
 
 /* Заголовки табов */
-.conference-header, .leaderboard-header, .participants-header {
+.conference-header,
+.leaderboard-header,
+.participants-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -814,7 +837,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.conference-header h2, .leaderboard-header h2, .participants-header h2 {
+.conference-header h2,
+.leaderboard-header h2,
+.participants-header h2 {
   margin: 0;
   color: white;
   font-size: 20px;
@@ -1015,14 +1040,16 @@
   gap: 30px;
 }
 
-.top-players, .rounds-stats {
+.top-players,
+.rounds-stats {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.top-players h3, .rounds-stats h3 {
+.top-players h3,
+.rounds-stats h3 {
   margin: 0 0 20px 0;
   color: white;
   font-size: 16px;
@@ -1302,7 +1329,7 @@
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .stats-cards {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
@@ -1313,40 +1340,40 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-input {
     min-width: auto;
   }
-  
+
   .sort-select {
     min-width: auto;
   }
-  
+
   .participant-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .participant-actions {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .points-controls {
     flex-wrap: wrap;
   }
-  
+
   .bulk-buttons {
     justify-content: center;
   }
-  
+
   .round-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .round-controls {
     align-self: flex-end;
   }
@@ -1525,12 +1552,12 @@
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .image-preview-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  
+
   .images-display {
     justify-content: center;
   }
@@ -1570,8 +1597,8 @@
 }
 
 .active-lot-card .lot-image {
-  width: 120px;
-  height: 80px;
+  width: 240px;
+  height: 100%;
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
@@ -1915,7 +1942,7 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
-  
+
   .live-bids-panel {
     max-height: 300px;
   }
@@ -1925,17 +1952,22 @@
   .auction-admin-layout {
     gap: 15px;
   }
-  
+
   .active-lot-card {
     flex-direction: column;
   }
-  
+
   .lot-stats {
     grid-template-columns: 1fr;
   }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
