@@ -115,7 +115,7 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
         ]);
 
         revealIndex++;
-        setTimeout(revealNext, 1500);
+        setTimeout(revealNext, 500);
       } else {
         setTotalPoints((prev) => prev + questionPoints);
         setTimeout(() => {
@@ -124,11 +124,11 @@ const SurveyRound = ({ userId, onComplete, onBack }) => {
           } else {
             finishGameWithPoints(totalPoints + questionPoints);
           }
-        }, 500);
+        }, 2000);
       }
     };
 
-    setTimeout(revealNext, 1000);
+    setTimeout(revealNext, 500);
   };
 
   const nextQuestion = () => {
