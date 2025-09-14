@@ -12,6 +12,7 @@ const HomePage = ({ user }) => {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isTelegramUser, setIsTelegramUser] = useState(false);
+  const [completedRounds, setCompletedRounds] = useState([]);
 
   // Используем хук для отслеживания фазы игры
   const { currentPhase, phases, isLoading: phaseLoading, lastUpdate } = useGamePhase();
@@ -28,7 +29,9 @@ const HomePage = ({ user }) => {
         fetchUserProfile(user.id);
       } else {
         const savedPoints = localStorage.getItem(`sothebeat_points_${user.id}`) || '0';
+        const savedCompleted = localStorage.getItem(`sothebeat_completed_${user.id}`);
         setUserPoints(parseInt(savedPoints));
+        setCompletedRounds(savedCompleted ? JSON.parse(savedCompleted) : []);
         setLoading(false);
       }
     } else {
@@ -37,6 +40,7 @@ const HomePage = ({ user }) => {
       setUserId(guestId);
       setIsTelegramUser(false);
       setUserPoints(0);
+      setCompletedRounds([]);
       setLoading(false);
     }
   }, [user]);
@@ -47,12 +51,22 @@ const HomePage = ({ user }) => {
       if (response.ok) {
         const userData = await response.json();
         setUserPoints(userData.total_points || 0);
+        
+        // Получаем завершенные раунды
+        const resultsResponse = await fetch(`/api/results?action=user_results&user_id=${uid}`);
+        if (resultsResponse.ok) {
+          const results = await resultsResponse.json();
+          const completed = results.map(r => r.round_type);
+          setCompletedRounds(completed);
+        }
       } else {
         setUserPoints(0);
+        setCompletedRounds([]);
       }
     } catch (error) {
       console.error('Ошибка загрузки профиля:', error);
       setUserPoints(0);
+      setCompletedRounds([]);
     }
     setLoading(false);
   };
@@ -62,6 +76,10 @@ const HomePage = ({ user }) => {
     
     const newTotal = userPoints + earnedPoints;
     setUserPoints(newTotal);
+    
+    // Добавляем раунд к завершенным
+    const newCompleted = [...completedRounds, roundType];
+    setCompletedRounds(newCompleted);
     
     if (isTelegramUser) {
       try {
@@ -81,9 +99,11 @@ const HomePage = ({ user }) => {
       } catch (error) {
         console.error('Ошибка сохранения в БД:', error);
         localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
+        localStorage.setItem(`sothebeat_completed_${userId}`, JSON.stringify(newCompleted));
       }
     } else {
       localStorage.setItem(`sothebeat_points_${userId}`, newTotal.toString());
+      localStorage.setItem(`sothebeat_completed_${userId}`, JSON.stringify(newCompleted));
     }
     
     setCurrentView('lobby');
@@ -93,6 +113,22 @@ const HomePage = ({ user }) => {
   const isGameAvailable = (gameType) => {
     if (currentPhase === gameType) return true; // Активная фаза
     return phases[gameType] || false; // Или разрешенная фаза
+  };
+
+  // Проверяем завершенность игр
+  const isGameCompleted = (gameType) => {
+    return completedRounds.includes(gameType);
+  };
+
+  const handleGameStart = (gameType, viewName) => {
+    if (isGameCompleted(gameType)) {
+      alert(`🎯 Вы уже прошли этот раунд!\n\nВы получили за него баллы и не можете пройти повторно.\nВсего раундов завершено: ${completedRounds.length}/3`);
+      return;
+    }
+    
+    if (isGameAvailable(gameType)) {
+      setCurrentView(viewName);
+    }
   };
 
   const getPhaseStatus = () => {
@@ -175,6 +211,11 @@ const HomePage = ({ user }) => {
                 <div className="user-type">
                   {isTelegramUser ? '📱 Telegram' : '🌐 Веб'}
                 </div>
+                {completedRounds.length > 0 && (
+                  <div className="completed-rounds">
+                    ✅ Завершено: {completedRounds.length}/3 раундов
+                  </div>
+                )}
               </div>
               <div className="user-points">
                 <div className="points-label">Баланс</div>
@@ -188,7 +229,7 @@ const HomePage = ({ user }) => {
               <div className="status-info">
                 <div className="status-text">{getPhaseStatus().text}</div>
                 <div className="last-update">
-                  �� Live {lastUpdate && `(${lastUpdate})`}
+                  🟢 Live {lastUpdate && `(${lastUpdate})`}
                 </div>
               </div>
             </div>
@@ -197,42 +238,45 @@ const HomePage = ({ user }) => {
             <div className="mobile-games">
               <div className="games-grid">
                 <button 
-                  className={`game-btn quiz-btn ${!isGameAvailable('quiz') ? 'disabled' : ''}`}
-                  onClick={() => isGameAvailable('quiz') && setCurrentView('quiz')}
+                  className={`game-btn quiz-btn ${!isGameAvailable('quiz') ? 'disabled' : ''} ${isGameCompleted('quiz') ? 'completed' : ''}`}
+                  onClick={() => handleGameStart('quiz', 'quiz')}
                   disabled={!isGameAvailable('quiz')}
                 >
                   <div className="game-icon">🎯</div>
                   <div className="game-title">Квиз</div>
                   <div className="game-subtitle">Ballantine's</div>
                   <div className="game-points">до 200 баллов</div>
-                  {currentPhase === 'quiz' && <div className="active-indicator">АКТИВНО</div>}
-                  {!isGameAvailable('quiz') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                  {isGameCompleted('quiz') && <div className="completed-indicator">ПРОЙДЕНО</div>}
+                  {currentPhase === 'quiz' && !isGameCompleted('quiz') && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('quiz') && !isGameCompleted('quiz') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
                 </button>
 
                 <button 
-                  className={`game-btn logic-btn ${!isGameAvailable('logic') ? 'disabled' : ''}`}
-                  onClick={() => isGameAvailable('logic') && setCurrentView('logic')}
+                  className={`game-btn logic-btn ${!isGameAvailable('logic') ? 'disabled' : ''} ${isGameCompleted('logic') ? 'completed' : ''}`}
+                  onClick={() => handleGameStart('logic', 'logic')}
                   disabled={!isGameAvailable('logic')}
                 >
                   <div className="game-icon">🧩</div>
                   <div className="game-title">Где логика?</div>
                   <div className="game-subtitle">Угадай связь</div>
                   <div className="game-points">до 200 баллов</div>
-                  {currentPhase === 'logic' && <div className="active-indicator">АКТИВНО</div>}
-                  {!isGameAvailable('logic') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                  {isGameCompleted('logic') && <div className="completed-indicator">ПРОЙДЕНО</div>}
+                  {currentPhase === 'logic' && !isGameCompleted('logic') && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('logic') && !isGameCompleted('logic') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
                 </button>
 
                 <button 
-                  className={`game-btn survey-btn ${!isGameAvailable('survey') ? 'disabled' : ''}`}
-                  onClick={() => isGameAvailable('survey') && setCurrentView('survey')}
+                  className={`game-btn survey-btn ${!isGameAvailable('survey') ? 'disabled' : ''} ${isGameCompleted('survey') ? 'completed' : ''}`}
+                  onClick={() => handleGameStart('survey', 'survey')}
                   disabled={!isGameAvailable('survey')}
                 >
                   <div className="game-icon">📊</div>
                   <div className="game-title">100 к 1</div>
                   <div className="game-subtitle">Мнение барменов</div>
                   <div className="game-points">до 200 баллов</div>
-                  {currentPhase === 'survey' && <div className="active-indicator">АКТИВНО</div>}
-                  {!isGameAvailable('survey') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
+                  {isGameCompleted('survey') && <div className="completed-indicator">ПРОЙДЕНО</div>}
+                  {currentPhase === 'survey' && !isGameCompleted('survey') && <div className="active-indicator">АКТИВНО</div>}
+                  {!isGameAvailable('survey') && !isGameCompleted('survey') && <div className="disabled-indicator">НЕДОСТУПНО</div>}
                 </button>
 
                 <button 

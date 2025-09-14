@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AuctionWinnerAnnouncement from './AuctionWinnerAnnouncement';
 
 const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   const [activeLot, setActiveLot] = useState(null);
@@ -6,6 +7,9 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [placingBid, setPlacingBid] = useState(false);
   const [currentUserPoints, setCurrentUserPoints] = useState(userPoints);
+  const [lastCompletedLot, setLastCompletedLot] = useState(null);
+  const [showWinnerAnnouncement, setShowWinnerAnnouncement] = useState(false);
+  const [winnerData, setWinnerData] = useState(null);
 
   useEffect(() => {
     setCurrentUserPoints(userPoints);
@@ -19,12 +23,41 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
       const response = await fetch('/api/auction?action=active');
       if (response.ok) {
         const data = await response.json();
-        setActiveLot(data.lot);
+        const newActiveLot = data.lot;
+        
+        // Проверяем смену лота - если предыдущий завершился, показываем результат
+        if (!newActiveLot && activeLot && activeLot.is_active) {
+          // Лот завершился - получаем данные о победителе
+          checkForWinner(activeLot.id);
+        }
+        
+        setActiveLot(newActiveLot);
       }
     } catch (error) {
       console.error('Ошибка загрузки лота:', error);
     }
     setLoading(false);
+  };
+
+  const checkForWinner = async (lotId) => {
+    try {
+      const response = await fetch('/api/auction?action=lots');
+      if (response.ok) {
+        const lots = await response.json();
+        const completedLot = lots.find(lot => lot.id === lotId && lot.is_completed);
+        
+        if (completedLot && completedLot.winner_name) {
+          setWinnerData({
+            lot_title: completedLot.title,
+            user_name: completedLot.winner_name,
+            bid_amount: completedLot.current_price
+          });
+          setShowWinnerAnnouncement(true);
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка получения данных о победителе:', error);
+    }
   };
 
   const fetchUserBalance = async () => {
@@ -150,6 +183,17 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
             </ul>
           </div>
         </div>
+
+        {/* Объявление победителя */}
+        {showWinnerAnnouncement && (
+          <AuctionWinnerAnnouncement
+            winnerData={winnerData}
+            onClose={() => {
+              setShowWinnerAnnouncement(false);
+              setWinnerData(null);
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -269,6 +313,17 @@ const AuctionRound = ({ userId, userPoints, userName, onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Объявление победителя */}
+      {showWinnerAnnouncement && (
+        <AuctionWinnerAnnouncement
+          winnerData={winnerData}
+          onClose={() => {
+            setShowWinnerAnnouncement(false);
+            setWinnerData(null);
+          }}
+        />
+      )}
     </div>
   );
 };
