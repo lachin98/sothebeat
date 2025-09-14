@@ -247,7 +247,7 @@ const HomePage = ({ user }) => {
                 <img
                   //src="https://www.pernod-ricard.com/themes/custom/pr2021_front/assets/images/logo50/logo-white-50.svg"
                   src="https://mystc.kz/_ASSETS/Images/Logos/mainPage.svg"
-                  alt="Pernod Ricard"
+                  alt="Pernod Ricardd"
                   className="pernod-logo"
                   onError={(e) => {
                     // Fallback если логотип не загрузится
