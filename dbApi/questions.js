@@ -8,6 +8,8 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
+    console.log(`Questions API: ${method}`, body || query);
+
     switch (method) {
       case 'GET':
         if (query.action === 'quiz') {
@@ -22,14 +24,29 @@ module.exports = async (req, res) => {
         }
         
         if (query.action === 'logic') {
-          const questions = await sql`
-            SELECT q.*, r.title as round_title
-            FROM logic_questions q
-            JOIN game_rounds r ON q.round_id = r.id
-            WHERE r.round_type = 'logic'
-            ORDER BY q.order_num, q.id
-          `;
-          return res.json(questions.rows);
+          console.log('🔍 Fetching logic questions...');
+          
+          try {
+            const questions = await sql`
+              SELECT q.*, r.title as round_title
+              FROM logic_questions q
+              JOIN game_rounds r ON q.round_id = r.id
+              WHERE r.round_type = 'logic'
+              ORDER BY q.order_num, q.id
+            `;
+            
+            console.log(`📋 Found ${questions.rows.length} logic questions`);
+            return res.json(questions.rows);
+          } catch (error) {
+            if (error.code === '42703') { // Column does not exist
+              console.log('⚠️ Missing columns detected, need migration');
+              return res.status(500).json({ 
+                error: 'Database migration required',
+                message: 'Please run migration first: /api/migrate-logic-questions?token=a'
+              });
+            }
+            throw error;
+          }
         }
         
         if (query.action === 'survey') {
@@ -62,15 +79,29 @@ module.exports = async (req, res) => {
         }
 
         if (body.action === 'add_logic_question') {
-          const result = await sql`
-            INSERT INTO logic_questions 
-            (round_id, question_text, images, image_urls, use_images, correct_answer, alternatives, points, order_num)
-            VALUES (${body.round_id}, ${body.question_text}, ${JSON.stringify(body.images || [])}, 
-                    ${JSON.stringify(body.image_urls || [])}, ${body.use_images || false},
-                    ${body.correct_answer}, ${JSON.stringify(body.alternatives)}, ${body.points}, ${body.order_num})
-            RETURNING id
-          `;
-          return res.json({ success: true, id: result.rows[0].id });
+          console.log('➕ Adding logic question:', body.question_text);
+          
+          try {
+            const result = await sql`
+              INSERT INTO logic_questions 
+              (round_id, question_text, images, image_urls, use_images, correct_answer, alternatives, points, order_num)
+              VALUES (${body.round_id}, ${body.question_text}, ${JSON.stringify(body.images || [])}, 
+                      ${JSON.stringify(body.image_urls || [])}, ${body.use_images || false},
+                      ${body.correct_answer}, ${JSON.stringify(body.alternatives)}, ${body.points}, ${body.order_num})
+              RETURNING id
+            `;
+            
+            console.log('✅ Logic question added with ID:', result.rows[0].id);
+            return res.json({ success: true, id: result.rows[0].id });
+          } catch (error) {
+            if (error.code === '42703') {
+              return res.status(500).json({ 
+                error: 'Database migration required',
+                message: 'Missing columns. Please run: /api/migrate-logic-questions?token=a'
+              });
+            }
+            throw error;
+          }
         }
 
         if (body.action === 'add_survey_question') {
@@ -103,18 +134,32 @@ module.exports = async (req, res) => {
         }
 
         if (body.action === 'update_logic_question') {
-          await sql`
-            UPDATE logic_questions 
-            SET question_text = ${body.question_text}, 
-                images = ${JSON.stringify(body.images || [])}, 
-                image_urls = ${JSON.stringify(body.image_urls || [])},
-                use_images = ${body.use_images || false},
-                correct_answer = ${body.correct_answer}, 
-                alternatives = ${JSON.stringify(body.alternatives)}, 
-                points = ${body.points}
-            WHERE id = ${body.question_id}
-          `;
-          return res.json({ success: true });
+          console.log('✏️ Updating logic question:', body.question_id);
+          
+          try {
+            await sql`
+              UPDATE logic_questions 
+              SET question_text = ${body.question_text}, 
+                  images = ${JSON.stringify(body.images || [])}, 
+                  image_urls = ${JSON.stringify(body.image_urls || [])},
+                  use_images = ${body.use_images || false},
+                  correct_answer = ${body.correct_answer}, 
+                  alternatives = ${JSON.stringify(body.alternatives)}, 
+                  points = ${body.points}
+              WHERE id = ${body.question_id}
+            `;
+            
+            console.log('✅ Logic question updated');
+            return res.json({ success: true });
+          } catch (error) {
+            if (error.code === '42703') {
+              return res.status(500).json({ 
+                error: 'Database migration required',
+                message: 'Missing columns. Please run: /api/migrate-logic-questions?token=a'
+              });
+            }
+            throw error;
+          }
         }
 
         if (body.action === 'update_survey_question') {
@@ -139,6 +184,7 @@ module.exports = async (req, res) => {
         }
 
         if (body.action === 'delete_logic_question') {
+          console.log('🗑️ Deleting logic question:', body.question_id);
           await sql`DELETE FROM logic_questions WHERE id = ${body.question_id}`;
           return res.json({ success: true });
         }
